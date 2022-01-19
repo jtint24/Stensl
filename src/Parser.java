@@ -7,6 +7,7 @@ public class Parser extends Datum {
             operation = OpLibrary.pass;
             arguments = new Datum[1];
             arguments[0] = new Datum(expr,"float");
+            return;
         }
 
         int parenCount = 0;
@@ -74,9 +75,15 @@ public class Parser extends Datum {
         arguments[0] = new Parser(str.substring(0,i));
         arguments[1] = new Parser(str.substring(i+1));
     }
+
     @Override
     public String getValue() {
         return this.result().getValue();
+    }
+
+    @Override
+    public String getType() {
+        return operation.getReturnType();
     }
 
     private boolean isNumeric(String str) {

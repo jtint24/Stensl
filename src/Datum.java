@@ -2,7 +2,6 @@ public class Datum<T> {
     private String value;
     private String type;
 
-
     public Datum(String v, String t) {
         value = v;
         type = t;
@@ -16,5 +15,9 @@ public class Datum<T> {
 
     public void setValue(String v) {
         value = v;
+    }
+
+    public String getType() {
+        return type;
     }
 }
