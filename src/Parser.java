@@ -9,8 +9,8 @@ public class Parser extends Datum {
             arguments[0] = new Datum(expr,"float");
         }
 
-
         int parenCount = 0;
+        int minParenCount = 1;
         boolean inQuote = false;
 
         int exprSize = expr.length();
@@ -25,6 +25,9 @@ public class Parser extends Datum {
             }
             if (activeChar=='\"') {
                 inQuote=!inQuote;
+            }
+            if (minParenCount>parenCount) {
+                minParenCount=parenCount;
             }
 
             if (parenCount==0 && !inQuote) {
@@ -50,6 +53,11 @@ public class Parser extends Datum {
                 }
             }
 
+            if (minParenCount > 0) {
+                Parser setThisTo = new Parser(expr.substring(1,exprSize-1));
+                this.arguments = setThisTo.arguments;
+                this.operation = setThisTo.operation;
+            }
         }
     }
 
@@ -65,7 +73,6 @@ public class Parser extends Datum {
         arguments = new Datum[2];
         arguments[0] = new Parser(str.substring(0,i));
         arguments[1] = new Parser(str.substring(i+1));
-        System.out.println("parsing around: "+str.substring(0,i)+", "+str.substring(i+1));
     }
     @Override
     public String getValue() {
