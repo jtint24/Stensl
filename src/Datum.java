@@ -20,4 +20,9 @@ public class Datum<T> {
     public String getType() {
         return type;
     }
+
+    protected void toConsole(int i) {
+        String tab = "\t";
+        System.out.println(tab.repeat(i)+"Datum: "+value+" of type "+type);
+    }
 }

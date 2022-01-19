@@ -4,7 +4,7 @@ public class Parser extends Datum {
 
     public Parser(String expr) {
         if (isInt(expr)) {
-            operation = OpLibrary.pass;
+            operation = OpLibrary.intPass;
             arguments = new Datum[1];
             arguments[0] = new Datum(expr,"int");
             return;
@@ -43,25 +43,41 @@ public class Parser extends Datum {
                         case '+':
                             if (minPrecedence.equals(OpPrecedence.ADDITIVE)) {
                                 setArgumentsAround(i, expr);
-                                operation = OpLibrary.addition;
+                                if (arguments[0].getType().equals("float")) {
+                                    operation = OpLibrary.addition;
+                                } else {
+                                    operation = OpLibrary.intAddition;
+                                }
                             }
                             break;
                         case '-':
                             if (minPrecedence.equals(OpPrecedence.ADDITIVE)) {
                                 setArgumentsAround(i, expr);
-                                operation = OpLibrary.subtraction;
+                                if (arguments[0].getType().equals("float")) {
+                                    operation = OpLibrary.subtraction;
+                                } else {
+                                    operation = OpLibrary.intSubtraction;
+                                }
                             }
                             break;
                         case '*':
                             if (minPrecedence.equals(OpPrecedence.MULTIPLICATIVE)) {
-                                operation = OpLibrary.multiplication;
                                 setArgumentsAround(i, expr);
+                                if (arguments[0].getType().equals("float")) {
+                                    operation = OpLibrary.multiplication;
+                                } else {
+                                    operation = OpLibrary.intMultiplication;
+                                }
                             }
                             break;
                         case '/':
                             if (minPrecedence.equals(OpPrecedence.MULTIPLICATIVE)) {
-                                operation = OpLibrary.division;
                                 setArgumentsAround(i, expr);
+                                if (arguments[0].getType().equals("float")) {
+                                    operation = OpLibrary.division;
+                                } else {
+                                    operation = OpLibrary.intDivision;
+                                }
                             }
                             break;
                         default:
@@ -118,5 +134,16 @@ public class Parser extends Datum {
         } catch (NumberFormatException nfe) {
             return false;
         }
+    }
+    protected void toConsole(int i) {
+        String tab = "\t";
+        System.out.println(tab.repeat(i)+"operation: "+operation.getName());
+        System.out.println(tab.repeat(i)+"arguments: ");
+        for (Datum argument : arguments) {
+            argument.toConsole(i+1);
+        }
+    }
+    public void toConsole() {
+        toConsole(0);
     }
 }

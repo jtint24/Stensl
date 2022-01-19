@@ -1,4 +1,5 @@
 public class Operation {
+    private String name;
     private int operandNum;
     private OpFunction functionality;
     private String[] operandTypes;
@@ -12,6 +13,14 @@ public class Operation {
         returnType = rt;
         precedence = pr;
     }
+    public Operation(OpFunction of, String[] ots, String rt, OpPrecedence pr, String nm) {
+        functionality = of;
+        operandNum = ots.length;
+        operandTypes = ots;
+        returnType = rt;
+        precedence = pr;
+        name = nm;
+    }
 
     public Datum result(Datum[] arguments) {
         for (int i = 0; i<operandNum; i++) {
@@ -24,5 +33,9 @@ public class Operation {
 
     public String getReturnType() {
         return returnType;
+    }
+
+    public String getName() {
+        return name;
     }
 }
