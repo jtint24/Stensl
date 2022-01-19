@@ -1,4 +1,4 @@
-public class Datum<T> {
+public class Datum {
     private String value;
     private String type;
 

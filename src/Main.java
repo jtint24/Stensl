@@ -1,7 +1,7 @@
 public class Main {
     public static void main(String[] args) {
-        Parser strToParserTest = new Parser("100/27");
-        //strToParserTest.toConsole();
+        Parser strToParserTest = new Parser("\"hello\"");
+        strToParserTest.toConsole();
         System.out.println(strToParserTest.result().getValue());
 
         /*OpFunction concatFunc = (arguments) -> new Datum(arguments[0].getValue()+arguments[1].getValue(), "string");

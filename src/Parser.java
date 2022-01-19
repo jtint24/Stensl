@@ -22,6 +22,8 @@ public class Parser extends Datum {
             int parenCount = 0;
             int minParenCount = 1;
             boolean inQuote = false;
+            boolean allQuote = true;
+            char finalChar = expr.charAt(exprSize-1);
             for (int i = 0; i < exprSize; i++) {
                 char activeChar = expr.charAt(i);
 
@@ -33,6 +35,9 @@ public class Parser extends Datum {
                 }
                 if (activeChar == '\"') {
                     inQuote = !inQuote;
+                }
+                if (!inQuote && i!=exprSize-1 && finalChar=='\"') {
+                    allQuote = false;
                 }
                 if (minParenCount > parenCount) {
                     minParenCount = parenCount;
@@ -80,6 +85,11 @@ public class Parser extends Datum {
                                 }
                             }
                             break;
+                        case '&':
+                            if (minPrecedence.equals(OpPrecedence.ADDITIVE)) {
+                                setArgumentsAround(i, expr);
+                                operation = OpLibrary.concatenation;
+                            }
                         default:
                             break;
                     }
@@ -89,6 +99,12 @@ public class Parser extends Datum {
                     Parser setThisTo = new Parser(expr.substring(1, exprSize - 1));
                     this.arguments = setThisTo.arguments;
                     this.operation = setThisTo.operation;
+                }
+                if (allQuote) {
+                    this.arguments = new Datum[1];
+                    arguments[0] = new Datum(expr.substring(1,exprSize-1),"string");
+                    this.operation = OpLibrary.stringPass;
+
                 }
             }
             minPrecedence = minPrecedence.incremented();
