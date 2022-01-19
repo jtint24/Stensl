@@ -1,6 +1,6 @@
 public class Main {
     public static void main(String[] args) {
-        Parser strToParserTest = new Parser("\"hello\"");
+        Parser strToParserTest = new Parser("\"hello\"&\" world\"&\"concat2\"&\"concat 3\"");
         strToParserTest.toConsole();
         System.out.println(strToParserTest.result().getValue());
 

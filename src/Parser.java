@@ -16,6 +16,7 @@ public class Parser extends Datum {
             return;
         }
         int exprSize = expr.length();
+        char finalChar = expr.charAt(exprSize-1);
         OpPrecedence minPrecedence = OpPrecedence.PASS;
 
         while (minPrecedence.ordinal()<OpPrecedence.values().length-1) {
@@ -23,9 +24,10 @@ public class Parser extends Datum {
             int minParenCount = 1;
             boolean inQuote = false;
             boolean allQuote = true;
-            char finalChar = expr.charAt(exprSize-1);
             for (int i = 0; i < exprSize; i++) {
                 char activeChar = expr.charAt(i);
+
+                //System.out.println(activeChar+" "+inQuote+" "+allQuote);
 
                 if (activeChar == '(') {
                     parenCount++;
@@ -89,7 +91,9 @@ public class Parser extends Datum {
                             if (minPrecedence.equals(OpPrecedence.ADDITIVE)) {
                                 setArgumentsAround(i, expr);
                                 operation = OpLibrary.concatenation;
+                                return;
                             }
+                            break;
                         default:
                             break;
                     }
@@ -104,7 +108,6 @@ public class Parser extends Datum {
                     this.arguments = new Datum[1];
                     arguments[0] = new Datum(expr.substring(1,exprSize-1),"string");
                     this.operation = OpLibrary.stringPass;
-
                 }
             }
             minPrecedence = minPrecedence.incremented();
@@ -116,9 +119,11 @@ public class Parser extends Datum {
         operation = op;
         arguments = args;
     }
+
     public Datum result() {
         return operation.result(arguments);
     }
+
     public void setArgumentsAround(int i, String str) {
         arguments = new Datum[2];
         arguments[0] = new Parser(str.substring(0,i));
