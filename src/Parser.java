@@ -3,62 +3,79 @@ public class Parser extends Datum {
     private Operation operation;
 
     public Parser(String expr) {
-        if (isNumeric(expr)) {
+        if (isInt(expr)) {
+            operation = OpLibrary.pass;
+            arguments = new Datum[1];
+            arguments[0] = new Datum(expr,"int");
+            return;
+        }
+        if (isFloat(expr)) {
             operation = OpLibrary.pass;
             arguments = new Datum[1];
             arguments[0] = new Datum(expr,"float");
             return;
         }
-
-        int parenCount = 0;
-        int minParenCount = 1;
-        boolean inQuote = false;
-
         int exprSize = expr.length();
-        for (int i = 0; i<exprSize; i++) {
-            char activeChar = expr.charAt(i);
+        OpPrecedence minPrecedence = OpPrecedence.PASS;
 
-            if (activeChar=='(') {
-                parenCount++;
-            }
-            if (activeChar==')') {
-                parenCount--;
-            }
-            if (activeChar=='\"') {
-                inQuote=!inQuote;
-            }
-            if (minParenCount>parenCount) {
-                minParenCount=parenCount;
-            }
+        while (minPrecedence.ordinal()<OpPrecedence.values().length-1) {
+            int parenCount = 0;
+            int minParenCount = 1;
+            boolean inQuote = false;
+            for (int i = 0; i < exprSize; i++) {
+                char activeChar = expr.charAt(i);
 
-            if (parenCount==0 && !inQuote) {
-                switch(activeChar) {
-                    case '+':
-                        setArgumentsAround(i,expr);
-                        operation = OpLibrary.addition;
-                        break;
-                    case '-':
-                        setArgumentsAround(i,expr);
-                        operation = OpLibrary.subtraction;
-                        break;
-                    case '*':
-                        operation = OpLibrary.multiplication;
-                        setArgumentsAround(i,expr);
-                        break;
-                    case '/':
-                        operation = OpLibrary.division;
-                        setArgumentsAround(i,expr);
-                        break;
-                    default:
-                        break;
+                if (activeChar == '(') {
+                    parenCount++;
+                }
+                if (activeChar == ')') {
+                    parenCount--;
+                }
+                if (activeChar == '\"') {
+                    inQuote = !inQuote;
+                }
+                if (minParenCount > parenCount) {
+                    minParenCount = parenCount;
+                }
+
+                if (parenCount == 0 && !inQuote) {
+                    switch (activeChar) {
+                        case '+':
+                            if (minPrecedence.equals(OpPrecedence.ADDITIVE)) {
+                                setArgumentsAround(i, expr);
+                                operation = OpLibrary.addition;
+                            }
+                            break;
+                        case '-':
+                            if (minPrecedence.equals(OpPrecedence.ADDITIVE)) {
+                                setArgumentsAround(i, expr);
+                                operation = OpLibrary.subtraction;
+                            }
+                            break;
+                        case '*':
+                            if (minPrecedence.equals(OpPrecedence.MULTIPLICATIVE)) {
+                                operation = OpLibrary.multiplication;
+                                setArgumentsAround(i, expr);
+                            }
+                            break;
+                        case '/':
+                            if (minPrecedence.equals(OpPrecedence.MULTIPLICATIVE)) {
+                                operation = OpLibrary.division;
+                                setArgumentsAround(i, expr);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                if (minParenCount > 0) {
+                    Parser setThisTo = new Parser(expr.substring(1, exprSize - 1));
+                    this.arguments = setThisTo.arguments;
+                    this.operation = setThisTo.operation;
                 }
             }
-
-            if (minParenCount > 0) {
-                Parser setThisTo = new Parser(expr.substring(1,exprSize-1));
-                this.arguments = setThisTo.arguments;
-                this.operation = setThisTo.operation;
-            }
+            minPrecedence = minPrecedence.incremented();
         }
     }
 
@@ -86,9 +103,17 @@ public class Parser extends Datum {
         return operation.getReturnType();
     }
 
-    private boolean isNumeric(String str) {
+    private boolean isFloat(String str) {
         try {
             float f = Float.parseFloat(str);
+            return true;
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+    }
+    private boolean isInt(String str) {
+        try {
+            float f = Integer.parseInt(str);
             return true;
         } catch (NumberFormatException nfe) {
             return false;
