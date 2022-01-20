@@ -3,6 +3,19 @@ public class Parser extends Datum {
     private Operation operation;
 
     public Parser(String expr) {
+        System.out.println("making a parser of: "+expr);
+        if (expr.equals("true")) {
+            operation = OpLibrary.boolPass;
+            arguments = new Datum[1];
+            arguments[0] = new Datum("true", "bool");
+            return;
+        }
+        if (expr.equals("false")) {
+            operation = OpLibrary.boolPass;
+            arguments = new Datum[1];
+            arguments[0] = new Datum("false", "bool");
+            return;
+        }
         if (isInt(expr)) {
             operation = OpLibrary.intPass;
             arguments = new Datum[1];
@@ -19,6 +32,14 @@ public class Parser extends Datum {
         OpPrecedence minPrecedence = OpPrecedence.PASS;
 
         while (minPrecedence.ordinal()<OpPrecedence.values().length-1) {
+            if (minPrecedence.equals(OpPrecedence.NEGATION)) {
+                if (expr.charAt(0) == '!') {
+                    operation = OpLibrary.logicalNegation;
+                    arguments = new Datum[1];
+                    arguments[0] = new Parser(expr.substring(1));
+                }
+            }
+
             int parenCount = 0;
             int minParenCount = 1;
             boolean inQuote = false;
@@ -44,7 +65,96 @@ public class Parser extends Datum {
 
 
                 if (parenCount == 0 && !inQuote) {
+                    if (i<exprSize-1) {
+                        String dual = ""+activeChar+""+expr.charAt(i + 1);
+                        switch (dual) {
+                            case "==":
+                                if (minPrecedence.equals(OpPrecedence.COMPARISON)) {
+                                    setArgumentsAroundDouble(i, expr);
+                                    switch (arguments[0].getType()) {
+                                        case "float", "int":
+                                            operation = OpLibrary.numericEquals;
+                                            break;
+                                        case "char", "string":
+                                            operation = OpLibrary.strEquals;
+                                            break;
+                                        case "bool":
+                                            operation = OpLibrary.boolEquals;
+                                            break;
+                                        default:
+                                            ErrorManager.printError("no recognized type for ==!");
+                                            break;
+                                    }
+                                    return;
+                                }
+                            case ">=":
+                                if (minPrecedence==OpPrecedence.COMPARISON) {
+                                    setArgumentsAroundDouble(i, expr);
+                                    operation = OpLibrary.greaterThanOrEqualTo;
+                                    return;
+                                }
+                                break;
+                            case "<=":
+                                if (minPrecedence==OpPrecedence.COMPARISON) {
+                                    setArgumentsAroundDouble(i, expr);
+                                    operation = OpLibrary.lessThanOrEqualTo;
+                                    return;
+                                }
+                                break;
+                            case "&&":
+                                if (minPrecedence==OpPrecedence.CONJUNCTIVE) {
+                                    System.out.println("conjunctive made");
+                                    setArgumentsAroundDouble(i, expr);
+                                    operation = OpLibrary.logicalConjunction;
+                                    return;
+                                }
+                                break;
+                            case "||":
+                                if (minPrecedence==OpPrecedence.DISJUNCTIVE) {
+                                    System.out.println("disjunctive made");
+                                    setArgumentsAroundDouble(i, expr);
+                                    operation = OpLibrary.logicalDisjunction;
+                                    return;
+                                }
+                                break;
+                            case "!=":
+                                if (minPrecedence.equals(OpPrecedence.COMPARISON)) {
+                                    setArgumentsAroundDouble(i, expr);
+                                    switch (arguments[0].getType()) {
+                                        case "float", "int":
+                                            operation = OpLibrary.numericUnequals;
+                                            break;
+                                        case "char", "string":
+                                            operation = OpLibrary.strUnequals;
+                                            break;
+                                        case "bool":
+                                            operation = OpLibrary.boolUnequals;
+                                            break;
+                                        default:
+                                            ErrorManager.printError("no recognized type for '!='!");
+                                            break;
+                                    }
+                                    return;
+                                }
+                            default:
+                                break;
+                        }
+                    }
                     switch (activeChar) {
+                        case '<':
+                            if (minPrecedence==OpPrecedence.COMPARISON) {
+                                setArgumentsAround(i, expr);
+                                operation = OpLibrary.lessThan;
+                                return;
+                            }
+                            break;
+                        case '>':
+                            if (minPrecedence==OpPrecedence.COMPARISON) {
+                                setArgumentsAround(i, expr);
+                                operation = OpLibrary.greaterThan;
+                                return;
+                            }
+                            break;
                         case '+':
                             if (minPrecedence.equals(OpPrecedence.ADDITIVE)) {
                                 setArgumentsAround(i, expr);
@@ -91,9 +201,11 @@ public class Parser extends Datum {
                             break;
                         case '&':
                             if (minPrecedence.equals(OpPrecedence.ADDITIVE)) {
-                                setArgumentsAround(i, expr);
-                                operation = OpLibrary.concatenation;
-                                return;
+                                if (expr.charAt(i+1)!='&' && expr.charAt(i-1)!='&') {
+                                    setArgumentsAround(i, expr);
+                                    operation = OpLibrary.concatenation;
+                                    return;
+                                }
                             }
                             break;
                         case '$':
@@ -136,10 +248,16 @@ public class Parser extends Datum {
         return operation.result(arguments);
     }
 
-    public void setArgumentsAround(int i, String str) {
+    private void setArgumentsAround(int i, String str) {
         arguments = new Datum[2];
         arguments[0] = new Parser(str.substring(0,i));
         arguments[1] = new Parser(str.substring(i+1));
+    }
+
+    private void setArgumentsAroundDouble(int i, String str) {
+        arguments = new Datum[2];
+        arguments[0] = new Parser(str.substring(0,i));
+        arguments[1] = new Parser(str.substring(i+2));
     }
 
     @Override

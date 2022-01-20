@@ -6,6 +6,8 @@ public class OpLibrary {
     private final static String[] singleString = {"string"};
     private final static String[] doubleString = {"string"};
     private final static String[] stringInt = {"string","int"};
+    private final static String[] doubleBool = {"bool", "bool"};
+    private final static String[] singleBool = {"bool"};
 
     private final static OpFunction addFunction = (args) -> new Datum(String.valueOf(Float.parseFloat(args[0].getValue())+Float.parseFloat(args[1].getValue())), "float");
     public final static Operation addition = new Operation(addFunction, doubleFloat, "float", OpPrecedence.ADDITIVE, "addition");
@@ -46,4 +48,46 @@ public class OpLibrary {
 
     private final static OpFunction charGetFunction = (args) -> new Datum(""+args[0].getValue().charAt(Integer.parseInt(args[1].getValue())), "char");
     public final static Operation charGet = new Operation(charGetFunction, stringInt, "char", OpPrecedence.MULTIPLICATIVE, "char get");
+
+    private final static OpFunction boolPassFunction = (args) -> args[0];
+    public final static Operation boolPass = new Operation(boolPassFunction, singleBool, "bool", OpPrecedence.PASS, "bool pass");
+
+    private final static OpFunction strEqualFunction = (args) -> new Datum(args[0].getValue().equals(args[1].getValue()) ? "true" : "false","bool");
+    public final static Operation strEquals = new Operation(strEqualFunction, doubleString, "bool", OpPrecedence.COMPARISON, "str equals");
+
+    private final static OpFunction numericEqualFunction = (args) -> new Datum(Float.parseFloat(args[0].getValue()) == Float.parseFloat(args[1].getValue()) ? "true" : "false","bool");
+    public final static Operation numericEquals = new Operation(numericEqualFunction, doubleFloat, "bool", OpPrecedence.COMPARISON, "numeric equals");
+
+    public final static Operation boolEquals = new Operation(strEqualFunction, doubleBool, "bool", OpPrecedence.COMPARISON, "str equals");
+
+    private final static OpFunction greaterThanFunction = (args) -> new Datum(Float.parseFloat(args[0].getValue()) > Float.parseFloat(args[1].getValue()) ? "true" : "false","bool");
+    public final static Operation greaterThan = new Operation(greaterThanFunction, doubleFloat, "bool", OpPrecedence.COMPARISON, "greater than");
+
+    private final static OpFunction lessThanFunction = (args) -> new Datum(Float.parseFloat(args[0].getValue()) < Float.parseFloat(args[1].getValue()) ? "true" : "false","bool");
+    public final static Operation lessThan = new Operation(lessThanFunction, doubleFloat, "bool", OpPrecedence.COMPARISON, "less than");
+
+    private final static OpFunction lessThanOrEqualToFunction = (args) -> new Datum(Float.parseFloat(args[0].getValue()) <= Float.parseFloat(args[1].getValue()) ? "true" : "false","bool");
+    public final static Operation lessThanOrEqualTo = new Operation(lessThanOrEqualToFunction, doubleFloat, "bool", OpPrecedence.COMPARISON, "less than or equal to");
+
+    private final static OpFunction greaterThanOrEqualToFunction = (args) -> new Datum(Float.parseFloat(args[0].getValue()) >= Float.parseFloat(args[1].getValue()) ? "true" : "false","bool");
+    public final static Operation greaterThanOrEqualTo = new Operation(greaterThanOrEqualToFunction, doubleFloat, "bool", OpPrecedence.COMPARISON, "greater than or equal to");
+
+    private final static OpFunction strUnequalFunction = (args) -> new Datum(!args[0].getValue().equals(args[1].getValue()) ? "true" : "false","bool");
+    public final static Operation strUnequals = new Operation(strUnequalFunction, doubleString, "bool", OpPrecedence.COMPARISON, "str unequals");
+
+    private final static OpFunction numericUnequalFunction = (args) -> new Datum(Float.parseFloat(args[0].getValue()) != Float.parseFloat(args[1].getValue()) ? "true" : "false","bool");
+    public final static Operation numericUnequals = new Operation(numericUnequalFunction, doubleFloat, "bool", OpPrecedence.COMPARISON, "numeric unequals");
+
+    public final static Operation boolUnequals = new Operation(strUnequalFunction, doubleBool, "bool", OpPrecedence.COMPARISON, "str unequals");
+
+    private final static OpFunction logicalConjunctionFunction = (args) -> new Datum(args[0].getValue().equals("true") && args[1].getValue().equals("true") ? "true" : "false", "bool");
+    public final static Operation logicalConjunction = new Operation(logicalConjunctionFunction, doubleBool, "bool", OpPrecedence.CONJUNCTIVE, "logical conjunction");
+
+    private final static OpFunction logicalDisjunctionFunction = (args) -> new Datum(args[0].getValue().equals("true") || args[1].getValue().equals("true") ? "true" : "false", "bool");
+    public final static Operation logicalDisjunction = new Operation(logicalDisjunctionFunction, doubleBool, "bool", OpPrecedence.CONJUNCTIVE, "logical disjunction");
+
+    private final static OpFunction logicalNegationFunction = (args) -> new Datum(args[0].getValue().equals("false") ? "true" : "false", "bool");
+    public final static Operation logicalNegation = new Operation(logicalNegationFunction, singleBool, "bool", OpPrecedence.NEGATION, "logical negation");
+
+
 }
