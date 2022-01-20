@@ -37,6 +37,16 @@ public class Parser extends Datum {
                     operation = OpLibrary.logicalNegation;
                     arguments = new Datum[1];
                     arguments[0] = new Parser(expr.substring(1));
+                    return;
+                }
+            }
+            if (exprSize>2 && minPrecedence.equals(OpPrecedence.FUNCTIONAL)) {
+                //System.out.println(expr.substring(0,3));
+                if (expr.startsWith("str")) {
+                    operation = OpLibrary.stringConversion;
+                    arguments = new Datum[1];
+                    arguments[0] = new Parser(expr.substring(3));
+                    return;
                 }
             }
 
@@ -220,7 +230,9 @@ public class Parser extends Datum {
                     }
                 }
             }
-
+            if (parenCount!=0) {
+                ErrorManager.printError("Parentheses mismatch!");
+            }
             if (minParenCount > 0) {
                 Parser setThisTo = new Parser(expr.substring(1, exprSize - 1));
                 this.arguments = setThisTo.arguments;

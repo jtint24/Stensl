@@ -8,6 +8,7 @@ public class OpLibrary {
     private final static String[] stringInt = {"string","int"};
     private final static String[] doubleBool = {"bool", "bool"};
     private final static String[] singleBool = {"bool"};
+    private final static String[] singleAny = {"any"};
 
     private final static OpFunction addFunction = (args) -> new Datum(String.valueOf(Float.parseFloat(args[0].getValue())+Float.parseFloat(args[1].getValue())), "float");
     public final static Operation addition = new Operation(addFunction, doubleFloat, "float", OpPrecedence.ADDITIVE, "addition");
@@ -89,5 +90,6 @@ public class OpLibrary {
     private final static OpFunction logicalNegationFunction = (args) -> new Datum(args[0].getValue().equals("false") ? "true" : "false", "bool");
     public final static Operation logicalNegation = new Operation(logicalNegationFunction, singleBool, "bool", OpPrecedence.NEGATION, "logical negation");
 
-
+    private final static OpFunction stringConversionFunction = (args) -> new Datum(args[0].getValue(), "string");
+    public final static Operation stringConversion = new Operation(stringConversionFunction, singleAny, "string", OpPrecedence.FUNCTIONAL, "string conversion");
 }
