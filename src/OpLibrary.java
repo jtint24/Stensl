@@ -5,6 +5,7 @@ public class OpLibrary {
     private final static String[] singleInt = {"int"};
     private final static String[] singleString = {"string"};
     private final static String[] doubleString = {"string"};
+    private final static String[] stringInt = {"string","int"};
 
     private final static OpFunction addFunction = (args) -> new Datum(String.valueOf(Float.parseFloat(args[0].getValue())+Float.parseFloat(args[1].getValue())), "float");
     public final static Operation addition = new Operation(addFunction, doubleFloat, "float", OpPrecedence.ADDITIVE, "addition");
@@ -42,4 +43,7 @@ public class OpLibrary {
     public final static Operation stringPass = new Operation(stringPassFunction, singleString, "string", OpPrecedence.PASS, "string pass");
     private final static OpFunction concatenationFunction = (args) -> new Datum(args[0].getValue()+args[1].getValue(), "string");
     public final static Operation concatenation = new Operation(concatenationFunction, doubleString, "string", OpPrecedence.ADDITIVE, "concatenation");
+
+    private final static OpFunction charGetFunction = (args) -> new Datum(""+args[0].getValue().charAt(Integer.parseInt(args[1].getValue())), "char");
+    public final static Operation charGet = new Operation(charGetFunction, stringInt, "char", OpPrecedence.MULTIPLICATIVE, "char get");
 }

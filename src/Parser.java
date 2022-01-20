@@ -16,7 +16,6 @@ public class Parser extends Datum {
             return;
         }
         int exprSize = expr.length();
-        char finalChar = expr.charAt(exprSize-1);
         OpPrecedence minPrecedence = OpPrecedence.PASS;
 
         while (minPrecedence.ordinal()<OpPrecedence.values().length-1) {
@@ -27,10 +26,11 @@ public class Parser extends Datum {
             for (int i = 0; i < exprSize; i++) {
                 char activeChar = expr.charAt(i);
 
-                //System.out.println(activeChar+" "+inQuote+" "+allQuote);
-
                 if (activeChar == '(') {
                     parenCount++;
+                }
+                if (minParenCount > parenCount && i!=exprSize-1) {
+                    minParenCount = parenCount;
                 }
                 if (activeChar == ')') {
                     parenCount--;
@@ -38,12 +38,10 @@ public class Parser extends Datum {
                 if (activeChar == '\"') {
                     inQuote = !inQuote;
                 }
-                if (!inQuote && i!=exprSize-1 && finalChar=='\"') {
+                if (!inQuote && i!=exprSize-1) {
                     allQuote = false;
                 }
-                if (minParenCount > parenCount) {
-                    minParenCount = parenCount;
-                }
+
 
                 if (parenCount == 0 && !inQuote) {
                     switch (activeChar) {
@@ -55,6 +53,7 @@ public class Parser extends Datum {
                                 } else {
                                     operation = OpLibrary.intAddition;
                                 }
+                                return;
                             }
                             break;
                         case '-':
@@ -65,6 +64,7 @@ public class Parser extends Datum {
                                 } else {
                                     operation = OpLibrary.intSubtraction;
                                 }
+                                return;
                             }
                             break;
                         case '*':
@@ -75,6 +75,7 @@ public class Parser extends Datum {
                                 } else {
                                     operation = OpLibrary.intMultiplication;
                                 }
+                                return;
                             }
                             break;
                         case '/':
@@ -85,6 +86,7 @@ public class Parser extends Datum {
                                 } else {
                                     operation = OpLibrary.intDivision;
                                 }
+                                return;
                             }
                             break;
                         case '&':
@@ -94,22 +96,32 @@ public class Parser extends Datum {
                                 return;
                             }
                             break;
+                        case '$':
+                            if (minPrecedence.equals(OpPrecedence.MULTIPLICATIVE)) {
+                                setArgumentsAround(i, expr);
+                                operation = OpLibrary.charGet;
+                                return;
+                            }
+                            break;
                         default:
                             break;
                     }
                 }
-
-                if (minParenCount > 0) {
-                    Parser setThisTo = new Parser(expr.substring(1, exprSize - 1));
-                    this.arguments = setThisTo.arguments;
-                    this.operation = setThisTo.operation;
-                }
-                if (allQuote) {
-                    this.arguments = new Datum[1];
-                    arguments[0] = new Datum(expr.substring(1,exprSize-1),"string");
-                    this.operation = OpLibrary.stringPass;
-                }
             }
+
+            if (minParenCount > 0) {
+                Parser setThisTo = new Parser(expr.substring(1, exprSize - 1));
+                this.arguments = setThisTo.arguments;
+                this.operation = setThisTo.operation;
+                return;
+            }
+            if (allQuote) {
+                this.arguments = new Datum[1];
+                arguments[0] = new Datum(expr.substring(1,exprSize-1),"string");
+                this.operation = OpLibrary.stringPass;
+                return;
+            }
+
             minPrecedence = minPrecedence.incremented();
         }
     }
