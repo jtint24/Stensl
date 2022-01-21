@@ -23,6 +23,7 @@ public class Datum {
 
     protected void toConsole(int i) {
         String tab = "\t";
-        System.out.println(tab.repeat(i)+"Datum: "+value+" of type "+type);
+        System.out.println(tab.repeat(i)+"Datum: ");
+        System.out.println(tab.repeat(i)+" "+value+" of type "+type);
     }
 }

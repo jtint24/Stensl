@@ -1,6 +1,6 @@
 public class Main {
     public static void main(String[] args) {
-        Parser strToParserTest = new Parser("str(5+5*5+5)&\" is the answer\"");
+        Parser strToParserTest = new Parser("float(5)");
         strToParserTest.toConsole();
         System.out.println(strToParserTest.result().getValue());
 

@@ -92,4 +92,11 @@ public class OpLibrary {
 
     private final static OpFunction stringConversionFunction = (args) -> new Datum(args[0].getValue(), "string");
     public final static Operation stringConversion = new Operation(stringConversionFunction, singleAny, "string", OpPrecedence.FUNCTIONAL, "string conversion");
+
+    private final static OpFunction intConversionFunction = (args) -> new Datum(String.valueOf(Integer.parseInt(args[0].getValue())), "int");
+    public final static Operation intConversion = new Operation(intConversionFunction, singleAny, "int", OpPrecedence.FUNCTIONAL, "int conversion");
+
+    private final static OpFunction floatConversionFunction = (args) -> new Datum(String.valueOf(Float.parseFloat(args[0].getValue())), "float");
+    public final static Operation floatConversion = new Operation(floatConversionFunction, singleAny, "float", OpPrecedence.FUNCTIONAL, "float conversion");
+
 }
