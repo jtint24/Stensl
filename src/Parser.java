@@ -13,7 +13,7 @@ public class Parser extends Datum {
             if (exprChar=='\"') { //keep track of quotes so spaces aren't removed from quoted string literals
                 inQuote=!inQuote;
             }
-            if (exprChar!=' ' && !inQuote) {
+            if (exprChar!=' ' || inQuote) {
                 exprWithoutSpaces+=exprChar;
             }
         }
