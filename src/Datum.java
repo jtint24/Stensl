@@ -3,6 +3,10 @@ public class Datum implements Cloneable {
     private String type;
     private boolean isMutable = true;
 
+    public Datum(String t, boolean im) {
+        type = t;
+        isMutable = im;
+    }
     public Datum(String v, String t) {
         value = v;
         type = t;
@@ -29,7 +33,7 @@ public class Datum implements Cloneable {
     }
 
     public void setValueFrom(Datum dtm) {
-        if (dtm.getType().equals(this.getType())) {
+        if (dtm.getType().equals(this.getType()) || (dtm.getType().equals("int") && this.getType().equals("float")) || (dtm.getType().equals("char") && this.getType().equals("string"))) {
             setValue(dtm.getValue());
         } else {
             ErrorManager.printError("Type mismatch! Cannot assign a value of type "+dtm.getType()+" to a variable of type "+this.getType()+"!");

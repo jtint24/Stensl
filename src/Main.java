@@ -1,11 +1,11 @@
 public class Main {
     public static void main(String[] args) {
-        String[] stenslScript = {"println(\"hello world\")",
-                "println(2+2+2+2)",
-                "var string myFirstVar = \"hello1\"",
-                "println(2+2)",
-                "myFirstVar = 5",
-                "println(myFirstVar)"};
+        String[] stenslScript = {
+                "println(\"hello there! Let's run some Stensl.\")",
+                "var string number = \"h\"",
+                "println(\"number is: \"&str(number))",
+                "number = number+1",
+                "println(\"now number is: \"&str(number))"};
         Interpreter.runStensl(stenslScript);
     }
 }

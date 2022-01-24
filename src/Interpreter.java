@@ -28,8 +28,10 @@ public class Interpreter {
         }
         String variableType = lineSplitBySpace[1+flagOffset];
         String variableName = lineSplitBySpace[2+flagOffset];
-        String variableValue = (new Parser(lineSplitBySpace[4+flagOffset])).getValue();
-        memory.put(variableName, new Datum(variableValue, variableType, !isConst));
+        Parser variableParser = (new Parser(lineSplitBySpace[4+flagOffset]));
+        Datum variable = new Datum(variableType, !isConst);
+        variable.setValueFrom(variableParser.result());
+        memory.put(variableName, variable);
     }
     private static void assignVar(String line) {
         String[] lineSplitBySpace = line.split(" ");

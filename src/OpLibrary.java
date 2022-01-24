@@ -29,7 +29,7 @@ public class OpLibrary {
     private final static OpFunction passFunction = (args) -> args[0];
     public final static Operation pass = new Operation(passFunction, singleFloat, "float", OpPrecedence.PASS, "pass");
 
-    private final static OpFunction intAddFunction = (args) -> new Datum(String.valueOf(Float.parseFloat(args[0].getValue())+Float.parseFloat(args[1].getValue())), "float");
+    private final static OpFunction intAddFunction = (args) -> new Datum(String.valueOf(Float.parseFloat(args[0].getValue())+Float.parseFloat(args[1].getValue())), "int");
     public final static Operation intAddition = new Operation(intAddFunction, doubleInt, "int", OpPrecedence.ADDITIVE, "int add");
     private final static OpFunction intMultFunction = (args) -> new Datum(String.valueOf(Float.parseFloat(args[0].getValue())*Float.parseFloat(args[1].getValue())), "int");
     public final static Operation intMultiplication = new Operation(intMultFunction, doubleInt, "int", OpPrecedence.MULTIPLICATIVE, "int mult");
