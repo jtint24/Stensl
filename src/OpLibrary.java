@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class OpLibrary {
     private final static String[] doubleFloat = {"float", "float"};
     private final static String[] singleFloat = {"float"};
@@ -33,10 +36,10 @@ public class OpLibrary {
     private final static OpFunction intSubFunction = (args) -> new Datum(String.valueOf(Float.parseFloat(args[0].getValue())-Float.parseFloat(args[1].getValue())), "int");
     public final static Operation intSubtraction = new Operation(intSubFunction, doubleInt, "int", OpPrecedence.ADDITIVE, "int sub");
     private final static OpFunction intDivFunction = (args) -> {
-        if (Integer.parseInt(args[1].getValue())==0) {
+        if ((int)Float.parseFloat(args[1].getValue())==0) {
             ErrorManager.printError("Division by zero!");
         }
-        return new Datum(String.valueOf(Integer.parseInt(args[0].getValue())/Integer.parseInt(args[1].getValue())), "int");
+        return new Datum(String.valueOf((int)Float.parseFloat(args[0].getValue())/(int)Float.parseFloat(args[1].getValue())), "int");
     };
     public final static Operation intDivision = new Operation(intDivFunction, doubleInt, "int", OpPrecedence.MULTIPLICATIVE, "int div");
     private final static OpFunction intPassFunction = (args) -> args[0];
@@ -47,7 +50,7 @@ public class OpLibrary {
     private final static OpFunction concatenationFunction = (args) -> new Datum(args[0].getValue()+args[1].getValue(), "string");
     public final static Operation concatenation = new Operation(concatenationFunction, doubleString, "string", OpPrecedence.ADDITIVE, "concatenation");
 
-    private final static OpFunction charGetFunction = (args) -> new Datum(""+args[0].getValue().charAt(Integer.parseInt(args[1].getValue())), "char");
+    private final static OpFunction charGetFunction = (args) -> new Datum(""+args[0].getValue().charAt((int)Float.parseFloat(args[1].getValue())), "char");
     public final static Operation charGet = new Operation(charGetFunction, stringInt, "char", OpPrecedence.MULTIPLICATIVE, "char get");
 
     private final static OpFunction boolPassFunction = (args) -> args[0];
@@ -91,12 +94,27 @@ public class OpLibrary {
     public final static Operation logicalNegation = new Operation(logicalNegationFunction, singleBool, "bool", OpPrecedence.NEGATION, "logical negation");
 
     private final static OpFunction stringConversionFunction = (args) -> new Datum(args[0].getValue(), "string");
-    public final static Operation stringConversion = new Operation(stringConversionFunction, singleAny, "string", OpPrecedence.FUNCTIONAL, "string conversion");
+    public final static Operation stringConversion = new Operation(stringConversionFunction, singleAny, "string", OpPrecedence.FUNCTIONAL, "str","string conversion");
 
-    private final static OpFunction intConversionFunction = (args) -> new Datum(String.valueOf(Integer.parseInt(args[0].getValue())), "int");
-    public final static Operation intConversion = new Operation(intConversionFunction, singleAny, "int", OpPrecedence.FUNCTIONAL, "int conversion");
+    private final static OpFunction intConversionFunction = (args) -> new Datum(String.valueOf((int)Float.parseFloat(args[0].getValue())), "int");
+    public final static Operation intConversion = new Operation(intConversionFunction, singleAny, "int", OpPrecedence.FUNCTIONAL, "int","int conversion");
 
     private final static OpFunction floatConversionFunction = (args) -> new Datum(String.valueOf(Float.parseFloat(args[0].getValue())), "float");
-    public final static Operation floatConversion = new Operation(floatConversionFunction, singleAny, "float", OpPrecedence.FUNCTIONAL, "float conversion");
+    public final static Operation floatConversion = new Operation(floatConversionFunction, singleAny, "float", OpPrecedence.FUNCTIONAL, "float","float conversion");
+
+    private final static OpFunction printFunction = (args) -> {
+        System.out.print(args[0].getValue());
+        return new Datum();
+    };
+    public final static Operation print = new Operation(printFunction, singleAny, "void", OpPrecedence.FUNCTIONAL, "print");
+
+    private final static OpFunction printlnFunction = (args) -> {
+        System.out.println(args[0].getValue());
+        return new Datum();
+    };
+    public final static Operation println = new Operation(printlnFunction, singleAny, "void", OpPrecedence.FUNCTIONAL, "println");
+    public final static Operation anyPass = new Operation(printlnFunction, singleAny, "any", OpPrecedence.PASS, "any pass");
+
+    public static ArrayList<Operation> prefixFunctions = new ArrayList<>(Arrays.asList(stringConversion, intConversion, floatConversion, print, println));
 
 }

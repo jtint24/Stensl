@@ -3,7 +3,7 @@ public class Parser extends Datum {
     private Operation operation;
 
     public Parser(String expr) {
-
+        //System.out.println("making a parser from "+expr);
         /* REMOVE SPACES FROM THE INPUT EXPRESSION: */
         int exprSize = expr.length();
         boolean inQuote = false;
@@ -13,7 +13,7 @@ public class Parser extends Datum {
             if (exprChar=='\"') { //keep track of quotes so spaces aren't removed from quoted string literals
                 inQuote=!inQuote;
             }
-            if (exprChar!=' ' && !inQuote) {
+            if (exprChar!=' ' || inQuote) {
                 exprWithoutSpaces+=exprChar;
             }
         }
@@ -22,6 +22,12 @@ public class Parser extends Datum {
 
         try { //generally catches errors in the parser function because any number of illegal parser expressions could otherwise cause an interpreter crash
             //System.out.println("making a parser of: " + expr);
+            if (Interpreter.getMemory().containsKey(expr)) {
+                operation = OpLibrary.anyPass;
+                arguments = new Datum[1];
+                arguments[0] = Interpreter.getMemory().get(expr).clone();
+                return;
+            }
             if (expr.equals("true")) { //Checks for true bool literal
                 operation = OpLibrary.boolPass;
                 arguments = new Datum[1];
@@ -51,35 +57,26 @@ public class Parser extends Datum {
 
             /*CHECKS FOR PREFIX FUNCTIONS:*/
             while (minPrecedence.ordinal() < OpPrecedence.values().length - 1) {
-                if (minPrecedence.equals(OpPrecedence.NEGATION)) {
-                    if (expr.charAt(0) == '!') { //checks for negation
+                if (minPrecedence.equals(OpPrecedence.NEGATION)) { // negation has special rules in that it doesn't use parens, so it gets its own block
+                    if (expr.charAt(0) == '!') {
                         operation = OpLibrary.logicalNegation;
                         arguments = new Datum[1];
                         arguments[0] = new Parser(expr.substring(1));
                         return;
                     }
                 }
-                if (minPrecedence.equals(OpPrecedence.FUNCTIONAL)) {
-                    //System.out.println(expr.substring(0,3));
-                    if (expr.startsWith("str")) { //checks for functions that are 3 chars long
-                        operation = OpLibrary.stringConversion;
-                        arguments = new Datum[1];
-                        arguments[0] = new Parser(expr.substring(3));
-                        return;
-                    }
-                    if (expr.startsWith("int")) {
-                        operation = OpLibrary.intConversion;
-                        arguments = new Datum[1];
-                        arguments[0] = new Parser(expr.substring(3));
-                        return;
-                    }
-                }
-                if (minPrecedence.equals(OpPrecedence.FUNCTIONAL)) {
-                    if (expr.startsWith("float")) { //checks for functions that are 5 chars long
-                        operation = OpLibrary.floatConversion;
-                        arguments = new Datum[1];
-                        arguments[0] = new Parser(expr.substring(5));
-                        return;
+
+                if (minPrecedence.equals(OpPrecedence.FUNCTIONAL)) { // this checks for all prefix functions
+                    for (Operation prefixFunction : OpLibrary.prefixFunctions) {
+                        String prefixFunctionName = prefixFunction.getName();
+                        if (exprSize>=prefixFunctionName.length()) {
+                            if (expr.startsWith(prefixFunctionName+"(")) {
+                                operation = prefixFunction;
+                                arguments = new Datum[1];
+                                arguments[0] = new Parser(expr.substring(prefixFunctionName.length()));
+                                return;
+                            }
+                        }
                     }
                 }
 
@@ -146,7 +143,7 @@ public class Parser extends Datum {
                                     break;
                                 case "&&":
                                     if (minPrecedence == OpPrecedence.CONJUNCTIVE) {
-                                        System.out.println("conjunctive made");
+                                        //System.out.println("conjunctive made");
                                         setArgumentsAroundDouble(i, expr);
                                         operation = OpLibrary.logicalConjunction;
                                         return;
@@ -154,7 +151,7 @@ public class Parser extends Datum {
                                     break;
                                 case "||":
                                     if (minPrecedence == OpPrecedence.DISJUNCTIVE) {
-                                        System.out.println("disjunctive made");
+                                        //System.out.println("disjunctive made");
                                         setArgumentsAroundDouble(i, expr);
                                         operation = OpLibrary.logicalDisjunction;
                                         return;
@@ -295,7 +292,11 @@ public class Parser extends Datum {
     }
 
     public Datum result() {
-        return operation.result(arguments);
+        if (operation.getName().equals("any pass")) {
+            return arguments[0];
+        } else {
+            return operation.result(arguments);
+        }
     }
 
     private void setArgumentsAround(int i, String str) {
@@ -317,7 +318,11 @@ public class Parser extends Datum {
 
     @Override
     public String getType() {
-        return operation.getReturnType();
+        if (operation.getName().equals("any pass")) {
+            return arguments[0].getType();
+        } else {
+            return operation.getReturnType();
+        }
     }
 
     private boolean isFloat(String str) {
