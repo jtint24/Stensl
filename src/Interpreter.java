@@ -41,12 +41,10 @@ public class Interpreter {
         memory.put(variableName, variable);
     }
     private static void assignVar(String line) {
-        String[] lineSplitBySpace = line.split(" ");
+        String[] lineSplitByEqual = line.split("=");
+        String[] lineSplitBySpace = lineSplitByEqual[0].split(" ");
         String varName = lineSplitBySpace[0];
-        if (!lineSplitBySpace[1].equals("=")) {
-            ErrorManager.printError("syntax error on variable declaration!");
-        }
-        memory.get(varName).setValueFrom(new Parser(lineSplitBySpace[2]).result());
+        memory.get(varName).setValueFrom(new Parser(lineSplitByEqual[1]).result());
     }
     public static HashMap<String, Datum> getMemory() {
         return memory;
