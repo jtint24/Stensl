@@ -281,7 +281,7 @@ public class Parser extends Datum {
                 minPrecedence = minPrecedence.incremented();
             }
         } catch (Exception e) {
-            ErrorManager.printError("Parser syntax error! "+e);
+            ErrorManager.printError("Parser syntax error at line "+ Interpreter.getLineNumber()+"! "+e);
         }
     }
 

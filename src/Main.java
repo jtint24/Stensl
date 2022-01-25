@@ -1,11 +1,12 @@
 public class Main {
     public static void main(String[] args) {
         String[] stenslScript = {
-                "println(\"hello there! Let's run some Stensl.\")",
-                "var string number=\"h\"  & \"ello\"",
-                "println(\"number is: \"&str(number))",
-                "number=number&1",
-                "println(\"now number is: \"&str(number))"};
+                "println(\"testing running over bracketed code\")",
+                "func myFunction() {",
+                "{",
+                "}",
+                "}",
+                "println(\"test complete!\")"};
         Interpreter.runStensl(stenslScript);
     }
 }
