@@ -67,7 +67,18 @@ public class Parser extends Datum {
                 }
 
                 if (minPrecedence.equals(OpPrecedence.FUNCTIONAL)) { // this checks for all prefix functions
-                    for (Operation prefixFunction : OpLibrary.prefixFunctions) {
+                    for (Operation prefixFunction : OpLibrary.prefixFunctions) { //This gets built-in prefix functions
+                        String prefixFunctionName = prefixFunction.getName();
+                        if (exprSize>=prefixFunctionName.length()) {
+                            if (expr.startsWith(prefixFunctionName+"(")) {
+                                operation = prefixFunction;
+                                arguments = new Datum[1];
+                                arguments[0] = new Parser(expr.substring(prefixFunctionName.length()));
+                                return;
+                            }
+                        }
+                    }
+                    for (Function prefixFunction : Interpreter.getFunctionList()) { //This gets user-defined prefix functions
                         String prefixFunctionName = prefixFunction.getName();
                         if (exprSize>=prefixFunctionName.length()) {
                             if (expr.startsWith(prefixFunctionName+"(")) {

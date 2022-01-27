@@ -1,12 +1,13 @@
 public class Operation {
-    private String name;
-    private int operandNum;
+    protected String name;
+    protected int operandNum;
     private OpFunction functionality;
-    private String[] operandTypes;
-    private String returnType;
+    protected String[] operandTypes;
+    protected String returnType;
     private OpPrecedence precedence;
-    private String fullName;
+    protected String fullName;
 
+    public Operation() {}
     public Operation(OpFunction of, String[] ots, String rt, OpPrecedence pr) {
         functionality = of;
         operandNum = ots.length;

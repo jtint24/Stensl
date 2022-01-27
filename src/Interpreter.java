@@ -1,5 +1,6 @@
-import javax.swing.plaf.synth.SynthButtonUI;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Stack;
 
 public class Interpreter {
     private static int lineNumber;
@@ -7,10 +8,19 @@ public class Interpreter {
     private static String currentFunction;
     private static String[] codeLines;
     private static HashMap<String, Datum> memory = new HashMap<>();
+    private static ArrayList<Function> functionList = new ArrayList<>();
+    private static Stack<Integer> lineNumberStack = new Stack<>();
     public static void runStensl(String[] code) {
         codeLines = code;
         functionCallLevel = 0;
         currentFunction = "";
+        for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) {
+            String line = codeLines[lineNumber-1];
+            if (line.startsWith("func ")) {
+                String[] headerWords = line.split(" ");
+                functionList.add(new Function(headerWords[1]));
+            }
+        }
         for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) {
             String line = codeLines[lineNumber-1];
             //System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
@@ -34,6 +44,9 @@ public class Interpreter {
                         break;
                     case "func":
                         moveOverBracketedCode();
+                        break;
+                    case "return":
+                        lineNumber = lineNumberStack.pop();
                         break;
                     default:
                         (new Parser(line)).getValue();
@@ -62,8 +75,15 @@ public class Interpreter {
         String varName = lineSplitBySpace[0];
         memory.get(varName).setValueFrom(new Parser(lineSplitByEqual[1]).result());
     }
-    public static void runFunction() {
-
+    public static Datum runFunction(String name) {
+        lineNumberStack.push(lineNumber);
+        for (lineNumber = 1; lineNumber<codeLines.length+1; lineNumber++) {
+            String[] lineTokens = codeLines[lineNumber-1].split( " ");
+            if (lineTokens[0].equals("func") && lineTokens[1].equals(name)) {
+                break;
+            }
+        }
+        return new Datum();
     }
     private static void moveOverBracketedCode() {
         int bracketCount = 0;
@@ -85,5 +105,8 @@ public class Interpreter {
     }
     public static int getLineNumber() {
         return lineNumber;
+    }
+    public static ArrayList<Function> getFunctionList() {
+        return functionList;
     }
 }
