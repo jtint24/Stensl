@@ -113,7 +113,7 @@ public class OpLibrary {
         return new Datum();
     };
     public final static Operation println = new Operation(printlnFunction, singleAny, "void", OpPrecedence.FUNCTIONAL, "println");
-    public final static Operation anyPass = new Operation(printlnFunction, singleAny, "any", OpPrecedence.PASS, "any pass");
+    public final static Operation anyPass = new Operation(printlnFunction, singleAny, "any",  OpPrecedence.PASS,       "any pass");
 
     public static ArrayList<Operation> prefixFunctions = new ArrayList<>(Arrays.asList(stringConversion, intConversion, floatConversion, print, println));
 

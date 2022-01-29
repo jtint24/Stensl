@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Parser extends Datum {
     private Datum[] arguments;
     private Operation operation;
@@ -22,10 +24,13 @@ public class Parser extends Datum {
 
         try { //generally catches errors in the parser function because any number of illegal parser expressions could otherwise cause an interpreter crash
             //System.out.println("making a parser of: " + expr);
-            if (Interpreter.getMemory().containsKey(expr)) {
+            if (Interpreter.getMemory().containsKey(expr)) { //checks for a variable
                 operation = OpLibrary.anyPass;
                 arguments = new Datum[1];
-                arguments[0] = Interpreter.getMemory().get(expr).clone();
+                //System.out.println("making a variable out of \""+expr+"\"");
+                arguments[0] = Interpreter.getMemory().get(expr);
+                //System.out.println("here's data on the variable "+expr+":");
+                //System.out.println(arguments[0].getValue());
                 return;
             }
             if (expr.equals("true")) { //Checks for true bool literal
@@ -83,8 +88,16 @@ public class Parser extends Datum {
                         if (exprSize>=prefixFunctionName.length()) {
                             if (expr.startsWith(prefixFunctionName+"(")) {
                                 operation = prefixFunction;
-                                arguments = new Datum[1];
-                                arguments[0] = new Parser(expr.substring(prefixFunctionName.length()));
+                                if (expr.startsWith(prefixFunctionName+"()")) {
+                                    arguments = new Datum[0];
+                                    return;
+                                }
+                                String argumentList = expr.substring(prefixFunctionName.length()+1, exprSize-1);
+                                String[] argumentsStrings = splitByNakedChar(argumentList, ',');
+                                arguments = new Datum[argumentsStrings.length];
+                                for (int i = 0; i<argumentsStrings.length; i++) {
+                                    arguments[i] = new Parser(argumentsStrings[i]);
+                                }
                                 return;
                             }
                         }
@@ -363,5 +376,32 @@ public class Parser extends Datum {
     }
     public void toConsole() {
         toConsole(0);
+    }
+    private String[] splitByNakedChar(String s, char c) {
+        ArrayList<String> splitResults = new ArrayList<>();
+        String currentSplit = "";
+        int parenCount = 0;
+        boolean inQuotes = false;
+        int sLength = s.length();
+        for (int i = 0; i<sLength; i++) {
+            char sChar = s.charAt(i);
+            if (sChar == '"') {
+                inQuotes = ! inQuotes;
+            }
+            if (sChar == '(') {
+                parenCount++;
+            }
+            if (sChar == ')') {
+                parenCount--;
+            }
+            if (parenCount == 0 && !inQuotes && sChar == c) {
+                splitResults.add(currentSplit);
+                currentSplit = "";
+            } else {
+                currentSplit+=sChar;
+            }
+        }
+        splitResults.add(currentSplit);
+        return splitResults.toArray(new String[0]);
     }
 }

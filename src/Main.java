@@ -1,14 +1,15 @@
 public class Main {
     public static void main(String[] args) {
         String[] stenslScript = {
-                "println(\"testing functions\")",
-                "func myFunction {",
-                "println(\"my function ran!\")",
-                "myFunction()",
+                "println(\"testing the function\")",
+                "func printTwice (string: bla) {",
+                "println(bla)",
+                "println(bla)",
                 "return",
                 "}",
-                "myFunction(\"test complete!\")",
-                "println(\"test complete!\")"};
+                "println(\"function testing...\")",
+                "printTwice(\"hello\")",
+                "println(\"test completed!\")"};
         Interpreter.runStensl(stenslScript);
         //System.out.print(Interpreter.getFunctionList());
     }
