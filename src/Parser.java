@@ -24,11 +24,11 @@ public class Parser extends Datum {
 
         try { //generally catches errors in the parser function because any number of illegal parser expressions could otherwise cause an interpreter crash
             //System.out.println("making a parser of: " + expr);
-            if (Interpreter.getMemory().containsKey(expr)) { //checks for a variable
+            if (Interpreter.getFullMemory().containsKey(expr)) { //checks for a variable
                 operation = OpLibrary.anyPass;
                 arguments = new Datum[1];
                 //System.out.println("making a variable out of \""+expr+"\"");
-                arguments[0] = Interpreter.getMemory().get(expr);
+                arguments[0] = Interpreter.getFullMemory().get(expr);
                 //System.out.println("here's data on the variable "+expr+":");
                 //System.out.println(arguments[0].getValue());
                 return;

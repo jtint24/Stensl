@@ -1,6 +1,4 @@
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -30,7 +28,7 @@ public class Interpreter {
                     String[] parameterData = parameterString.split(":");
                     parameterTypes.add(parameterData[0].trim());
                     parameterNames.add(parameterData[1].trim());
-                    System.out.println("\""+parameterString+"\" is the parameter for this function. \""+parameterData[0].trim()+"\" is the type and \""+parameterData[1].trim()+"\" is the name");
+                    //System.out.println("\""+parameterString+"\" is the parameter for this function. \""+parameterData[0].trim()+"\" is the type and \""+parameterData[1].trim()+"\" is the name");
                 }
                 functionList.add(new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), "void", headerWords[1], headerWords[1]));
             }
@@ -39,9 +37,9 @@ public class Interpreter {
             String line = codeLines[lineNumber-1];
             //System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
 
-            getMemory().forEach((key, value) -> {
+            //getFullMemory().forEach((key, value) -> { //prints out the value and name of each value in memory
                 //System.out.println(key+" holds "+value.getValue()+" of type "+value.getType());
-            });
+            //});
 
             String firstToken = "";
             int charCount = 0;
@@ -53,7 +51,7 @@ public class Interpreter {
                 }
             }
 
-            if (memory.containsKey(firstToken)) {
+            if (getFullMemory().containsKey(firstToken)) {
                 assignVar(line);
             } else {
                 switch (firstToken) {
@@ -91,7 +89,16 @@ public class Interpreter {
         String[] lineSplitByEqual = line.split("=");
         String[] lineSplitBySpace = lineSplitByEqual[0].split(" ");
         String varName = lineSplitBySpace[0];
-        memory.get(varName).setValueFrom(new Parser(lineSplitByEqual[1]).result());
+        if (memory.containsKey(varName)) {
+            memory.get(varName).setValueFrom(new Parser(lineSplitByEqual[1]).result());
+        } else {
+            //System.out.println("mutating local memory");
+            HashMap<String, Datum> currentLocalMemory = (HashMap<String, Datum>) localMemory.peek().clone();
+            currentLocalMemory.remove(varName);
+            currentLocalMemory.put(varName, new Parser(lineSplitByEqual[1]).result());
+            localMemory.pop();
+            localMemory.push(currentLocalMemory);
+        }
     }
     public static Datum runFunction(Function func, Datum[] arguments, String[] parameterNames) {
         lineNumberStack.push(lineNumber);
@@ -125,7 +132,7 @@ public class Interpreter {
         } while (bracketCount!=0);
         //lineNumber++;
     }
-    public static HashMap<String, Datum> getMemory() {
+    public static HashMap<String, Datum> getFullMemory() {
         HashMap<String, Datum> fullMemory = (HashMap<String, Datum>) memory.clone();
         if (!localMemory.isEmpty()) {
             fullMemory.putAll(localMemory.peek());
