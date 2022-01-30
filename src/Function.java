@@ -39,7 +39,6 @@ public class Function extends Operation {
                 ErrorManager.printError("Type mismatch! Given type "+arguments[i].getType()+" does not match expected type "+operandTypes[i]+" in argument "+(i+1)+" of operation: "+name);
             }
         }
-        System.out.println("getting result...");
         return Interpreter.runFunction(this, arguments, parameterNames);
     }
 

@@ -11,6 +11,8 @@ public class Interpreter {
     private static ArrayList<String> functionShortNameList = new ArrayList<>();
     private static Stack<Integer> lineNumberStack = new Stack<>();
     private static Stack<HashMap<String, Datum>> localMemory = new Stack<>();
+    private static boolean inGlobal = true;
+
     public static void runStensl(String[] code) {
         boolean insideInlineComment = false;
         boolean insideBlockComment = false;
@@ -57,6 +59,10 @@ public class Interpreter {
                 String[] headerWords = line.split("\\(")[0].split(" ");
                 String functionName = headerWords[1];
 
+                if (!isIllegalIdentifier(functionName)) {
+                    ErrorManager.printError("Illegal function name: "+functionName+"!");
+                }
+
                 String parameterListString = line.split("\\(")[1].split("\\)")[0];
                 String[] parameterList = splitByNakedChar(parameterListString, ',');
                 ArrayList<String> parameterTypes = new ArrayList<>();
@@ -78,10 +84,11 @@ public class Interpreter {
                 functionList.put(fullFunctionName, new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), "void", functionName, fullFunctionName, lineNumber));
             }
         }
-        System.out.println(functionList);
+
         for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //Executes actual lines of code
             String line = codeLines[lineNumber-1];
             //System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
+            //System.out.println("local mem is "+localMemory.toString()+" global mem is "+memory.toString());
 
             //getFullMemory().forEach((key, value) -> { //prints out the value and name of each value in memory
                 //System.out.println(key+" holds "+value.getValue()+" of type "+value.getType());
@@ -113,6 +120,10 @@ public class Interpreter {
                         break;
                     case "return":
                         lineNumber = lineNumberStack.pop();
+                        localMemory.pop();
+                        if (lineNumberStack.size() == 0) {
+                            inGlobal = true;
+                        }
                         break;
                     default:
                         (new Parser(line)).getValue();
@@ -130,15 +141,25 @@ public class Interpreter {
 
         String variableType = lineSplitBySpace[1+flagOffset];
         String variableName = lineSplitBySpace[2+flagOffset];
+
+        if (isIllegalIdentifier(variableName)) {
+            ErrorManager.printError("illegal variable name: "+variableName+"!");
+        }
+
         Parser variableParser = (new Parser(lineSplitByEqual[1]));
         Datum variable = new Datum(variableType, !isConst);
         variable.setValueFrom(variableParser.result());
-        memory.put(variableName, variable);
+        if (inGlobal) {
+            memory.put(variableName, variable);
+        } else {
+            localMemory.peek().put(variableName, variable);
+        }
     }
     private static void assignVar(String line) {
         String[] lineSplitByEqual = line.split("=");
         String[] lineSplitBySpace = lineSplitByEqual[0].split(" ");
         String varName = lineSplitBySpace[0];
+
         if (memory.containsKey(varName)) {
             memory.get(varName).setValueFrom(new Parser(lineSplitByEqual[1]).result());
         } else {
@@ -152,6 +173,7 @@ public class Interpreter {
         }
     }
     public static Datum runFunction(Function func, Datum[] arguments, String[] parameterNames) {
+        inGlobal = false;
         lineNumberStack.push(lineNumber);
         currentFunction = func;
         lineNumber = func.getLineNumberLocation();
@@ -219,5 +241,19 @@ public class Interpreter {
         }
         splitResults.add(currentSplit);
         return splitResults.toArray(new String[0]);
+    }
+    private static boolean isIllegalIdentifier(String name) {
+        String illegalChars = ".()+-%*/\\{}[]=&|!^<>?,;:";
+        for (char activeChar : name.toCharArray()) {
+            if (illegalChars.contains(""+activeChar)) {
+                return true;
+            }
+        }
+        switch(name) {
+            case "var", "func", "if", "for", "while", "return", "else", "elseif":
+                return true;
+            default:
+                return false;
+        }
     }
 }
