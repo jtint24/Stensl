@@ -83,7 +83,28 @@ public class Parser extends Datum {
                             }
                         }
                     }
-                    for (Function prefixFunction : Interpreter.getFunctionList()) { //This gets user-defined prefix functions
+                    String functionShortName = expr.split("\\(")[0];
+                    if (Interpreter.getFunctionShortNameList().contains(functionShortName)) {
+                        if (expr.startsWith(functionShortName+"()")) {
+                            operation = Interpreter.getFunctionList().get(functionShortName+"()");
+                            arguments = new Datum[0];
+                            return;
+                        }
+                        String argumentList = expr.substring(functionShortName.length()+1, exprSize-1);
+                        String[] argumentsStrings = splitByNakedChar(argumentList, ',');
+                        arguments = new Datum[argumentsStrings.length];
+                        String functionFullName = functionShortName+"(";
+
+                        for (int i = 0; i<argumentsStrings.length; i++) {
+                            arguments[i] = new Parser(argumentsStrings[i]);
+                            functionFullName+=arguments[i].getType()+",";
+                        }
+                        functionFullName+=")";
+                        operation = Interpreter.getFunctionList().get(functionFullName);
+                        return;
+                    }
+
+                    /*for (Function prefixFunction : Interpreter.getFunctionList()) { //This gets user-defined prefix functions
                         String prefixFunctionName = prefixFunction.getName();
                         if (exprSize>=prefixFunctionName.length()) {
                             if (expr.startsWith(prefixFunctionName+"(")) {
@@ -101,7 +122,7 @@ public class Parser extends Datum {
                                 return;
                             }
                         }
-                    }
+                    }*/
                 }
 
                 /*CHECK FOR OPERATORS INSIDE THE FUNCTION*/

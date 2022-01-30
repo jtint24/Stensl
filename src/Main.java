@@ -5,7 +5,7 @@ public class Main {
                 "var string tester = \"hello\"",
                 "tester=\"mello\" //blah blah",
                 "println(\"hopefully this says mello: \"&tester)",
-                "func printTwice (string: firstThing, string: secondThing) {",
+                "func printTwice(string: firstThing, string: secondThing) {",
                 "   println(firstThing)",
                 "   println(secondThing)",
                 "   println(tester) //this is a comment",
@@ -13,9 +13,11 @@ public class Main {
                 "}",
                 "/* this is a valid comment */",
                 "/* this should",
-                "also be a valid comment*/",
+                "also be a valid comment",
+                "*/",
                 "println(\"function testing...\")",
                 "printTwice(\"hello\", \"blonge\")",
+                "",
                 "println(\"test completed!\")"};
         Interpreter.runStensl(stenslScript);
         //System.out.print(Interpreter.getFunctionList());

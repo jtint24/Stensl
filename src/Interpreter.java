@@ -7,7 +7,8 @@ public class Interpreter {
     private static Function currentFunction;
     private static String[] codeLines;
     private static HashMap<String, Datum> memory = new HashMap<>();
-    private static ArrayList<Function> functionList = new ArrayList<>();
+    private static HashMap<String, Function> functionList = new HashMap<>();
+    private static ArrayList<String> functionShortNameList = new ArrayList<>();
     private static Stack<Integer> lineNumberStack = new Stack<>();
     private static Stack<HashMap<String, Datum>> localMemory = new Stack<>();
     public static void runStensl(String[] code) {
@@ -21,13 +22,13 @@ public class Interpreter {
             for (int i = 0; i<lineLength; i++) {
                 char readChar = line.charAt(i);
                 if (i<lineLength-1) {
-                    if (readChar == '/' && line.charAt(i+1) == '/') {
+                    if (readChar == '/' && line.charAt(i+1) == '/') { //check for inline // comments
                         insideInlineComment = true;
                     }
-                    if (readChar == '/' && line.charAt(i+1) == '*') {
+                    if (readChar == '/' && line.charAt(i+1) == '*') { //check for opening /* comments
                         insideBlockComment = true;
                     }
-                    if (readChar == '*' && line.charAt(i+1) == '/') {
+                    if (readChar == '*' && line.charAt(i+1) == '/') { // check for closing */ comments
                         if (insideBlockComment) {
                             insideBlockComment = false;
                             i++;
@@ -53,21 +54,32 @@ public class Interpreter {
             String line = codeLines[lineNumber-1];
 
             if (line.startsWith("func ")) {
-                String[] headerWords = line.split(" ");
-                //functionList.add(new Function(headerWords[1]));
+                String[] headerWords = line.split("\\(")[0].split(" ");
+                String functionName = headerWords[1];
+
                 String parameterListString = line.split("\\(")[1].split("\\)")[0];
                 String[] parameterList = splitByNakedChar(parameterListString, ',');
                 ArrayList<String> parameterTypes = new ArrayList<>();
                 ArrayList<String> parameterNames = new ArrayList<>();
+                String fullFunctionName = functionName+"(";
+
                 for (String parameterString : parameterList) { //Check all the parameters for the function
                     String[] parameterData = parameterString.split(":");
                     parameterTypes.add(parameterData[0].trim());
                     parameterNames.add(parameterData[1].trim());
+                    fullFunctionName+=parameterData[0].trim()+",";
                 }
-                functionList.add(new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), "void", headerWords[1], headerWords[1]));
+                fullFunctionName+=")";
+
+                if (functionList.containsKey(fullFunctionName)) {
+                    ErrorManager.printError("Duplicate function declaration: "+functionName+" !");
+                }
+                functionShortNameList.add(functionName);
+                functionList.put(fullFunctionName, new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), "void", functionName, fullFunctionName, lineNumber));
             }
         }
-        for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //Excecutes actual lines of code
+        System.out.println(functionList);
+        for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //Executes actual lines of code
             String line = codeLines[lineNumber-1];
             //System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
 
@@ -141,14 +153,8 @@ public class Interpreter {
     }
     public static Datum runFunction(Function func, Datum[] arguments, String[] parameterNames) {
         lineNumberStack.push(lineNumber);
-        String funcName = func.getName();
         currentFunction = func;
-        for (lineNumber = 1; lineNumber<codeLines.length+1; lineNumber++) {
-            String[] lineTokens = codeLines[lineNumber-1].split( " ");
-            if (lineTokens[0].equals("func") && lineTokens[1].equals(funcName)) {
-                break;
-            }
-        }
+        lineNumber = func.getLineNumberLocation();
         HashMap<String, Datum> argumentMap = new HashMap<>();
         for (int i = 0; i<arguments.length; i++) {
             argumentMap.put(parameterNames[i], arguments[i]);
@@ -181,9 +187,10 @@ public class Interpreter {
     public static int getLineNumber() {
         return lineNumber;
     }
-    public static ArrayList<Function> getFunctionList() {
+    public static HashMap<String, Function> getFunctionList() {
         return functionList;
     }
+    public static ArrayList<String> getFunctionShortNameList() { return functionShortNameList; }
     public static Function getCurrentFunction() { return currentFunction; }
 
     private static String[] splitByNakedChar(String s, char c) {
