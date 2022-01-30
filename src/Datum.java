@@ -12,10 +12,10 @@ public class Datum implements Cloneable {
         type = t;
     }
 
-    public Datum(String v, String t, boolean m) {
+    public Datum(String v, String t, boolean im) {
         value = v;
         type = t;
-        isMutable = m;
+        isMutable = im;
     }
 
     public Datum() {}

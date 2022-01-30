@@ -4,7 +4,6 @@ import java.util.Stack;
 
 public class Interpreter {
     private static int lineNumber;
-    private static int functionCallLevel;
     private static Function currentFunction;
     private static String[] codeLines;
     private static HashMap<String, Datum> memory = new HashMap<>();
@@ -12,11 +11,47 @@ public class Interpreter {
     private static Stack<Integer> lineNumberStack = new Stack<>();
     private static Stack<HashMap<String, Datum>> localMemory = new Stack<>();
     public static void runStensl(String[] code) {
-        codeLines = code;
+        boolean insideInlineComment = false;
+        boolean insideBlockComment = false;
+        for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //trim out whitespace and comments from the line;
+            String line = code[lineNumber-1];
+            line = line.trim();
+            String cleanedLine = "";
+            int lineLength = line.length();
+            for (int i = 0; i<lineLength; i++) {
+                char readChar = line.charAt(i);
+                if (i<lineLength-1) {
+                    if (readChar == '/' && line.charAt(i+1) == '/') {
+                        insideInlineComment = true;
+                    }
+                    if (readChar == '/' && line.charAt(i+1) == '*') {
+                        insideBlockComment = true;
+                    }
+                    if (readChar == '*' && line.charAt(i+1) == '/') {
+                        if (insideBlockComment) {
+                            insideBlockComment = false;
+                            i++;
+                            continue;
+                        } else {
+                            ErrorManager.printError("Block comment terminator */ used without opening a block comment!");
+                        }
+                    }
+                }
+                if (!insideInlineComment && !insideBlockComment) {
+                    cleanedLine+=readChar;
+                }
+            }
+            code[lineNumber-1] = cleanedLine.trim();
+            insideInlineComment = false;
+        }
+        if (insideBlockComment) {
+            ErrorManager.printError("Unterminated block comment!");
+        }
 
-        functionCallLevel = 0;
-        for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) {
+        codeLines = code;
+        for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //Checks for function headers and adds them to functionList
             String line = codeLines[lineNumber-1];
+
             if (line.startsWith("func ")) {
                 String[] headerWords = line.split(" ");
                 //functionList.add(new Function(headerWords[1]));
@@ -24,22 +59,25 @@ public class Interpreter {
                 String[] parameterList = splitByNakedChar(parameterListString, ',');
                 ArrayList<String> parameterTypes = new ArrayList<>();
                 ArrayList<String> parameterNames = new ArrayList<>();
-                for (String parameterString : parameterList) {
+                for (String parameterString : parameterList) { //Check all the parameters for the function
                     String[] parameterData = parameterString.split(":");
                     parameterTypes.add(parameterData[0].trim());
                     parameterNames.add(parameterData[1].trim());
-                    //System.out.println("\""+parameterString+"\" is the parameter for this function. \""+parameterData[0].trim()+"\" is the type and \""+parameterData[1].trim()+"\" is the name");
                 }
                 functionList.add(new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), "void", headerWords[1], headerWords[1]));
             }
         }
-        for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) {
+        for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //Excecutes actual lines of code
             String line = codeLines[lineNumber-1];
             //System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
 
             //getFullMemory().forEach((key, value) -> { //prints out the value and name of each value in memory
                 //System.out.println(key+" holds "+value.getValue()+" of type "+value.getType());
             //});
+
+            if (line.length() == 0) { //doesn't even bother running blank lines
+                continue;
+            }
 
             String firstToken = "";
             int charCount = 0;
@@ -94,8 +132,9 @@ public class Interpreter {
         } else {
             //System.out.println("mutating local memory");
             HashMap<String, Datum> currentLocalMemory = (HashMap<String, Datum>) localMemory.peek().clone();
+            Datum mutatedResult = new Parser(lineSplitByEqual[1]).result();
             currentLocalMemory.remove(varName);
-            currentLocalMemory.put(varName, new Parser(lineSplitByEqual[1]).result());
+            currentLocalMemory.put(varName, mutatedResult);
             localMemory.pop();
             localMemory.push(currentLocalMemory);
         }
