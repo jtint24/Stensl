@@ -1,4 +1,4 @@
-public class Function extends Operation {
+public class Function extends Operation implements Cloneable {
     private int lineNumberLocation = 0;
     private String[] parameterNames = new String[operandNum];
 
@@ -47,10 +47,27 @@ public class Function extends Operation {
         return super.name;
     }
 
+    public void regenerateFullName() {
+        String newFullName = name+"(";
+        for (String operandType : operandTypes) {
+            newFullName+=operandType+",";
+        }
+        newFullName+=")";
+        super.fullName = newFullName;
+    }
+
     @Override
     public String getName() {
         return name==null ? "no name" : name;
     }
 
     public int getLineNumberLocation() { return lineNumberLocation; }
+
+    public void setName(String n) {
+        name = n;
+    }
+
+    public Function clone() {
+        return new Function (super.operandTypes, parameterNames, super.returnType, super.name, super.fullName, lineNumberLocation);
+    }
 }

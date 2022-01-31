@@ -9,6 +9,7 @@ public class Interpreter {
     private static HashMap<String, Datum> memory = new HashMap<>();
     private static HashMap<String, Function> functionList = new HashMap<>();
     private static ArrayList<String> functionShortNameList = new ArrayList<>();
+    private static ArrayList<String> functionsThatNeedDisambiguation = new ArrayList<>();
     private static Stack<Integer> lineNumberStack = new Stack<>();
     private static Stack<HashMap<String, Datum>> localMemory = new Stack<>();
     private static boolean inGlobal = true;
@@ -59,7 +60,7 @@ public class Interpreter {
                 String[] headerWords = line.split("\\(")[0].split(" ");
                 String functionName = headerWords[1];
 
-                if (!isIllegalIdentifier(functionName)) {
+                if (!isLegalIdentifier(functionName)) {
                     ErrorManager.printError("Illegal function name: "+functionName+"!");
                 }
 
@@ -68,17 +69,21 @@ public class Interpreter {
                 ArrayList<String> parameterTypes = new ArrayList<>();
                 ArrayList<String> parameterNames = new ArrayList<>();
                 String fullFunctionName = functionName+"(";
-
-                for (String parameterString : parameterList) { //Check all the parameters for the function
-                    String[] parameterData = parameterString.split(":");
-                    parameterTypes.add(parameterData[0].trim());
-                    parameterNames.add(parameterData[1].trim());
-                    fullFunctionName+=parameterData[0].trim()+",";
+                if (parameterList.length > 3) {
+                    for (String parameterString : parameterList) { //Check all the parameters for the function
+                        String[] parameterData = parameterString.split(":");
+                        parameterTypes.add(parameterData[0].trim());
+                        parameterNames.add(parameterData[1].trim());
+                        fullFunctionName += parameterData[0].trim() + ",";
+                    }
                 }
                 fullFunctionName+=")";
 
                 if (functionList.containsKey(fullFunctionName)) {
                     ErrorManager.printError("Duplicate function declaration: "+functionName+" !");
+                }
+                if (functionShortNameList.contains(functionName)) {
+                    functionsThatNeedDisambiguation.add(functionName);
                 }
                 functionShortNameList.add(functionName);
                 functionList.put(fullFunctionName, new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), "void", functionName, fullFunctionName, lineNumber));
@@ -87,7 +92,7 @@ public class Interpreter {
 
         for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //Executes actual lines of code
             String line = codeLines[lineNumber-1];
-            //System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
+            System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
             //System.out.println("local mem is "+localMemory.toString()+" global mem is "+memory.toString());
 
             //getFullMemory().forEach((key, value) -> { //prints out the value and name of each value in memory
@@ -142,13 +147,25 @@ public class Interpreter {
         String variableType = lineSplitBySpace[1+flagOffset];
         String variableName = lineSplitBySpace[2+flagOffset];
 
-        if (isIllegalIdentifier(variableName)) {
+        if (!isLegalIdentifier(variableName)) {
             ErrorManager.printError("illegal variable name: "+variableName+"!");
         }
 
         Parser variableParser = (new Parser(lineSplitByEqual[1]));
-        Datum variable = new Datum(variableType, !isConst);
-        variable.setValueFrom(variableParser.result());
+        Datum variable = variableParser.result();
+        variable.setIsMutable(!isConst);
+
+        if (variable instanceof Function) {
+            ((Function) variable).setName(variableName);
+            ((Function) variable).regenerateFullName();
+            functionList.put(((Function) variable).getFullName(), (Function)variable);
+            if (functionShortNameList.contains(variableName)) {
+                functionsThatNeedDisambiguation.add(variableName);
+            } else {
+                functionShortNameList.add(variableName);
+            }
+        }
+
         if (inGlobal) {
             memory.put(variableName, variable);
         } else {
@@ -214,6 +231,7 @@ public class Interpreter {
     }
     public static ArrayList<String> getFunctionShortNameList() { return functionShortNameList; }
     public static Function getCurrentFunction() { return currentFunction; }
+    public static ArrayList<String> getFunctionsThatNeedDisambiguation() { return functionsThatNeedDisambiguation; }
 
     private static String[] splitByNakedChar(String s, char c) {
         ArrayList<String> splitResults = new ArrayList<>();
@@ -242,18 +260,18 @@ public class Interpreter {
         splitResults.add(currentSplit);
         return splitResults.toArray(new String[0]);
     }
-    private static boolean isIllegalIdentifier(String name) {
+    private static boolean isLegalIdentifier(String name) {
         String illegalChars = ".()+-%*/\\{}[]=&|!^<>?,;:";
         for (char activeChar : name.toCharArray()) {
             if (illegalChars.contains(""+activeChar)) {
-                return true;
+                return false;
             }
         }
         switch(name) {
             case "var", "func", "if", "for", "while", "return", "else", "elseif":
-                return true;
-            default:
                 return false;
+            default:
+                return true;
         }
     }
 }

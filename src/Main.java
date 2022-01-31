@@ -1,27 +1,14 @@
 public class Main {
     public static void main(String[] args) {
         String[] stenslScript = {
-                "println(\"testing the function\")",
-                "var string tester = \"hello\"",
-                "tester=\"mello\" //blah blah",
-                "println(\"hopefully this says mello: \"&tester)",
-                "func printTwice(string: firstThing, string: secondThing) {",
-                "   println(firstThing)",
-                "   var int number = 5",
-                "   number= 10",
-                "   println(number)",
-                "   println(secondThing)",
-                "   println(tester) //this is a comment",
+                "func firstClassFunc() {",
+                "   println(\"the func ran!\")",
                 "   return",
                 "}",
-                "/* this is a valid comment */",
-                "/* this should",
-                "also be a valid comment",
-                "*/",
-                "println(\"function testing...\")",
-                "printTwice(\"hello\", \"blonge\")",
-                "",
-                "println(\"test completed!\")"};
+                "var int myInt = 0",
+                "myInt = 5",
+                "var ()->void funcTest = firstClassFunc",
+                "funcTest()"};
         Interpreter.runStensl(stenslScript);
         //System.out.print(Interpreter.getFunctionList());
     }

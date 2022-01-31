@@ -1,4 +1,4 @@
-public class Operation {
+public class Operation extends Datum {
     protected String name;
     protected int operandNum;
     private OpFunction functionality;
@@ -14,6 +14,7 @@ public class Operation {
         operandTypes = ots;
         returnType = rt;
         precedence = pr;
+
     }
     public Operation(OpFunction of, String[] ots, String rt, OpPrecedence pr, String nm) {
         functionality = of;
@@ -53,4 +54,19 @@ public class Operation {
     public String getFullName() { return fullName; }
 
     public String toString() {return name;}
+
+    public String getType() {
+        String type = "(";
+        for (String inputType : operandTypes) {
+            type+=inputType+",";
+        }
+        type+=")->";
+        type+=returnType;
+        return type;
+    }
+
+    @Override
+    public boolean getIsFunction() {
+        return true;
+    }
 }

@@ -53,4 +53,12 @@ public class Datum implements Cloneable {
     public Datum clone() {
         return new Datum(value, type, isMutable);
     }
+
+    public boolean getIsFunction() {
+        return false;
+    }
+
+    public void setIsMutable(boolean m) {
+        isMutable = m;
+    }
 }

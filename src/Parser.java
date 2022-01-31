@@ -33,6 +33,19 @@ public class Parser extends Datum {
                 //System.out.println(arguments[0].getValue());
                 return;
             }
+            if (Interpreter.getFunctionShortNameList().contains(expr)) { //checks for a function identifier (NOT A FUNCTION CALL)
+                if (Interpreter.getFunctionsThatNeedDisambiguation().contains(expr)) { //Functions that share names, even if they have different types, can't be used because we can't disambiguate
+                    ErrorManager.printError("Function "+expr+" is ambiguous and cannot be used in a first-class context!");
+                }
+                for (String functionFullName : Interpreter.getFunctionList().keySet()) {
+                    if (functionFullName.startsWith(expr+"(")) {
+                        operation = OpLibrary.anyPass;
+                        arguments = new Datum[1];
+                        arguments[0] = Interpreter.getFunctionList().get(functionFullName).clone();
+                        return;
+                    }
+                }
+            }
             if (expr.equals("true")) { //Checks for true bool literal
                 operation = OpLibrary.boolPass;
                 arguments = new Datum[1];
@@ -71,8 +84,8 @@ public class Parser extends Datum {
                     }
                 }
 
-                if (minPrecedence.equals(OpPrecedence.FUNCTIONAL)) { // this checks for all prefix functions
-                    for (Operation prefixFunction : OpLibrary.prefixFunctions) { //This gets built-in prefix functions
+                if (minPrecedence.equals(OpPrecedence.FUNCTIONAL)) { // this checks for all prefix function calls
+                    for (Operation prefixFunction : OpLibrary.prefixFunctions) { //This gets built-in prefix function calls
                         String prefixFunctionName = prefixFunction.getName();
                         if (exprSize>=prefixFunctionName.length()) {
                             if (expr.startsWith(prefixFunctionName+"(")) {
@@ -84,7 +97,8 @@ public class Parser extends Datum {
                         }
                     }
                     String functionShortName = expr.split("\\(")[0];
-                    if (Interpreter.getFunctionShortNameList().contains(functionShortName)) {
+                    System.out.println(Interpreter.getFunctionShortNameList());
+                    if (Interpreter.getFunctionShortNameList().contains(functionShortName)) { //This gets user-defined prefix function calls
                         if (expr.startsWith(functionShortName+"()")) {
                             operation = Interpreter.getFunctionList().get(functionShortName+"()");
                             arguments = new Datum[0];
@@ -104,7 +118,7 @@ public class Parser extends Datum {
                         return;
                     }
 
-                    /*for (Function prefixFunction : Interpreter.getFunctionList()) { //This gets user-defined prefix functions
+                    /*for (Function prefixFunction : Interpreter.getFunctionList()) { //OLD FUNCTION IMPLEMENTATION
                         String prefixFunctionName = prefixFunction.getName();
                         if (exprSize>=prefixFunctionName.length()) {
                             if (expr.startsWith(prefixFunctionName+"(")) {
@@ -424,5 +438,10 @@ public class Parser extends Datum {
         }
         splitResults.add(currentSplit);
         return splitResults.toArray(new String[0]);
+    }
+
+    @Override
+    public boolean getIsFunction() {
+        return arguments[0].getIsFunction();
     }
 }
