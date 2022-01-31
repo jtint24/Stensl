@@ -16,7 +16,9 @@ public class Main {
                 "funcTest()",
                 "var ()->void secondFuncTest = firstClassFunc",
                 "secondFuncTest()",
-                "firstClassFuncWithArg(5)"};
+                "firstClassFuncWithArg(5)",
+                "var (int)->void thirdFuncTest = firstClassFuncWithArg",
+                "thirdFuncTest(10)"};
         Interpreter.runStensl(stenslScript);
         //System.out.print(Interpreter.getFunctionList());
     }

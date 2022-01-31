@@ -103,6 +103,18 @@ public class Interpreter {
                 continue;
             }
 
+            if (line.contains("}")) {
+                int linePosition = 0;
+                while (line.charAt(linePosition)!='}') {
+                    linePosition++;
+                }
+                String bracketMatch = findMatchingBracket(linePosition);
+                System.out.println("this is bracketMatch: "+bracketMatch);
+                if (bracketMatch.startsWith("func ")) {
+                    ErrorManager.printError("No return statement!");
+                }
+            }
+
             String firstToken = "";
             int charCount = 0;
             while (line.charAt(charCount)!=' ' && line.charAt(charCount)!='=') {
@@ -232,6 +244,29 @@ public class Interpreter {
     public static ArrayList<String> getFunctionShortNameList() { return functionShortNameList; }
     public static Function getCurrentFunction() { return currentFunction; }
     public static ArrayList<String> getFunctionsThatNeedDisambiguation() { return functionsThatNeedDisambiguation; }
+    private static String findMatchingBracket(int linePosition) {
+        int bracketCount = 0;
+        int originalLineNumber = lineNumber;
+        while (lineNumber>=0) {
+            while (linePosition>=0) {
+                char activeChar = codeLines[lineNumber-1].charAt(linePosition);
+                if (activeChar == '{') {
+                    bracketCount--;
+                }
+                if (activeChar == '}') {
+                    bracketCount++;
+                }
+                if (bracketCount == 0) {
+                    return codeLines[lineNumber-1];
+                }
+                linePosition--;
+            }
+            lineNumber--;
+        }
+        lineNumber = originalLineNumber;
+        ErrorManager.printError("Bracket mismatch!");
+        return "";
+    }
 
     private static String[] splitByNakedChar(String s, char c) {
         ArrayList<String> splitResults = new ArrayList<>();
