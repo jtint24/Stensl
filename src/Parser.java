@@ -33,6 +33,8 @@ public class Parser extends Datum {
                 //System.out.println(arguments[0].getValue());
                 return;
             }
+            System.out.println(Interpreter.getFunctionShortNameList().toString());
+            System.out.println(Interpreter.getFunctionList().toString());
             if (Interpreter.getFunctionShortNameList().contains(expr)) { //checks for a function identifier (NOT A FUNCTION CALL)
                 if (Interpreter.getFunctionsThatNeedDisambiguation().contains(expr)) { //Functions that share names, even if they have different types, can't be used because we can't disambiguate
                     ErrorManager.printError("Function "+expr+" is ambiguous and cannot be used in a first-class context!");
@@ -97,15 +99,16 @@ public class Parser extends Datum {
                         }
                     }
                     String functionShortName = expr.split("\\(")[0];
-                    System.out.println(Interpreter.getFunctionShortNameList());
                     if (Interpreter.getFunctionShortNameList().contains(functionShortName)) { //This gets user-defined prefix function calls
                         if (expr.startsWith(functionShortName+"()")) {
                             operation = Interpreter.getFunctionList().get(functionShortName+"()");
                             arguments = new Datum[0];
                             return;
                         }
+                        System.out.println("hello function call");
                         String argumentList = expr.substring(functionShortName.length()+1, exprSize-1);
                         String[] argumentsStrings = splitByNakedChar(argumentList, ',');
+
                         arguments = new Datum[argumentsStrings.length];
                         String functionFullName = functionShortName+"(";
 
@@ -114,6 +117,7 @@ public class Parser extends Datum {
                             functionFullName+=arguments[i].getType()+",";
                         }
                         functionFullName+=")";
+
                         operation = Interpreter.getFunctionList().get(functionFullName);
                         return;
                     }

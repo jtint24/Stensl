@@ -5,10 +5,18 @@ public class Main {
                 "   println(\"the func ran!\")",
                 "   return",
                 "}",
+                "func firstClassFuncWithArg(int: arg) {",
+                "   println(arg)",
+                "   return",
+                "}",
                 "var int myInt = 0",
                 "myInt = 5",
+                "firstClassFunc()",
                 "var ()->void funcTest = firstClassFunc",
-                "funcTest()"};
+                "funcTest()",
+                "var ()->void secondFuncTest = firstClassFunc",
+                "secondFuncTest()",
+                "firstClassFuncWithArg(5)"};
         Interpreter.runStensl(stenslScript);
         //System.out.print(Interpreter.getFunctionList());
     }

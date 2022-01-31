@@ -69,7 +69,7 @@ public class Interpreter {
                 ArrayList<String> parameterTypes = new ArrayList<>();
                 ArrayList<String> parameterNames = new ArrayList<>();
                 String fullFunctionName = functionName+"(";
-                if (parameterList.length > 3) {
+                if (!parameterListString.isBlank()) {
                     for (String parameterString : parameterList) { //Check all the parameters for the function
                         String[] parameterData = parameterString.split(":");
                         parameterTypes.add(parameterData[0].trim());
@@ -92,7 +92,7 @@ public class Interpreter {
 
         for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //Executes actual lines of code
             String line = codeLines[lineNumber-1];
-            System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
+            //System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
             //System.out.println("local mem is "+localMemory.toString()+" global mem is "+memory.toString());
 
             //getFullMemory().forEach((key, value) -> { //prints out the value and name of each value in memory
