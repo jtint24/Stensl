@@ -42,15 +42,13 @@ public class Function extends Operation implements Cloneable {
         return Interpreter.runFunction(this, arguments, parameterNames);
     }
 
-    @Override
-    public String toString() {
-        return super.name;
-    }
-
     public void regenerateFullName() {
         String newFullName = name+"(";
         for (String operandType : operandTypes) {
             newFullName+=operandType+",";
+        }
+        if (newFullName.charAt(newFullName.length()-1) == ',') {
+            newFullName = newFullName.substring(0, newFullName.length() - 1);
         }
         newFullName+=")";
         super.fullName = newFullName;
@@ -69,5 +67,9 @@ public class Function extends Operation implements Cloneable {
 
     public Function clone() {
         return new Function (super.operandTypes, parameterNames, super.returnType, super.name, super.fullName, lineNumberLocation);
+    }
+
+    public String toString() {
+        return fullName+" of type "+getType();
     }
 }

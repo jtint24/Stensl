@@ -60,6 +60,9 @@ public class Operation extends Datum {
         for (String inputType : operandTypes) {
             type+=inputType+",";
         }
+        if (type.charAt(type.length()-1) == ',') {
+            type = type.substring(0,type.length()-1);
+        }
         type+=")->";
         type+=returnType;
         return type;

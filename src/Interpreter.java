@@ -7,9 +7,9 @@ public class Interpreter {
     private static Function currentFunction;
     private static String[] codeLines;
     private static HashMap<String, Datum> memory = new HashMap<>();
-    private static HashMap<String, Function> functionList = new HashMap<>();
     private static ArrayList<String> functionShortNameList = new ArrayList<>();
     private static ArrayList<String> functionsThatNeedDisambiguation = new ArrayList<>();
+    private static HashMap<String, Integer> functionsByShortName = new HashMap<>();
     private static Stack<Integer> lineNumberStack = new Stack<>();
     private static Stack<HashMap<String, Datum>> localMemory = new Stack<>();
     private static boolean inGlobal = true;
@@ -64,7 +64,27 @@ public class Interpreter {
                     ErrorManager.printError("Illegal function name: "+functionName+"!");
                 }
 
-                String parameterListString = line.split("\\(")[1].split("\\)")[0];
+                String parameterListString = line;
+                int parameterListStringIndex = 0;
+                while (parameterListStringIndex<parameterListString.length()) {
+                    if (parameterListString.charAt(parameterListStringIndex) == '(') { //finds the first '(', the beginning of the parameter list
+                        break;
+                    }
+                    parameterListStringIndex++;
+                }
+                if (parameterListStringIndex>0) {
+                    parameterListString = parameterListString.substring(parameterListStringIndex+1); //cuts at the beginning of the parameter list
+                }
+                parameterListStringIndex = parameterListString.length()-1;
+                while (parameterListStringIndex>0) {                      //finds the last ')', the end of the parameter list
+                    if (parameterListString.charAt(parameterListStringIndex) == ')') {
+                        break;
+                    }
+                    parameterListStringIndex--;
+                }
+                if (parameterListStringIndex>=0) {
+                    parameterListString = parameterListString.substring(0, parameterListStringIndex); //cuts at the end of the parameter list
+                }
                 String[] parameterList = splitByNakedChar(parameterListString, ',');
                 ArrayList<String> parameterTypes = new ArrayList<>();
                 ArrayList<String> parameterNames = new ArrayList<>();
@@ -76,22 +96,28 @@ public class Interpreter {
                         parameterNames.add(parameterData[1].trim());
                         fullFunctionName += parameterData[0].trim() + ",";
                     }
+                    fullFunctionName = fullFunctionName.substring(0,fullFunctionName.length()-1);
                 }
                 fullFunctionName+=")";
 
-                if (functionList.containsKey(fullFunctionName)) {
+                if (memory.containsKey(fullFunctionName)) {
                     ErrorManager.printError("Duplicate function declaration: "+functionName+" !");
                 }
                 if (functionShortNameList.contains(functionName)) {
                     functionsThatNeedDisambiguation.add(functionName);
+                    functionsByShortName.put(functionName, functionsByShortName.get(functionName)+1);
+                } else {
+                    functionsByShortName.put(functionName, 1);
                 }
                 functionShortNameList.add(functionName);
-                functionList.put(fullFunctionName, new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), "void", functionName, fullFunctionName, lineNumber));
+                Function functionToAdd = new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), "void", functionName, fullFunctionName, lineNumber);
+                memory.put(fullFunctionName, functionToAdd);
             }
         }
 
         for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //Executes actual lines of code
             String line = codeLines[lineNumber-1];
+            //System.out.println(getFullMemory()+" , "+functionShortNameList);
             //System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
             //System.out.println("local mem is "+localMemory.toString()+" global mem is "+memory.toString());
 
@@ -109,7 +135,7 @@ public class Interpreter {
                     linePosition++;
                 }
                 String bracketMatch = findMatchingBracket(linePosition);
-                System.out.println("this is bracketMatch: "+bracketMatch);
+                //System.out.println("this is bracketMatch: "+bracketMatch);
                 if (bracketMatch.startsWith("func ")) {
                     ErrorManager.printError("No return statement!");
                 }
@@ -125,7 +151,7 @@ public class Interpreter {
                 }
             }
 
-            if (getFullMemory().containsKey(firstToken)) {
+            if (getFullMemory().containsKey(firstToken) && !getFullMemory().get(firstToken).getIsFunction()) {
                 assignVar(line);
             } else {
                 switch (firstToken) {
@@ -170,12 +196,13 @@ public class Interpreter {
         if (variable instanceof Function) {
             ((Function) variable).setName(variableName);
             ((Function) variable).regenerateFullName();
-            functionList.put(((Function) variable).getFullName(), (Function)variable);
-            if (functionShortNameList.contains(variableName)) {
-                functionsThatNeedDisambiguation.add(variableName);
+            functionShortNameList.add(variableName);
+            if (functionsByShortName.containsKey(variableName)) {
+                functionsByShortName.put(variableName, functionsByShortName.get(variableName)+1);
             } else {
-                functionShortNameList.add(variableName);
+                functionsByShortName.put(variableName, 1);
             }
+            variableName = ((Function) variable).getFullName();
         }
 
         if (inGlobal) {
@@ -207,8 +234,22 @@ public class Interpreter {
         currentFunction = func;
         lineNumber = func.getLineNumberLocation();
         HashMap<String, Datum> argumentMap = new HashMap<>();
-        for (int i = 0; i<arguments.length; i++) {
-            argumentMap.put(parameterNames[i], arguments[i]);
+        for (int i = 0; i<arguments.length; i++) { //Put arguments into local memory
+
+            if (arguments[i].getIsFunction()) {
+                ((Function)arguments[i]).setName(parameterNames[i]);
+                ((Function)arguments[i]).regenerateFullName();
+                //Function paramFunc = ((Function)arguments[i]).setName(parameterNames[i]);
+                if (functionsByShortName.containsKey(((Function)arguments[i]).getName())) {
+                    functionsByShortName.put(((Function) arguments[i]).getName(), functionsByShortName.get(((Function) arguments[i]).getName())+1);
+                } else {
+                    functionShortNameList.add(((Function) arguments[i]).getName());
+                    functionsByShortName.put(((Function) arguments[i]).getName(), 1);
+                }
+                argumentMap.put(((Function) arguments[i]).fullName, arguments[i]);
+            } else {
+                argumentMap.put(parameterNames[i], arguments[i]);
+            }
         }
         localMemory.push(argumentMap);
         return new Datum();
@@ -238,9 +279,16 @@ public class Interpreter {
     public static int getLineNumber() {
         return lineNumber;
     }
-    public static HashMap<String, Function> getFunctionList() {
-        return functionList;
+    public static Stack<Integer> getLineNumberStack() {
+        return lineNumberStack;
     }
+    public static String getCurrentLine() {
+        return codeLines[lineNumber-1];
+    }
+    public static HashMap<String, Integer> getFunctionsByShortName() {
+        return functionsByShortName;
+    }
+
     public static ArrayList<String> getFunctionShortNameList() { return functionShortNameList; }
     public static Function getCurrentFunction() { return currentFunction; }
     public static ArrayList<String> getFunctionsThatNeedDisambiguation() { return functionsThatNeedDisambiguation; }

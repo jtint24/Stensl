@@ -25,25 +25,24 @@ public class Parser extends Datum {
         try { //generally catches errors in the parser function because any number of illegal parser expressions could otherwise cause an interpreter crash
             //System.out.println("making a parser of: " + expr);
             if (Interpreter.getFullMemory().containsKey(expr)) { //checks for a variable
-                operation = OpLibrary.anyPass;
-                arguments = new Datum[1];
-                //System.out.println("making a variable out of \""+expr+"\"");
-                arguments[0] = Interpreter.getFullMemory().get(expr);
-                //System.out.println("here's data on the variable "+expr+":");
-                //System.out.println(arguments[0].getValue());
-                return;
+                if (!Interpreter.getFullMemory().get(expr).getIsFunction()) {
+                    operation = OpLibrary.anyPass;
+                    arguments = new Datum[1];
+                    arguments[0] = Interpreter.getFullMemory().get(expr);
+                    return;
+                }
             }
             //System.out.println(Interpreter.getFunctionShortNameList().toString());
             //System.out.println(Interpreter.getFunctionList().toString());
             if (Interpreter.getFunctionShortNameList().contains(expr)) { //checks for a function identifier (NOT A FUNCTION CALL)
-                if (Interpreter.getFunctionsThatNeedDisambiguation().contains(expr)) { //Functions that share names, even if they have different types, can't be used because we can't disambiguate
+                if (Interpreter.getFunctionsByShortName().get(expr)!=1) { //Functions that share names, even if they have different types, can't be used because we can't disambiguate
                     ErrorManager.printError("Function "+expr+" is ambiguous and cannot be used in a first-class context!");
                 }
-                for (String functionFullName : Interpreter.getFunctionList().keySet()) {
+                for (String functionFullName : Interpreter.getFullMemory().keySet()) {
                     if (functionFullName.startsWith(expr+"(")) {
                         operation = OpLibrary.anyPass;
                         arguments = new Datum[1];
-                        arguments[0] = Interpreter.getFunctionList().get(functionFullName).clone();
+                        arguments[0] = Interpreter.getFullMemory().get(functionFullName).clone();
                         return;
                     }
                 }
@@ -99,25 +98,29 @@ public class Parser extends Datum {
                         }
                     }
                     String functionShortName = expr.split("\\(")[0];
+
                     if (Interpreter.getFunctionShortNameList().contains(functionShortName)) { //This gets user-defined prefix function calls
                         if (expr.startsWith(functionShortName+"()")) {
-                            operation = Interpreter.getFunctionList().get(functionShortName+"()");
+                            operation = (Function)Interpreter.getFullMemory().get(functionShortName+"()").clone();
                             arguments = new Datum[0];
                             return;
                         }
                         String argumentList = expr.substring(functionShortName.length()+1, exprSize-1);
                         String[] argumentsStrings = splitByNakedChar(argumentList, ',');
-
                         arguments = new Datum[argumentsStrings.length];
                         String functionFullName = functionShortName+"(";
 
                         for (int i = 0; i<argumentsStrings.length; i++) {
-                            arguments[i] = new Parser(argumentsStrings[i]);
+                            arguments[i] = new Parser(argumentsStrings[i]).result();
+
                             functionFullName+=arguments[i].getType()+",";
+
+                        }
+                        if (functionFullName.charAt(functionFullName.length()-1) == ',') {
+                            functionFullName = functionFullName.substring(0, functionFullName.length() - 1);
                         }
                         functionFullName+=")";
-
-                        operation = Interpreter.getFunctionList().get(functionFullName);
+                        operation = (Function)Interpreter.getFullMemory().get(functionFullName).clone();
                         return;
                     }
 
@@ -343,6 +346,7 @@ public class Parser extends Datum {
                 minPrecedence = minPrecedence.incremented();
             }
         } catch (Exception e) {
+            //e.printStackTrace(System.out);
             ErrorManager.printError("Parser syntax error at line "+ Interpreter.getLineNumber()+"! "+e);
         }
     }

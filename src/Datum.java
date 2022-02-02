@@ -61,4 +61,8 @@ public class Datum implements Cloneable {
     public void setIsMutable(boolean m) {
         isMutable = m;
     }
+
+    public String toString() {
+        return value+" of type "+type;
+    }
 }
