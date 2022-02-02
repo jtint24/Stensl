@@ -58,6 +58,8 @@ public class Datum implements Cloneable {
         return false;
     }
 
+    public boolean getIsMutable() { return isMutable; }
+
     public void setIsMutable(boolean m) {
         isMutable = m;
     }

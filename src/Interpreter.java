@@ -92,6 +92,9 @@ public class Interpreter {
                 if (!parameterListString.isBlank()) {
                     for (String parameterString : parameterList) { //Check all the parameters for the function
                         String[] parameterData = parameterString.split(":");
+                        if (parameterNames.contains(parameterData[1].trim())) {
+                            ErrorManager.printError("Argument "+parameterData[1].trim()+" is a duplicate!");
+                        }
                         parameterTypes.add(parameterData[0].trim());
                         parameterNames.add(parameterData[1].trim());
                         fullFunctionName += parameterData[0].trim() + ",";
@@ -190,6 +193,11 @@ public class Interpreter {
         }
 
         Parser variableParser = (new Parser(lineSplitByEqual[1]));
+
+        if (!variableType.equals(variableParser.getType()) && !(variableType.equals("string") && variableParser.getType().equals("char")) && !(variableType.equals("float") && variableParser.getType().equals("int"))) {
+            ErrorManager.printError("Value of type "+variableParser.getType()+" cannot be assigned to a variable of type "+variableType+"!");
+        }
+
         Datum variable = variableParser.result();
         variable.setIsMutable(!isConst);
 
@@ -220,8 +228,15 @@ public class Interpreter {
             memory.get(varName).setValueFrom(new Parser(lineSplitByEqual[1]).result());
         } else {
             //System.out.println("mutating local memory");
+            Datum varToMutate = localMemory.peek().get(varName);
+            if (!varToMutate.getIsMutable()) {
+                ErrorManager.printError("Attempt to mutate a constant, "+varName+"!");
+            }
             HashMap<String, Datum> currentLocalMemory = (HashMap<String, Datum>) localMemory.peek().clone();
             Datum mutatedResult = new Parser(lineSplitByEqual[1]).result();
+            if (!mutatedResult.getType().equals(varToMutate.getType()) && !(mutatedResult.getType().equals("string") && mutatedResult.getType().equals("char")) && !(mutatedResult.getType().equals("float") && mutatedResult.getType().equals("int"))) {
+                ErrorManager.printError("Values of type "+mutatedResult.getType()+" are not compatible with variable "+varName+" of type "+varToMutate.getType());
+            }
             currentLocalMemory.remove(varName);
             currentLocalMemory.put(varName, mutatedResult);
             localMemory.pop();
@@ -235,7 +250,9 @@ public class Interpreter {
         lineNumber = func.getLineNumberLocation();
         HashMap<String, Datum> argumentMap = new HashMap<>();
         for (int i = 0; i<arguments.length; i++) { //Put arguments into local memory
-
+            if (getFullMemory().containsKey(parameterNames[i])) {
+                ErrorManager.printError("Argument "+parameterNames[i]+" is a duplicate!");
+            }
             if (arguments[i].getIsFunction()) {
                 ((Function)arguments[i]).setName(parameterNames[i]);
                 ((Function)arguments[i]).regenerateFullName();

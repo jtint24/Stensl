@@ -40,13 +40,16 @@ public class Main {
                 "runInfinitely | printHi"
         };*/
         String[] stenslScript =  {
-                "var int myInt = 0",
-                "func addOne(int: input) {",
-                "   input=input+1",
-                "   println(input)",
+                "",
+                "func duplicateArgFunc(int: a, int: b) {",
+                "   a = 10",
+                "   var bool myBool = true",
+                "   myBool = false",
+                "   println(myBool)",
+                "   println(a+a)",
                 "   return",
                 "}",
-                "addOne | myInt"
+                "duplicateArgFunc(5,10)",
         };
         Interpreter.runStensl(stenslScript);
         //System.out.print(Interpreter.getFunctionList());
