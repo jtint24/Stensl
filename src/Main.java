@@ -27,17 +27,26 @@ public class Main {
                 "   return",
                 "}",
                 "recursiveFunc(0)"};*/
-        String[] stenslScript = {
-                "func functionRunner(()->void: toRun) {",
+        /*String[] stenslScript = {
+                "func runInfinitely(()->void: toRun) {",
                 "   toRun()",
-                "   toRun()",
+                "   runInfinitely(toRun)",
                 "   return",
                 "}",
                 "func printHi() {",
                 "   println(\"hi\")",
                 "   return",
                 "}",
-                "functionRunner(printHi)"
+                "runInfinitely | printHi"
+        };*/
+        String[] stenslScript =  {
+                "var int myInt = 0",
+                "func addOne(int: input) {",
+                "   input=input+1",
+                "   println(input)",
+                "   return",
+                "}",
+                "addOne | myInt"
         };
         Interpreter.runStensl(stenslScript);
         //System.out.print(Interpreter.getFunctionList());

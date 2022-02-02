@@ -322,6 +322,16 @@ public class Parser extends Datum {
                                     return;
                                 }
                                 break;
+                            case '|':
+                                if (minPrecedence.equals(OpPrecedence.FUNCTIONAL)) {
+                                    setArgumentsAround(i, expr);
+                                    operation = (Function)((Parser)arguments[0]).result();
+                                    Datum opInput = arguments[1];
+                                    arguments = new Datum[1];
+                                    arguments[0] = ((Parser)opInput).result();
+                                    return;
+                                }
+                                break;
                             default:
                                 break;
                         }
