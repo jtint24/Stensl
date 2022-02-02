@@ -336,6 +336,9 @@ public class Parser extends Datum {
                                 break;
                         }
                     }
+                    if (parenCount<0) {
+                        ErrorManager.printError("Parentheses mismatch!");
+                    }
                 }
                 if (parenCount != 0) {
                     ErrorManager.printError("Parentheses mismatch!");

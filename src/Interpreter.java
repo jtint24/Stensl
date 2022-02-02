@@ -8,8 +8,6 @@ public class Interpreter {
     private static String[] codeLines;
     private static HashMap<String, Datum> memory = new HashMap<>();
     private static ArrayList<String> functionShortNameList = new ArrayList<>();
-    private static ArrayList<String> functionsThatNeedDisambiguation = new ArrayList<>();
-    private static HashMap<String, Integer> functionsByShortName = new HashMap<>();
     private static Stack<Integer> lineNumberStack = new Stack<>();
     private static Stack<HashMap<String, Datum>> localMemory = new Stack<>();
     private static boolean inGlobal = true;
@@ -106,12 +104,7 @@ public class Interpreter {
                 if (memory.containsKey(fullFunctionName)) {
                     ErrorManager.printError("Duplicate function declaration: "+functionName+" !");
                 }
-                if (functionShortNameList.contains(functionName)) {
-                    functionsThatNeedDisambiguation.add(functionName);
-                    functionsByShortName.put(functionName, functionsByShortName.get(functionName)+1);
-                } else {
-                    functionsByShortName.put(functionName, 1);
-                }
+
                 functionShortNameList.add(functionName);
                 Function functionToAdd = new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), "void", functionName, fullFunctionName, lineNumber);
                 memory.put(fullFunctionName, functionToAdd);
@@ -205,11 +198,6 @@ public class Interpreter {
             ((Function) variable).setName(variableName);
             ((Function) variable).regenerateFullName();
             functionShortNameList.add(variableName);
-            if (functionsByShortName.containsKey(variableName)) {
-                functionsByShortName.put(variableName, functionsByShortName.get(variableName)+1);
-            } else {
-                functionsByShortName.put(variableName, 1);
-            }
             variableName = ((Function) variable).getFullName();
         }
 
@@ -257,11 +245,8 @@ public class Interpreter {
                 ((Function)arguments[i]).setName(parameterNames[i]);
                 ((Function)arguments[i]).regenerateFullName();
                 //Function paramFunc = ((Function)arguments[i]).setName(parameterNames[i]);
-                if (functionsByShortName.containsKey(((Function)arguments[i]).getName())) {
-                    functionsByShortName.put(((Function) arguments[i]).getName(), functionsByShortName.get(((Function) arguments[i]).getName())+1);
-                } else {
+                if (!functionShortNameList.contains(((Function) arguments[i]).getName())) {
                     functionShortNameList.add(((Function) arguments[i]).getName());
-                    functionsByShortName.put(((Function) arguments[i]).getName(), 1);
                 }
                 argumentMap.put(((Function) arguments[i]).fullName, arguments[i]);
             } else {
@@ -303,12 +288,22 @@ public class Interpreter {
         return codeLines[lineNumber-1];
     }
     public static HashMap<String, Integer> getFunctionsByShortName() {
-        return functionsByShortName;
+        HashMap<String, Integer> funcsByShortName = new HashMap<>();
+        for (Datum memBlock : getFullMemory().values()) {
+            if (memBlock.getIsFunction()) {
+                Function memBlockFunc = (Function)memBlock;
+                if (funcsByShortName.containsKey(memBlockFunc.getName())) {
+                    funcsByShortName.put(memBlockFunc.getName(), funcsByShortName.get(memBlockFunc.getName())+1);
+                } else {
+                    funcsByShortName.put(memBlockFunc.getName(), 1);
+                }
+            }
+        }
+        return funcsByShortName;
     }
 
     public static ArrayList<String> getFunctionShortNameList() { return functionShortNameList; }
     public static Function getCurrentFunction() { return currentFunction; }
-    public static ArrayList<String> getFunctionsThatNeedDisambiguation() { return functionsThatNeedDisambiguation; }
     private static String findMatchingBracket(int linePosition) {
         int bracketCount = 0;
         int originalLineNumber = lineNumber;

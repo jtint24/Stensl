@@ -27,7 +27,7 @@ public class Main {
                 "   return",
                 "}",
                 "recursiveFunc(0)"};*/
-        /*String[] stenslScript = {
+        String[] stenslScript = {
                 "func runInfinitely(()->void: toRun) {",
                 "   toRun()",
                 "   runInfinitely(toRun)",
@@ -38,8 +38,8 @@ public class Main {
                 "   return",
                 "}",
                 "runInfinitely | printHi"
-        };*/
-        String[] stenslScript =  {
+        };
+        /*String[] stenslScript =  {
                 "",
                 "func duplicateArgFunc(int: a, int: b) {",
                 "   a = 10",
@@ -50,7 +50,7 @@ public class Main {
                 "   return",
                 "}",
                 "duplicateArgFunc(5,10)",
-        };
+        };*/
         Interpreter.runStensl(stenslScript);
         //System.out.print(Interpreter.getFunctionList());
     }
