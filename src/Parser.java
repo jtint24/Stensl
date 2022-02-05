@@ -40,6 +40,7 @@ public class Parser extends Datum {
                 }
                 for (String functionFullName : Interpreter.getFullMemory().keySet()) {
                     if (functionFullName.startsWith(expr+"(")) {
+
                         operation = OpLibrary.anyPass;
                         arguments = new Datum[1];
                         arguments[0] = Interpreter.getFullMemory().get(functionFullName).clone();

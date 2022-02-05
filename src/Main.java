@@ -1,6 +1,6 @@
 public class Main {
     public static void main(String[] args) {
-        /*String[] stenslScript = {
+       /* String[] stenslScript = {
                 "func firstClassFunc() {",
                 "   println(\"the func ran!\")",
                 "   return",
@@ -27,7 +27,7 @@ public class Main {
                 "   return",
                 "}",
                 "recursiveFunc(0)"};*/
-        String[] stenslScript = {
+        /*String[] stenslScript = {
                 "func runInfinitely(()->void: toRun) {",
                 "   toRun()",
                 "   runInfinitely(toRun)",
@@ -37,8 +37,15 @@ public class Main {
                 "   println(\"hi\")",
                 "   return",
                 "}",
-                "runInfinitely | printHi"
-        };
+                "func printBye() {",
+                "   println(\"bye\")",
+                "   return",
+                "}",
+                "var ()->void alsoPrintHi = printHi",
+                "alsoPrintHi = printBye",
+                "printHi()",
+                "alsoPrintHi()"
+        };*/
         /*String[] stenslScript =  {
                 "",
                 "func duplicateArgFunc(int: a, int: b) {",
@@ -46,11 +53,37 @@ public class Main {
                 "   var bool myBool = true",
                 "   myBool = false",
                 "   println(myBool)",
-                "   println(a+a)",
+                "   println(a+a+b)",
                 "   return",
                 "}",
                 "duplicateArgFunc(5,10)",
         };*/
+        /*String[] stenslScript = {
+                "",
+                "if (false) {",
+                "   println(\"this shouldn't run\"",
+                "}",
+                "if (true) {",
+                "   println(\"this should run\")",
+                "}"
+        };*/
+
+        String[] stenslScript = {
+                "func forLoop(int: imin, int: imax, (int)->void: toRun) {",
+                "   if (imin<imax) {",
+                "       toRun(imin)",
+                "       forLoop(imin+1, imax, toRun)",
+                "   }",
+                "   return",
+                "}",
+                "func printI(int: i) {",
+                "   println(i)",
+                "   return",
+                "}",
+                "forLoop(0, 5, printI)"
+        };
+
+
         Interpreter.runStensl(stenslScript);
         //System.out.print(Interpreter.getFunctionList());
     }

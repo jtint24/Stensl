@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
@@ -125,7 +126,7 @@ public class Interpreter {
                 continue;
             }
 
-            if (line.contains("}")) {
+            if (line.equals("}")) {
                 int linePosition = 0;
                 while (line.charAt(linePosition)!='}') {
                     linePosition++;
@@ -135,6 +136,7 @@ public class Interpreter {
                 if (bracketMatch.startsWith("func ")) {
                     ErrorManager.printError("No return statement!");
                 }
+                continue;
             }
 
             String firstToken = "";
@@ -146,8 +148,20 @@ public class Interpreter {
                     break;
                 }
             }
+            boolean isAssignment = false;
+            while (charCount<line.length()) {
+                charCount++;
+                if (line.charAt(charCount) != ' ') {
+                    if (line.charAt(charCount) == '=') {
+                        isAssignment = true;
+                        break;
+                    } else {
+                        break;
+                    }
+                }
+            }
 
-            if (getFullMemory().containsKey(firstToken) && !getFullMemory().get(firstToken).getIsFunction()) {
+            if ((getFullMemory().containsKey(firstToken) || functionShortNameList.contains(firstToken)) && isAssignment) {
                 assignVar(line);
             } else {
                 switch (firstToken) {
@@ -156,6 +170,9 @@ public class Interpreter {
                         break;
                     case "func":
                         moveOverBracketedCode();
+                        break;
+                    case "if":
+                        runIf();
                         break;
                     case "return":
                         lineNumber = lineNumberStack.pop();
@@ -214,6 +231,19 @@ public class Interpreter {
 
         if (memory.containsKey(varName)) {
             memory.get(varName).setValueFrom(new Parser(lineSplitByEqual[1]).result());
+        } else if (getGlobalFunctionShortnames().contains(varName)) {
+            String varFullName = "";
+            for (Datum memBlock : memory.values()) {
+                if (memBlock.getIsFunction()) {
+                    if (((Function) memBlock).getName().equals(varName)) {
+                        varFullName = ((Function) memBlock).getFullName();
+                    }
+                }
+            }
+            Function functionToAssignTo = ((Function)new Parser(lineSplitByEqual[1]).result()).clone();
+            functionToAssignTo.setName(varName);
+            functionToAssignTo.regenerateFullName();
+            memory.put(varFullName, functionToAssignTo);
         } else {
             //System.out.println("mutating local memory");
             Datum varToMutate = localMemory.peek().get(varName);
@@ -238,7 +268,7 @@ public class Interpreter {
         lineNumber = func.getLineNumberLocation();
         HashMap<String, Datum> argumentMap = new HashMap<>();
         for (int i = 0; i<arguments.length; i++) { //Put arguments into local memory
-            if (getFullMemory().containsKey(parameterNames[i])) {
+            if (memory.containsKey(parameterNames[i])) {
                 ErrorManager.printError("Argument "+parameterNames[i]+" is a duplicate!");
             }
             if (arguments[i].getIsFunction()) {
@@ -255,6 +285,33 @@ public class Interpreter {
         }
         localMemory.push(argumentMap);
         return new Datum();
+    }
+    public static void runIf() {
+        String line = codeLines[lineNumber-1];
+        int parenCount = 0;
+        boolean parenCountHasExceededZero = false;
+        int lineIndex = 2;
+        while (!(parenCount == 0 && parenCountHasExceededZero)) {
+            if (line.charAt(lineIndex) == '(') {
+                parenCount++;
+                parenCountHasExceededZero = true;
+            }
+            if (line.charAt(lineIndex) == ')') {
+                parenCount--;
+            }
+            lineIndex++;
+            if (lineIndex>=line.length()) {
+                ErrorManager.printError("Syntax Error on If!");
+            }
+        }
+        if (!line.trim().endsWith("{")) {
+            ErrorManager.printError("Syntax Error on If!");
+        }
+        String ifExpression = line.substring(2, lineIndex);
+        String ifExpressionResult = new Parser(ifExpression).result().getValue();
+        if (ifExpressionResult.equals("false")) {
+            moveOverBracketedCode();
+        }
     }
     private static void moveOverBracketedCode() {
         int bracketCount = 0;
@@ -302,14 +359,24 @@ public class Interpreter {
         return funcsByShortName;
     }
 
+    public static ArrayList<String> getGlobalFunctionShortnames() {
+        ArrayList<String> globalFuncShortnames = new ArrayList<>();
+        for (Datum memBlock : memory.values()) {
+            if (memBlock.getIsFunction()) {
+                globalFuncShortnames.add(((Function)memBlock).getName());
+            }
+        }
+        return globalFuncShortnames;
+    }
+
     public static ArrayList<String> getFunctionShortNameList() { return functionShortNameList; }
     public static Function getCurrentFunction() { return currentFunction; }
     private static String findMatchingBracket(int linePosition) {
         int bracketCount = 0;
-        int originalLineNumber = lineNumber;
-        while (lineNumber>=0) {
+        int scanLineNumber = lineNumber;
+        while (scanLineNumber>=0) {
             while (linePosition>=0) {
-                char activeChar = codeLines[lineNumber-1].charAt(linePosition);
+                char activeChar = codeLines[scanLineNumber-1].charAt(linePosition);
                 if (activeChar == '{') {
                     bracketCount--;
                 }
@@ -317,13 +384,13 @@ public class Interpreter {
                     bracketCount++;
                 }
                 if (bracketCount == 0) {
-                    return codeLines[lineNumber-1];
+                    return codeLines[scanLineNumber-1];
                 }
                 linePosition--;
             }
-            lineNumber--;
+            scanLineNumber--;
+            linePosition = codeLines[scanLineNumber-1].length()-1;
         }
-        lineNumber = originalLineNumber;
         ErrorManager.printError("Bracket mismatch!");
         return "";
     }
@@ -356,7 +423,7 @@ public class Interpreter {
         return splitResults.toArray(new String[0]);
     }
     private static boolean isLegalIdentifier(String name) {
-        String illegalChars = ".()+-%*/\\{}[]=&|!^<>?,;:";
+        String illegalChars = ".()+-%*/\\{}[]=&|!^<>?,;:\"";
         for (char activeChar : name.toCharArray()) {
             if (illegalChars.contains(""+activeChar)) {
                 return false;
