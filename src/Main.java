@@ -80,7 +80,13 @@ public class Main {
                 "   println(i)",
                 "   return",
                 "}",
-                "forLoop(0, 5, printI)"
+                "forLoop(0, 5, printI)",
+                "if (5<4) {",
+                "   println(\":(\")",
+                "} else {",
+                "   println(\":)\")",
+                "}",
+                ""
         };
 
 

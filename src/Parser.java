@@ -153,13 +153,13 @@ public class Parser extends Datum {
                 for (int i = 0; i < exprSize; i++) {
                     char activeChar = expr.charAt(i);
 
-                    if (activeChar == '(') {
+                    if (activeChar == '(' && !inQuote) {
                         parenCount++;
                     }
                     if (minParenCount > parenCount && i != exprSize - 1) {
                         minParenCount = parenCount;
                     }
-                    if (activeChar == ')') {
+                    if (activeChar == ')' && !inQuote) {
                         parenCount--;
                     }
                     if (activeChar == '\"') {

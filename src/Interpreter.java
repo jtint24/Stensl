@@ -312,6 +312,11 @@ public class Interpreter {
         if (ifExpressionResult.equals("false")) {
             moveOverBracketedCode();
         }
+        if (codeLines[lineNumber-1].matches("}[ ]+else[ ]+\\{")) {
+            if (ifExpressionResult.equals("true")) {
+                moveOverBracketedCode();
+            }
+        }
     }
     private static void moveOverBracketedCode() {
         int bracketCount = 0;
@@ -319,11 +324,14 @@ public class Interpreter {
         do  {
             lineNumber++;
             String currentLine = codeLines[lineNumber-1];
-            if (currentLine.contains("{")) {
+            if (currentLine.endsWith("{")) {
                 bracketCount++;
             }
-            if (currentLine.contains("}")) {
+            if (currentLine.startsWith("}")) {
                 bracketCount--;
+            }
+            if (currentLine.startsWith("}") && currentLine.endsWith("{") && bracketCount == 1) {
+                break;
             }
         } while (bracketCount!=0);
         //lineNumber++;
