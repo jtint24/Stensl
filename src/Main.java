@@ -86,7 +86,12 @@ public class Main {
                 "} else {",
                 "   println(\":)\")",
                 "}",
-                ""
+                "",
+                "for (1,5) { (int index)",
+                "   for (1,5) { (int index2)",
+                "       println(index+index2)",
+                "   }",
+                "}"
         };
 
 

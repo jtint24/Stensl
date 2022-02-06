@@ -136,6 +136,17 @@ public class Interpreter {
                 if (bracketMatch.startsWith("func ")) {
                     ErrorManager.printError("No return statement!");
                 }
+                if (bracketMatch.startsWith("for ")) {
+                    int maximumIndex = Integer.parseInt(bracketMatch.split("\\)")[0].split(",")[1]);
+                    String indexDeclaration = bracketMatch.split("\\{")[1].split("\\(")[1].split("\\)")[0];
+                    String indexName = indexDeclaration.split(" ")[1];
+                    if (Float.parseFloat(localMemory.peek().get(indexName).getValue())<maximumIndex) {
+                        localMemory.peek().put(indexName, localMemory.peek().get(indexName).increment());
+                        lineNumber = findMatchingBracketIndex(linePosition);
+                    } else {
+                        localMemory.pop();
+                    }
+                }
                 continue;
             }
 
@@ -173,6 +184,9 @@ public class Interpreter {
                         break;
                     case "if":
                         runIf();
+                        break;
+                    case "for":
+                        runFor();
                         break;
                     case "return":
                         lineNumber = lineNumberStack.pop();
@@ -318,6 +332,24 @@ public class Interpreter {
             }
         }
     }
+    public static void runFor() {
+        String line = codeLines[lineNumber-1];
+        int minimumIndex = Integer.parseInt(line.split("\\(")[1].split(",")[0]);
+        int maximumIndex = Integer.parseInt(line.split("\\)")[0].split(",")[1]);
+        String indexDeclaration = line.split("\\{")[1].split("\\(")[1].split("\\)")[0];
+        String indexType = indexDeclaration.split(" ")[0];
+        String indexName = indexDeclaration.split(" ")[1];
+        Datum index = new Datum(((Integer)minimumIndex).toString(), indexType);
+        HashMap<String, Datum> currentLocalMem;
+        if (localMemory.size()>0) {
+            currentLocalMem = (HashMap<String, Datum>) localMemory.peek().clone();
+        } else {
+            currentLocalMem = new HashMap<>();
+        }
+        currentLocalMem.put(indexName, index);
+        localMemory.push(currentLocalMem);
+        return;
+    }
     private static void moveOverBracketedCode() {
         int bracketCount = 0;
         lineNumber--;
@@ -401,6 +433,29 @@ public class Interpreter {
         }
         ErrorManager.printError("Bracket mismatch!");
         return "";
+    }
+    private static int findMatchingBracketIndex(int linePosition) {
+        int bracketCount = 0;
+        int scanLineNumber = lineNumber;
+        while (scanLineNumber>=0) {
+            while (linePosition>=0) {
+                char activeChar = codeLines[scanLineNumber-1].charAt(linePosition);
+                if (activeChar == '{') {
+                    bracketCount--;
+                }
+                if (activeChar == '}') {
+                    bracketCount++;
+                }
+                if (bracketCount == 0) {
+                    return scanLineNumber;
+                }
+                linePosition--;
+            }
+            scanLineNumber--;
+            linePosition = codeLines[scanLineNumber-1].length()-1;
+        }
+        ErrorManager.printError("Bracket mismatch!");
+        return 0;
     }
 
     private static String[] splitByNakedChar(String s, char c) {

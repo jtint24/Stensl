@@ -40,6 +40,18 @@ public class Datum implements Cloneable {
         }
     }
 
+    public Datum increment() {
+        if (!isMutable) {
+            ErrorManager.printError("Cannot increment immutable variable!");
+        }
+        if (this.getType().equals("int") || this.getType().equals("float")) {
+            value = String.valueOf(Float.parseFloat(value)+1);
+        } else {
+            ErrorManager.printError("Cannot increment non-numerical type, "+getType()+"!");
+        }
+        return this;
+    }
+
     public String getType() {
         return type;
     }
