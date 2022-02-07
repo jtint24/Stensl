@@ -113,9 +113,7 @@ public class Parser extends Datum {
 
                         for (int i = 0; i<argumentsStrings.length; i++) {
                             arguments[i] = new Parser(argumentsStrings[i]).result();
-
                             functionFullName+=arguments[i].getType()+",";
-
                         }
                         if (functionFullName.charAt(functionFullName.length()-1) == ',') {
                             functionFullName = functionFullName.substring(0, functionFullName.length() - 1);
@@ -124,26 +122,6 @@ public class Parser extends Datum {
                         operation = (Function)Interpreter.getFullMemory().get(functionFullName).clone();
                         return;
                     }
-
-                    /*for (Function prefixFunction : Interpreter.getFunctionList()) { //OLD FUNCTION IMPLEMENTATION
-                        String prefixFunctionName = prefixFunction.getName();
-                        if (exprSize>=prefixFunctionName.length()) {
-                            if (expr.startsWith(prefixFunctionName+"(")) {
-                                operation = prefixFunction;
-                                if (expr.startsWith(prefixFunctionName+"()")) {
-                                    arguments = new Datum[0];
-                                    return;
-                                }
-                                String argumentList = expr.substring(prefixFunctionName.length()+1, exprSize-1);
-                                String[] argumentsStrings = splitByNakedChar(argumentList, ',');
-                                arguments = new Datum[argumentsStrings.length];
-                                for (int i = 0; i<argumentsStrings.length; i++) {
-                                    arguments[i] = new Parser(argumentsStrings[i]);
-                                }
-                                return;
-                            }
-                        }
-                    }*/
                 }
 
                 /*CHECK FOR OPERATORS INSIDE THE FUNCTION*/
@@ -360,7 +338,7 @@ public class Parser extends Datum {
                 minPrecedence = minPrecedence.incremented();
             }
         } catch (Exception e) {
-            //e.printStackTrace(System.out);
+            e.printStackTrace(System.out);
             ErrorManager.printError("Parser syntax error at line "+ Interpreter.getLineNumber()+"! "+e);
         }
     }

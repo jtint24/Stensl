@@ -57,7 +57,7 @@ public class Interpreter {
 
             if (line.startsWith("func ")) {
                 String[] headerWords = line.split("\\(")[0].split(" ");
-                String functionName = headerWords[1];
+                String functionName = headerWords[2];
 
                 if (!isLegalIdentifier(functionName)) {
                     ErrorManager.printError("Illegal function name: "+functionName+"!");
@@ -106,102 +106,118 @@ public class Interpreter {
                     ErrorManager.printError("Duplicate function declaration: "+functionName+" !");
                 }
 
+                String returnType = headerWords[1];
                 functionShortNameList.add(functionName);
-                Function functionToAdd = new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), "void", functionName, fullFunctionName, lineNumber);
+                Function functionToAdd = new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), returnType, functionName, fullFunctionName, lineNumber);
                 memory.put(fullFunctionName, functionToAdd);
             }
         }
 
         for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //Executes actual lines of code
-            String line = codeLines[lineNumber-1];
-            //System.out.println(getFullMemory()+" , "+functionShortNameList);
-            //System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
-            //System.out.println("local mem is "+localMemory.toString()+" global mem is "+memory.toString());
+            runLine();
+        }
+    }
 
-            //getFullMemory().forEach((key, value) -> { //prints out the value and name of each value in memory
-                //System.out.println(key+" holds "+value.getValue()+" of type "+value.getType());
-            //});
+    private static Datum runLine() {
+        String line = codeLines[lineNumber-1];
+        //System.out.println(getFullMemory()+" , "+functionShortNameList);
+        //System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
+        //System.out.println("local mem is "+localMemory.toString()+" global mem is "+memory.toString());
 
-            if (line.length() == 0) { //doesn't even bother running blank lines
-                continue;
+        //getFullMemory().forEach((key, value) -> { //prints out the value and name of each value in memory
+        //System.out.println(key+" holds "+value.getValue()+" of type "+value.getType());
+        //});
+
+        if (line.length() == 0) { //doesn't even bother running blank lines
+            return new Datum();
+        }
+
+        if (line.equals("}")) {
+            int linePosition = 0;
+            while (line.charAt(linePosition)!='}') {
+                linePosition++;
             }
-
-            if (line.equals("}")) {
-                int linePosition = 0;
-                while (line.charAt(linePosition)!='}') {
-                    linePosition++;
-                }
-                String bracketMatch = findMatchingBracket(linePosition);
-                //System.out.println("this is bracketMatch: "+bracketMatch);
-                if (bracketMatch.startsWith("func ")) {
-                    ErrorManager.printError("No return statement!");
-                }
-                if (bracketMatch.startsWith("for ")) {
-                    int maximumIndex = Integer.parseInt(bracketMatch.split("\\)")[0].split(",")[1]);
-                    String indexDeclaration = bracketMatch.split("\\{")[1].split("\\(")[1].split("\\)")[0];
-                    String indexName = indexDeclaration.split(" ")[1];
-                    if (Float.parseFloat(localMemory.peek().get(indexName).getValue())<maximumIndex) {
-                        localMemory.peek().put(indexName, localMemory.peek().get(indexName).increment());
-                        lineNumber = findMatchingBracketIndex(linePosition);
-                    } else {
-                        localMemory.pop();
-                    }
-                }
-                continue;
+            String bracketMatch = findMatchingBracket(linePosition);
+            //System.out.println("this is bracketMatch: "+bracketMatch);
+            if (bracketMatch.startsWith("func ")) {
+                ErrorManager.printError("No return statement!");
             }
+            if (bracketMatch.startsWith("for ")) {
+                int maximumIndex = Integer.parseInt(bracketMatch.split("\\)")[0].split(",")[1]);
+                String indexDeclaration = bracketMatch.split("\\{")[1].split("\\(")[1].split("\\)")[0];
+                String indexName = indexDeclaration.split(" ")[1];
+                if (Float.parseFloat(localMemory.peek().get(indexName).getValue())<maximumIndex) {
+                    localMemory.peek().put(indexName, localMemory.peek().get(indexName).increment());
+                    lineNumber = findMatchingBracketIndex(linePosition);
+                } else {
+                    localMemory.pop();
+                }
+            }
+            return new Datum();
+        }
 
-            String firstToken = "";
-            int charCount = 0;
-            while (line.charAt(charCount)!=' ' && line.charAt(charCount)!='=') {
-                firstToken+=line.charAt(charCount);
-                charCount++;
-                if (charCount == line.length()) {
+        String firstToken = "";
+        int charCount = 0;
+        while (line.charAt(charCount)!=' ' && line.charAt(charCount)!='=') {
+            firstToken+=line.charAt(charCount);
+            charCount++;
+            if (charCount == line.length()) {
+                break;
+            }
+        }
+        boolean isAssignment = false;
+        while (charCount<line.length()) {
+            charCount++;
+            if (line.charAt(charCount) != ' ') {
+                if (line.charAt(charCount) == '=') {
+                    isAssignment = true;
+                    break;
+                } else {
                     break;
                 }
             }
-            boolean isAssignment = false;
-            while (charCount<line.length()) {
-                charCount++;
-                if (line.charAt(charCount) != ' ') {
-                    if (line.charAt(charCount) == '=') {
-                        isAssignment = true;
-                        break;
-                    } else {
-                        break;
-                    }
-                }
-            }
+        }
 
-            if ((getFullMemory().containsKey(firstToken) || functionShortNameList.contains(firstToken)) && isAssignment) {
-                assignVar(line);
-            } else {
-                switch (firstToken) {
-                    case "var":
-                        initializeVar(line);
-                        break;
-                    case "func":
-                        moveOverBracketedCode();
-                        break;
-                    case "if":
-                        runIf();
-                        break;
-                    case "for":
-                        runFor();
-                        break;
-                    case "return":
+        if ((getFullMemory().containsKey(firstToken) || functionShortNameList.contains(firstToken)) && isAssignment) {
+            assignVar(line);
+        } else {
+            switch (firstToken) {
+                case "var":
+                    initializeVar(line);
+                    break;
+                case "func":
+                    moveOverBracketedCode();
+                    break;
+                case "if":
+                    runIf();
+                    break;
+                case "for":
+                    runFor();
+                    break;
+                case "return":
+                    if (lineNumberStack.size() == 0) {
+                        inGlobal = true;
+                    }
+                    String argumentStringPlusParen = line.split("\\(")[1];
+                    if (argumentStringPlusParen.trim().equals(")")) {
                         lineNumber = lineNumberStack.pop();
                         localMemory.pop();
-                        if (lineNumberStack.size() == 0) {
-                            inGlobal = true;
-                        }
-                        break;
-                    default:
-                        (new Parser(line)).getValue();
-                        break;
-                }
+                        return new Datum("","");
+                    } else {
+                        String argumentString = line.split("\\(")[1].split("\\)")[0];
+                        Datum returnResult = (new Parser(argumentString)).result();
+                        lineNumber = lineNumberStack.pop();
+                        localMemory.pop();
+                        return returnResult;
+                    }
+                default:
+                    (new Parser(line)).getValue();
+                    break;
             }
         }
+        return new Datum();
     }
+
     private static void initializeVar(String line) {
         String[] lineSplitByEqual = line.split("=");
         String[] lineSplitBySpace = lineSplitByEqual[0].split(" ");
@@ -279,7 +295,7 @@ public class Interpreter {
         inGlobal = false;
         lineNumberStack.push(lineNumber);
         currentFunction = func;
-        lineNumber = func.getLineNumberLocation();
+        lineNumber = func.getLineNumberLocation()+1;
         HashMap<String, Datum> argumentMap = new HashMap<>();
         for (int i = 0; i<arguments.length; i++) { //Put arguments into local memory
             if (memory.containsKey(parameterNames[i])) {
@@ -298,7 +314,14 @@ public class Interpreter {
             }
         }
         localMemory.push(argumentMap);
-        return new Datum();
+        Datum lineResult = new Datum();
+        for (; lineNumber < codeLines.length; lineNumber++) {
+            lineResult = runLine();
+            if (!lineResult.getIsBlank()) {
+                break;
+            }
+        }
+        return lineResult;
     }
     public static void runIf() {
         String line = codeLines[lineNumber-1];

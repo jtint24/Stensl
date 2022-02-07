@@ -2,6 +2,7 @@ public class Datum implements Cloneable {
     private String value;
     private String type;
     private boolean isMutable = true;
+    private boolean isBlank = false;
 
     public Datum(String t, boolean im) {
         type = t;
@@ -18,7 +19,9 @@ public class Datum implements Cloneable {
         isMutable = im;
     }
 
-    public Datum() {}
+    public Datum() {
+        isBlank = true;
+    }
 
     public String getValue() {
         return value;
@@ -72,6 +75,8 @@ public class Datum implements Cloneable {
 
     public boolean getIsMutable() { return isMutable; }
 
+    public boolean getIsBlank() { return isBlank; }
+
     public void setIsMutable(boolean m) {
         isMutable = m;
     }
@@ -79,4 +84,5 @@ public class Datum implements Cloneable {
     public String toString() {
         return value+" of type "+type;
     }
+
 }

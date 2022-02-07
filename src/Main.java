@@ -68,17 +68,17 @@ public class Main {
                 "}"
         };*/
 
-        String[] stenslScript = {
-                "func forLoop(int: imin, int: imax, (int)->void: toRun) {",
+        /*String[] stenslScript = {
+                "func void forLoop(int: imin, int: imax, (int)->void: toRun) {",
                 "   if (imin<imax) {",
                 "       toRun(imin)",
                 "       forLoop(imin+1, imax, toRun)",
                 "   }",
-                "   return",
+                "   return ()",
                 "}",
-                "func printI(int: i) {",
+                "func void printI(int: i) {",
                 "   println(i)",
-                "   return",
+                "   return ()",
                 "}",
                 "forLoop(0, 5, printI)",
                 "if (5<4) {",
@@ -87,11 +87,28 @@ public class Main {
                 "   println(\":)\")",
                 "}",
                 "",
-                "for (1,5) { (int index)",
-                "   for (1,5) { (int index2)",
+                "for (1,3) { (int index)",
+                "   for (1,3) { (int index2)",
                 "       println(index+index2)",
                 "   }",
-                "}"
+                "}",
+                "func int addTwo(int: input) {",
+                "   println(input)",
+                "   return (input+2)",
+                "}",
+                "println(addTwo(7))"
+        };*/
+
+        String[] stenslScript = {
+                "func string exclaimed(string: instr) {",
+                "   var string withExclamationPoint = instr&\"!\"",
+                "   return (withExclamationPoint&\" \"&withExclamationPoint)",
+                "}",
+                "func string addDialogTag(string: instr) {",
+                "   var string withDialog = \"This guy said \"&instr&\" the first word of which is \"&(instr$0)",
+                "   return (withDialog)",
+                "}",
+                "println(addDialogTag | exclaimed | \"hello\")"
         };
 
 
