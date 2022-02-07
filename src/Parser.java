@@ -127,6 +127,9 @@ public class Parser extends Datum {
                 /*CHECK FOR OPERATORS INSIDE THE FUNCTION*/
                 int parenCount = 0;
                 int minParenCount = 1;
+                int bracketCount = 0;
+                int minBracketCount = 1;
+                int lastBracketIndex = 0;
                 boolean allQuote = true;
                 for (int i = 0; i < exprSize; i++) {
                     char activeChar = expr.charAt(i);
@@ -139,6 +142,16 @@ public class Parser extends Datum {
                     }
                     if (activeChar == ')' && !inQuote) {
                         parenCount--;
+                    }
+                    if (activeChar == '[' && !inQuote && i != exprSize - 1) {
+                        bracketCount++;
+                        lastBracketIndex = i;
+                    }
+                    if (minBracketCount > bracketCount) {
+                        minBracketCount = bracketCount;
+                    }
+                    if (activeChar == ']' && !inQuote) {
+                        bracketCount--;
                     }
                     if (activeChar == '\"') {
                         inQuote = !inQuote;
@@ -318,14 +331,52 @@ public class Parser extends Datum {
                     if (parenCount<0) {
                         ErrorManager.printError("Parentheses mismatch!");
                     }
+                    if (bracketCount<0) {
+
+                        ErrorManager.printError("Bracket mismatch! Brackets < 0!");
+                    }
                 }
                 if (parenCount != 0) {
                     ErrorManager.printError("Parentheses mismatch!");
+                }
+                if (bracketCount != 0) {
+                    ErrorManager.printError("Bracket mismatch! "+bracketCount);
                 }
                 if (minParenCount > 0) { //Checks for fully-paren-wrapped expression and unwraps it
                     Parser setThisTo = new Parser(expr.substring(1, exprSize - 1));
                     this.arguments = setThisTo.arguments;
                     this.operation = setThisTo.operation;
+                    return;
+                }
+                if (minBracketCount > 0) { //Checks for array literals
+                    String unwrappedExpr = expr.substring(1,exprSize-1);
+                    String[] elementsStringList = splitByNakedChar(unwrappedExpr, ',');
+                    Datum[] elementsDatums = new Datum[elementsStringList.length];
+                    String elementType = "";
+                    for (int i = 0; i<elementsDatums.length; i++) {
+                        elementsDatums[i] = (new Parser(elementsStringList[i])).result();
+                        if (i == 0) {
+                            elementType = elementsDatums[i].getType();
+                        } else {
+                            if (!elementType.equals(elementsDatums[i].getType())) {
+                                ErrorManager.printError("Can't create an array of conflicting types "+elementType+" and "+elementsDatums[i].getType()+"!");
+                            }
+                        }
+                    }
+                    arguments = new Datum[1];
+                    arguments[0] = new DatumArray(elementType, elementsDatums);
+                    operation = OpLibrary.anyPass;
+                    return;
+                }
+                if (expr.charAt(expr.length()-1) == ']' && lastBracketIndex != 0) { //check for array element-gets
+                    String indexString = expr.substring(lastBracketIndex+1, expr.length()-1);
+                    String arrayString = expr.substring(0, lastBracketIndex);
+                    Datum index = (new Parser(indexString)).result();
+                    Datum array = (new Parser(arrayString)).result();
+                    operation = OpLibrary.getElement;
+                    arguments = new Datum[2];
+                    arguments[0] = array;
+                    arguments[1] = index;
                     return;
                 }
                 if (allQuote) { //Checks for quote literal
@@ -415,6 +466,7 @@ public class Parser extends Datum {
         ArrayList<String> splitResults = new ArrayList<>();
         String currentSplit = "";
         int parenCount = 0;
+        int bracketCount = 0;
         boolean inQuotes = false;
         int sLength = s.length();
         for (int i = 0; i<sLength; i++) {
@@ -422,13 +474,19 @@ public class Parser extends Datum {
             if (sChar == '"') {
                 inQuotes = ! inQuotes;
             }
-            if (sChar == '(') {
+            if (sChar == '(' && !inQuotes) {
                 parenCount++;
             }
-            if (sChar == ')') {
+            if (sChar == ')' && !inQuotes) {
                 parenCount--;
             }
-            if (parenCount == 0 && !inQuotes && sChar == c) {
+            if (sChar == '[' && !inQuotes) {
+                bracketCount++;
+            }
+            if (sChar == ']' && !inQuotes) {
+                bracketCount--;
+            }
+            if (parenCount == 0 && bracketCount==0 && !inQuotes && sChar == c) {
                 splitResults.add(currentSplit);
                 currentSplit = "";
             } else {

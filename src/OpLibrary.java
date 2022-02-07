@@ -12,6 +12,7 @@ public class OpLibrary {
     private final static String[] doubleBool = {"bool", "bool"};
     private final static String[] singleBool = {"bool"};
     private final static String[] singleAny = {"any"};
+    private final static String[] anyArrInt = {"any", "int"};
 
     private final static OpFunction addFunction = (args) -> new Datum(String.valueOf(Float.parseFloat(args[0].getValue())+Float.parseFloat(args[1].getValue())), "float");
     public final static Operation addition = new Operation(addFunction, doubleFloat, "float", OpPrecedence.ADDITIVE, "addition");
@@ -114,6 +115,10 @@ public class OpLibrary {
     };
     public final static Operation println = new Operation(printlnFunction, singleAny, "void", OpPrecedence.FUNCTIONAL, "println");
     public final static Operation anyPass = new Operation(printlnFunction, singleAny, "any",  OpPrecedence.PASS,       "any pass");
+
+    public final static OpFunction getElementFunction = (args) -> ((DatumArray)args[0]).getElement(Integer.parseInt(args[1].getValue()));
+    public final static Operation getElement = new Operation(getElementFunction, anyArrInt, "any", OpPrecedence.PASS, "getvalue");
+
 
     public static ArrayList<Operation> prefixFunctions = new ArrayList<>(Arrays.asList(stringConversion, intConversion, floatConversion, print, println));
 

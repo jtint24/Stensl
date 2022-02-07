@@ -99,7 +99,7 @@ public class Main {
                 "println(addTwo(7))"
         };*/
 
-        String[] stenslScript = {
+        /*String[] stenslScript = {
                 "func string exclaimed(string: instr) {",
                 "   var string withExclamationPoint = instr&\"!\"",
                 "   return (withExclamationPoint&\" \"&withExclamationPoint)",
@@ -109,6 +109,14 @@ public class Main {
                 "   return (withDialog)",
                 "}",
                 "println(addDialogTag | exclaimed | \"hello\")"
+        };*/
+        String[] stenslScript = {
+                "var int[] myInt = [1,2,3]",
+                "println(int(myInt[0]))",
+                "println(int(myInt[1]))",
+                "println(int(myInt[2]))",
+                "var int[][] my2DIntArray = [[1,2],[2,3],[4,5]]",
+                //"println(int(myInt[0][0]))"
         };
 
 
