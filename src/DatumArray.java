@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class DatumArray extends Datum {
     private ArrayList<Datum> value;
@@ -62,6 +63,21 @@ public class DatumArray extends Datum {
                     ErrorManager.printError("Can't index an array with a non-integer!");
                 }
                 return new Datum("","void");
+            case "rotate":
+                String rotateIndexString = new Parser(argumentName).result().getValue();
+                float rotateIndex = 0;
+                try {
+                    rotateIndex = Float.parseFloat(rotateIndexString);
+                } catch (NumberFormatException nfe) {
+                    ErrorManager.printError("Can't index and array with a non-integer!");
+                }
+                if (rotateIndex%1==0) {
+                    Collections.rotate(value, (int)rotateIndex);
+                } else {
+                    ErrorManager.printError("Can't index an array with a non-integer!");
+                }
+                return new Datum("","void");
+
         }
 
         return new Datum();

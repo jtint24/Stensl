@@ -48,13 +48,13 @@ public class Main {
         };*/
         /*String[] stenslScript =  {
                 "",
-                "func duplicateArgFunc(int: a, int: b) {",
+                "func void duplicateArgFunc(int: a, int: b) {",
                 "   a = 10",
                 "   var bool myBool = true",
                 "   myBool = false",
                 "   println(myBool)",
                 "   println(a+a+b)",
-                "   return",
+                "   return ()",
                 "}",
                 "duplicateArgFunc(5,10)",
         };*/
@@ -105,7 +105,7 @@ public class Main {
                 "   return (withExclamationPoint&\" \"&withExclamationPoint)",
                 "}",
                 "func string addDialogTag(string: instr) {",
-                "   var string withDialog = \"This guy said \"&instr&\" the first word of which is \"&(instr$0)",
+                "   var string withDialog = \"This guy said \"&instr&\" the first letter of which is \"&(instr$0)",
                 "   return (withDialog)",
                 "}",
                 "println(addDialogTag | exclaimed | \"hello\")"
@@ -128,13 +128,27 @@ public class Main {
                 "println(\"items removed\")",
                 "for (0,myInt.length()-1) {(int i)",
                 "   print(str(myInt[i])&\",\")",
-                "}"
+                "}",
+                "println(\"\")",
+                "myInt.rotate(1)",
+                "for (0,myInt.length()-1) {(int i)",
+                "   print(str(myInt[i])&\",\")",
+                "}",
                 //"println(int(myInt[0][0]))"
         };
         /*String[] stenslScript = {
                 "var [int] myInts = [0, 1, 2, 3, 4, 3, 2,1,0,9]",
                 "for (0,9) { (int i)",
                 "   println(myInts[i])",
+                "}"
+        };*/
+        /*String[] stenslScript = {
+                "var bool myBool = 5>=10",
+                "println(\"myBool should be false and it is: \"&str(myBool))",
+                "if (!myBool) {",
+                "   println(\"Congrats!\")",
+                "} else {",
+                "   println(\"Ah shit\")",
                 "}"
         };*/
 

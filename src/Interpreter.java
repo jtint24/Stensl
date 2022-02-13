@@ -161,6 +161,14 @@ public class Interpreter {
             }
             return new Datum();
         }
+        if (line.matches("}[ ]+else[ ]+\\{")) {
+            String bracketMatch = findMatchingBracket(0);
+            if (!bracketMatch.startsWith("if ")) {
+                ErrorManager.printError("Else without if!");
+            }
+            moveOverBracketedCode(1);
+            return new Datum();
+        }
 
         String firstToken = "";
         int charCount = 0;
@@ -264,7 +272,7 @@ public class Interpreter {
             ErrorManager.printError("illegal variable name: "+variableName+"!");
         }
 
-        Parser variableParser = (new Parser(lineSplitByEqual[1]));
+        Parser variableParser = (new Parser(line.substring(lineSplitByEqual[0].length()+1)));
 
         if (!variableType.equals(variableParser.getType()) && !(variableType.equals("string") && variableParser.getType().equals("char")) && !(variableType.equals("float") && variableParser.getType().equals("int"))) {
             ErrorManager.printError("Value of type "+variableParser.getType()+" cannot be assigned to a variable of type "+variableType+"!");
@@ -292,7 +300,7 @@ public class Interpreter {
         String varName = lineSplitBySpace[0];
 
         if (memory.containsKey(varName)) {
-            memory.get(varName).setValueFrom(new Parser(lineSplitByEqual[1]).result());
+            memory.get(varName).setValueFrom(new Parser(line.substring(lineSplitByEqual[0].length()+1)).result());
         } else if (getGlobalFunctionShortnames().contains(varName)) {
             String varFullName = "";
             for (Datum memBlock : memory.values()) {
@@ -302,7 +310,7 @@ public class Interpreter {
                     }
                 }
             }
-            Function functionToAssignTo = ((Function)new Parser(lineSplitByEqual[1]).result()).clone();
+            Function functionToAssignTo = ((Function)new Parser(line.substring(lineSplitByEqual[0].length()+1)).result()).clone();
             functionToAssignTo.setName(varName);
             functionToAssignTo.regenerateFullName();
             memory.put(varFullName, functionToAssignTo);
@@ -313,7 +321,7 @@ public class Interpreter {
                 ErrorManager.printError("Attempt to mutate a constant, "+varName+"!");
             }
             HashMap<String, Datum> currentLocalMemory = (HashMap<String, Datum>) localMemory.peek().clone();
-            Datum mutatedResult = new Parser(lineSplitByEqual[1]).result();
+            Datum mutatedResult = new Parser(line.substring(lineSplitByEqual[0].length()+1)).result();
             if (!mutatedResult.getType().equals(varToMutate.getType()) && !(mutatedResult.getType().equals("string") && mutatedResult.getType().equals("char")) && !(mutatedResult.getType().equals("float") && mutatedResult.getType().equals("int"))) {
                 ErrorManager.printError("Values of type "+mutatedResult.getType()+" are not compatible with variable "+varName+" of type "+varToMutate.getType());
             }
@@ -374,7 +382,7 @@ public class Interpreter {
             }
         }
         if (!line.trim().endsWith("{")) {
-            ErrorManager.printError("Syntax Error on If!");
+            ErrorManager.printError("Bracket Error on If!");
         }
         String ifExpression = line.substring(2, lineIndex);
         String ifExpressionResult = new Parser(ifExpression).result().getValue();
@@ -431,6 +439,26 @@ public class Interpreter {
             if (currentLine.startsWith("}") && currentLine.endsWith("{") && bracketCount == 1) {
                 break;
             }
+        } while (bracketCount!=0);
+        //lineNumber++;
+    }
+    private static void moveOverBracketedCode(int bracketCount) {
+        lineNumber--;
+        boolean isFirst = true;
+        do  {
+            lineNumber++;
+            String currentLine = codeLines[lineNumber-1];
+
+            if (currentLine.endsWith("{")) {
+                bracketCount++;
+            }
+            if (currentLine.startsWith("}")) {
+                bracketCount--;
+            }
+            if (!isFirst && currentLine.startsWith("}") && currentLine.endsWith("{") && bracketCount == 1) {
+                break;
+            }
+            isFirst = false;
         } while (bracketCount!=0);
         //lineNumber++;
     }
