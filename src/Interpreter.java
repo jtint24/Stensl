@@ -165,6 +165,7 @@ public class Interpreter {
                 break;
             }
         }
+        boolean isArray = firstToken.contains("[");
         boolean isAssignment = false;
         while (charCount<line.length()) {
             charCount++;
@@ -177,7 +178,10 @@ public class Interpreter {
                 }
             }
         }
-
+        if (isArray && isAssignment) {
+            assignArrayVal(line);
+            return new Datum();
+        }
         if ((getFullMemory().containsKey(firstToken) || functionShortNameList.contains(firstToken)) && isAssignment) {
             assignVar(line);
         } else {
@@ -217,7 +221,29 @@ public class Interpreter {
         }
         return new Datum();
     }
+    private static void assignArrayVal(String line) {
 
+        String[] lineSplitByEqual = line.split("=");
+        String[] arrayData = lineSplitByEqual[0].split("\\[");
+        String arrayName = arrayData[0];
+        int[] indices = new int[arrayData.length-1];
+        for (int i = 1; i<arrayData.length; i++) {
+            arrayData[i]=arrayData[i].trim();
+
+            if (!arrayData[i].endsWith("]")) {
+                ErrorManager.printError("Syntax error on array assignment!");
+            }
+            indices[i-1] = Integer.parseInt(arrayData[i].substring(0, arrayData[i].length()-1));
+        }
+        Datum array = getFullMemory().get(arrayName);
+        if (array instanceof DatumArray) {
+            String expressionString = line.substring(lineSplitByEqual[0].length()+1);
+            Datum assignTo = (new Parser(expressionString.trim())).result();
+            ((DatumArray) array).setElement(assignTo, indices);
+        } else {
+            ErrorManager.printError("Syntax error on array assignment!");
+        }
+    }
     private static void initializeVar(String line) {
         String[] lineSplitByEqual = line.split("=");
         String[] lineSplitBySpace = lineSplitByEqual[0].split(" ");

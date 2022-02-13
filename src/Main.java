@@ -110,12 +110,19 @@ public class Main {
                 "}",
                 "println(addDialogTag | exclaimed | \"hello\")"
         };*/
+        System.out.println(TypeChecker.isCompatible("[int]", "[any]"));
+
         String[] stenslScript = {
-                "var int[] myInt = [1,2,3]",
-                "println(int(myInt[0]))",
-                "println(int(myInt[1]))",
-                "println(int(myInt[2]))",
-                "var int[][] my2DIntArray = [[1,2],[2,3],[4,5]]",
+                "var [int] myInt = [1,2,3]",
+                "println(myInt[0])",
+                "println(myInt[1])",
+                "println(myInt[2])",
+                "var [[int]] my2DIntArray = [[1,2],[2,3],[4,5]]",
+                "println(my2DIntArray[1][1])",
+                "myInt[0] = 0",
+                "println(myInt[0])",
+                "my2DIntArray[2][1] = 3",
+                "println(my2DIntArray[2][1])"
                 //"println(int(myInt[0][0]))"
         };
 

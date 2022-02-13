@@ -17,9 +17,24 @@ public class DatumArray extends Datum {
         return value.get(i);
     }
 
+    public void setElement(Datum setTo, int... indices) {
+        if (indices.length == 1) {
+            Datum mutatedElement = value.get(indices[0]);
+            mutatedElement.setValueFrom(setTo);
+            value.set(indices[0], mutatedElement);
+        } else {
+            if (value.get(indices[0]) instanceof DatumArray) {
+                ((DatumArray)value.get(indices[0])).setElement(setTo, Arrays.copyOfRange(indices,1,indices.length));
+            } else {
+                ErrorManager.printError("Attempt to set an array element of a non-array!");
+            }
+        }
+        return;
+    }
+
     @Override
     public String getType() {
-        return elementType+"[]";
+        return "["+elementType+"]";
     }
 
     @Override

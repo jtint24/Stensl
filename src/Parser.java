@@ -373,7 +373,7 @@ public class Parser extends Datum {
                     String arrayString = expr.substring(0, lastBracketIndex);
                     Datum index = (new Parser(indexString)).result();
                     Datum array = (new Parser(arrayString)).result();
-                    operation = OpLibrary.getElement;
+                    operation = OpLibrary.getElementOfType(TypeChecker.unwrapArray(array.getType()));
                     arguments = new Datum[2];
                     arguments[0] = array;
                     arguments[1] = index;

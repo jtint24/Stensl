@@ -36,7 +36,7 @@ public class Operation extends Datum {
 
     public Datum result(Datum[] arguments) {
         for (int i = 0; i<operandNum; i++) {
-            if (!arguments[i].getType().equals(operandTypes[i]) && !(operandTypes[i].equals("any")) && !(arguments[i].getType().equals("int") && operandTypes[i].equals("float")) && !(arguments[i].getType().equals("char") && operandTypes[i].equals("string"))) {
+            if (!TypeChecker.isCompatible(arguments[i].getType(), operandTypes[i])) {
                 ErrorManager.printError("Type mismatch! Given type "+arguments[i].getType()+" does not match expected type "+operandTypes[i]+" in argument "+(i+1)+" of operation: "+name);
             }
         }

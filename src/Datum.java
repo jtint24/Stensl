@@ -36,7 +36,7 @@ public class Datum implements Cloneable {
     }
 
     public void setValueFrom(Datum dtm) {
-        if (dtm.getType().equals(this.getType()) || (dtm.getType().equals("int") && this.getType().equals("float")) || (dtm.getType().equals("char") && this.getType().equals("string"))) {
+        if (TypeChecker.isCompatible(dtm.getType(), this.getType())) {
             setValue(dtm.getValue());
         } else {
             ErrorManager.printError("Type mismatch! Cannot assign a value of type "+dtm.getType()+" to a variable of type "+this.getType()+"!");
