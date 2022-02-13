@@ -324,6 +324,14 @@ public class Parser extends Datum {
                                     return;
                                 }
                                 break;
+                            case '.':
+                                if (minPrecedence.equals(OpPrecedence.FUNCTIONAL)) {
+                                    arguments = new Datum[2];
+                                    arguments[0] = Interpreter.getFullMemory().get(expr.substring(0,i));
+                                    arguments[1] = new Datum(expr.substring(i+1), "string");
+                                    operation = OpLibrary.dotApplication;
+                                    return;
+                                }
                             default:
                                 break;
                         }
@@ -427,7 +435,9 @@ public class Parser extends Datum {
 
     @Override
     public String getType() {
-        if (operation.getName().equals("any pass")) {
+        if (operation.getReturnType().equals("indeterminate")) {
+            return result().getType();
+        } else if (operation.getName().equals("any pass")) {
             return arguments[0].getType();
         } else {
             return operation.getReturnType();

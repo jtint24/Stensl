@@ -13,6 +13,7 @@ public class OpLibrary {
     private final static String[] singleBool = {"bool"};
     private final static String[] singleAny = {"any"};
     private final static String[] anyArrInt = {"[any]", "int"};
+    private final static String[] anyString = {"any", "string"};
 
     private final static OpFunction addFunction = (args) -> new Datum(String.valueOf(Float.parseFloat(args[0].getValue())+Float.parseFloat(args[1].getValue())), "float");
     public final static Operation addition = new Operation(addFunction, doubleFloat, "float", OpPrecedence.ADDITIVE, "addition");
@@ -116,11 +117,21 @@ public class OpLibrary {
     public final static Operation println = new Operation(printlnFunction, singleAny, "void", OpPrecedence.FUNCTIONAL, "println");
     public final static Operation anyPass = new Operation(printlnFunction, singleAny, "any",  OpPrecedence.PASS,       "any pass");
 
-    public final static OpFunction getElementFunction = (args) -> ((DatumArray)args[0]).getElement(Integer.parseInt(args[1].getValue()));
+    public final static OpFunction getElementFunction = (args) -> {
+        if (Float.parseFloat(args[1].getValue())%1!=0) {
+            ErrorManager.printError("Only integers can be used as array indices!");
+        }
+        return ((DatumArray)args[0]).getElement((int)Float.parseFloat(args[1].getValue()));
+    };
     public static Operation getElementOfType(String type) {
         return new Operation(getElementFunction, anyArrInt, type, OpPrecedence.PASS, "getValue");
     }
 
     public static ArrayList<Operation> prefixFunctions = new ArrayList<>(Arrays.asList(stringConversion, intConversion, floatConversion, print, println));
+
+    public final static OpFunction dotApplicationFunction = (args) -> {
+        return args[0].getProperty(args[1].getValue());
+    };
+    public final static Operation dotApplication = new Operation(dotApplicationFunction, anyString, "indeterminate", OpPrecedence.FUNCTIONAL, "dot application");
 
 }

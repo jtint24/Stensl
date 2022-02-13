@@ -143,7 +143,13 @@ public class Interpreter {
                 ErrorManager.printError("No return statement!");
             }
             if (bracketMatch.startsWith("for ")) {
-                int maximumIndex = Integer.parseInt(bracketMatch.split("\\)")[0].split(",")[1]);
+                int minMaxArgsBeginningIndex = bracketMatch.split("\\(")[0].length()+1;
+                int minMaxArgsEndIndex = bracketMatch.split("\\{")[0].trim().length()-1;
+
+                String minMaxArgsString = bracketMatch.substring(minMaxArgsBeginningIndex,minMaxArgsEndIndex);
+                String[] minMaxArgs = splitByNakedChar(minMaxArgsString,',');
+
+                float maximumIndex = Float.parseFloat(new Parser(minMaxArgs[1]).getValue());
                 String indexDeclaration = bracketMatch.split("\\{")[1].split("\\(")[1].split("\\)")[0];
                 String indexName = indexDeclaration.split(" ")[1];
                 if (Float.parseFloat(localMemory.peek().get(indexName).getValue())<maximumIndex) {
@@ -383,12 +389,23 @@ public class Interpreter {
     }
     public static void runFor() {
         String line = codeLines[lineNumber-1];
-        int minimumIndex = Integer.parseInt(line.split("\\(")[1].split(",")[0]);
-        int maximumIndex = Integer.parseInt(line.split("\\)")[0].split(",")[1]);
+        int minMaxArgsBeginningIndex = line.split("\\(")[0].length()+1;
+        int minMaxArgsEndIndex = line.split("\\{")[0].trim().length()-1;
+
+        String minMaxArgsString = line.substring(minMaxArgsBeginningIndex,minMaxArgsEndIndex);
+        String[] minMaxArgs = splitByNakedChar(minMaxArgsString,',');
+
+        float minimumIndex = Float.parseFloat(new Parser(minMaxArgs[0]).getValue());
+        float maximumIndex = Float.parseFloat(new Parser(minMaxArgs[1]).getValue());
+
+        if (minimumIndex%1!=0 || maximumIndex%1!=0) {
+            ErrorManager.printError("Non-integer index in for loop!");
+        }
+
         String indexDeclaration = line.split("\\{")[1].split("\\(")[1].split("\\)")[0];
         String indexType = indexDeclaration.split(" ")[0];
         String indexName = indexDeclaration.split(" ")[1];
-        Datum index = new Datum(((Integer)minimumIndex).toString(), indexType);
+        Datum index = new Datum(((Integer)(int)minimumIndex).toString(), indexType);
         HashMap<String, Datum> currentLocalMem;
         if (localMemory.size()>0) {
             currentLocalMem = (HashMap<String, Datum>) localMemory.peek().clone();
@@ -424,6 +441,15 @@ public class Interpreter {
         }
         return fullMemory;
     }
+    /*public static Datum retrieveMemorySubvalue(String name) {
+        if (name.endsWith("]")) {
+            int i = name.length();
+            while (name.charAt(i)!='[') {
+                i--;
+            }
+            int arrayIndex =
+        }
+    }*/
     public static int getLineNumber() {
         return lineNumber;
     }

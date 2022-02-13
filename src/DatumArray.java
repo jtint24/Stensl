@@ -14,7 +14,12 @@ public class DatumArray extends Datum {
     }
 
     public Datum getElement(int i) {
-        return value.get(i);
+        if (i<value.size()) {
+            return value.get(i);
+        } else {
+            ErrorManager.printError("Array index "+i+" out of bounds for length "+value.size()+"!");
+        }
+        return new Datum();
     }
 
     public void setElement(Datum setTo, int... indices) {
@@ -30,6 +35,36 @@ public class DatumArray extends Datum {
             }
         }
         return;
+    }
+
+    @Override
+    public Datum getProperty(String str) {
+        String propertyName = str.split("\\(")[0].trim();
+        int propertyNameLength = propertyName.length();
+        String argumentName = str.substring(propertyNameLength+1, str.length()-1);
+        switch (propertyName) {
+            case "length":
+                return new Datum(""+value.size(), "int");
+            case "add":
+                value.add(new Parser(argumentName).result());
+                return new Datum("","void");
+            case "remove":
+                String removeAtIndexStr = new Parser(argumentName).result().getValue();
+                float removeAtIndex = 0;
+                try {
+                    removeAtIndex = Float.parseFloat(removeAtIndexStr);
+                } catch (NumberFormatException nfe) {
+                    ErrorManager.printError("Can't index and array with a non-integer!");
+                }
+                if (removeAtIndex%1==0) {
+                    value.remove((int)removeAtIndex);
+                } else {
+                    ErrorManager.printError("Can't index an array with a non-integer!");
+                }
+                return new Datum("","void");
+        }
+
+        return new Datum();
     }
 
     @Override
