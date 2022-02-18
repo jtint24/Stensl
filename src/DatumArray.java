@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class DatumArray extends Datum {
+public class DatumArray extends DatumObject {
     private ArrayList<Datum> value;
     private String elementType;
     public DatumArray(String et, ArrayList<Datum> val) {
@@ -35,7 +35,6 @@ public class DatumArray extends Datum {
                 ErrorManager.printError("Attempt to set an array element of a non-array!");
             }
         }
-        return;
     }
 
     @Override
