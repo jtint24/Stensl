@@ -53,7 +53,7 @@ public class Operation extends Datum {
 
     public String getFullName() { return fullName; }
 
-    public String toString() {return name;}
+    public String toString() { return name; }
 
     public String getType() {
         String type = "(";

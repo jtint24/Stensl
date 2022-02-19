@@ -110,7 +110,7 @@ public class Main {
                 "}",
                 "println(addDialogTag | exclaimed | \"hello\")"
         };*/
-        String[] stenslScript = {
+        /*String[] stenslScript = {
                 "var [int] myInt = [1,2,3]",
                 "println(myInt[0])",
                 "println(myInt[1])",
@@ -135,7 +135,7 @@ public class Main {
                 "   print(str(myInt[i])&\",\")",
                 "}",
                 //"println(int(myInt[0][0]))"
-        };
+        };*/
         /*String[] stenslScript = {
                 "var [int] myInts = [0, 1, 2, 3, 4, 3, 2,1,0,9]",
                 "for (0,9) { (int i)",
@@ -151,6 +151,32 @@ public class Main {
                 "   println(\"Ah shit\")",
                 "}"
         };*/
+        /*String[] stenslScript = {
+                "5*10*trace(20/5+3)",
+                "assert(5==5)",
+                "var const string theWordHello = \"hello\"",
+                "println(ascii(34))",
+                "println(ascii(75))",
+                "println(ascii(123))",
+                "assert(theWordHello == \"hello\")",
+                "assert(false)"
+        };*/
+        String[] stenslScript = {
+        "var string quote = ascii(34)",
+        "var string rightSquareBracket = ascii(93)",
+        "var string commaSpace = ascii(44)&ascii(32)",
+        "var [string] lines = [\"var string quote = ascii(34)\", \"var string rightSquareBracket = ascii(93)\", \"var string commaSpace = ascii(44)&ascii(32)\", \"var [string] lines = [\", \"for (0,2) {(int i)\", \"     println(lines[i])\", \"}\", \"print(lines[3])\", \"for (0, lines.length()-2 {(int i)\", \"     print(quote&lines[i]&quote&commaSpace)\",\"}\",\"println(quote&lines[14]&quote&rightSquareBracket)\",\"for (4, lines.length()-1) {(int i)\", \"     println(lines[i])\",\"}\"]",
+        "for (0,2) {(int i)",
+        "     println(lines[i])",
+        "}",
+        "print(lines[3])",
+        "for (0, lines.length()-2) {(int i)",
+        "     print(quote&lines[i]&quote&commaSpace)",
+        "}",
+        "println(quote&lines[14]&quote&rightSquareBracket)",
+        "for (4, lines.length()-1) {(int i)",
+        "     println(lines[i])",
+        "}"};
 
 
         Interpreter.runStensl(stenslScript);

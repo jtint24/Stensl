@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Stack;
 
 public class OpLibrary {
     private final static String[] doubleFloat = {"float", "float"};
@@ -117,6 +118,29 @@ public class OpLibrary {
     public final static Operation println = new Operation(printlnFunction, singleAny, "void", OpPrecedence.FUNCTIONAL, "println");
     public final static Operation anyPass = new Operation(printlnFunction, singleAny, "any",  OpPrecedence.PASS,       "any pass");
 
+    private final static OpFunction traceFunction = (args) -> {
+        System.out.println("Evaluated expression to: "+args[0].getValue());
+        System.out.println("\tFrom line number "+Interpreter.getLineNumber());
+        Stack<Integer> stackTrace = Interpreter.getLineNumberStack();
+        for (int lineLocation : stackTrace) {
+            System.out.println("\tFrom line number "+lineLocation);
+        }
+        return args[0];
+    };
+    public final static Operation trace = new Operation(traceFunction, singleAny, "indeterminate", OpPrecedence.FUNCTIONAL, "trace");
+    private final static OpFunction assertFunction = (args) -> {
+        if (args[0].getValue().equals("false")) {
+            ErrorManager.printError("Failed assertion!");
+        }
+        return new Datum();
+    };
+
+    public final static Operation assertOp = new Operation(assertFunction, singleBool, "void", OpPrecedence.FUNCTIONAL, "assert");
+    private final static OpFunction asciiFunction = (args) -> {
+        char returnChar = (char) Integer.parseInt(args[0].getValue());
+        return new Datum(""+returnChar, "char");
+    };
+    public final static Operation ascii = new Operation(asciiFunction, singleInt, "char", OpPrecedence.FUNCTIONAL, "ascii");
     public final static OpFunction getElementFunction = (args) -> {
         if (Float.parseFloat(args[1].getValue())%1!=0) {
             ErrorManager.printError("Only integers can be used as array indices!");
@@ -127,7 +151,7 @@ public class OpLibrary {
         return new Operation(getElementFunction, anyArrInt, type, OpPrecedence.PASS, "getValue");
     }
 
-    public static ArrayList<Operation> prefixFunctions = new ArrayList<>(Arrays.asList(stringConversion, intConversion, floatConversion, print, println));
+    public static ArrayList<Operation> prefixFunctions = new ArrayList<>(Arrays.asList(stringConversion, intConversion, floatConversion, print, println, trace, assertOp, ascii));
 
     public final static OpFunction dotApplicationFunction = (args) -> {
         return args[0].getProperty(args[1].getValue());
