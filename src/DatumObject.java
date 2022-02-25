@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DatumObject extends Datum {
-    private HashMap<String, Datum> properties;
+    private HashMap<String, Datum> properties = new HashMap<>();
 
     public DatumObject(DatumClass cls) {
         super.type = cls.getClassName();
@@ -10,11 +10,14 @@ public class DatumObject extends Datum {
         for (HashMap.Entry<String, String> classProperty : classProperties.entrySet()) {
             String propertyName = classProperty.getKey();
             String propertyType = classProperty.getValue();
-            properties.put(propertyName, new Datum("", propertyType));
+            properties.put(propertyName, cls.getDefaultVals().getOrDefault(propertyName, new Datum("",propertyType)));
         }
     }
     public DatumObject() {}
-
+    @Override
+    public String getValue() {
+        return this.toString();
+    }
     @Override
     public Datum getProperty(String property) {
         String[] propertyNames = splitByNakedChar(property, '.');
@@ -75,5 +78,15 @@ public class DatumObject extends Datum {
         splitResults.add(currentSplit);
         return splitResults.toArray(new String[0]);
     }
-
+    public String toString() {
+        String retString = "{";
+        for (String propertyName : properties.keySet()) {
+            retString+=properties.get(propertyName).getType();
+            retString+=" "+propertyName;
+            retString+=" = "+properties.get(propertyName).getValue();
+            retString+=", ";
+        }
+        retString = retString.substring(0,retString.length()-2);
+        return retString+"}";
+    }
 }

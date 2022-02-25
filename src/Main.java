@@ -161,7 +161,7 @@ public class Main {
                 "assert(theWordHello == \"hello\")",
                 "assert(false)"
         };*/
-        String[] stenslScript = {
+        /*String[] stenslScript = {
         "var string quote = ascii(34)",
         "var string rightSquareBracket = ascii(93)",
         "var string commaSpace = ascii(44)&ascii(32)",
@@ -176,7 +176,16 @@ public class Main {
         "println(quote&lines[14]&quote&rightSquareBracket)",
         "for (4, lines.length()-1) {(int i)",
         "     println(lines[i])",
-        "}"};
+        "}"};*/
+        String[] stenslScript = {
+                "class MyFirstClass {",
+                "   var int val",
+                "   var const int defaultVal = 0",
+                "   var const string stringThing = \"hello there\"",
+                "}",
+                "var MyFirstClass myFirstObject = MyFirstClass()",
+                "println(myFirstObject.stringThing)"
+        };
 
 
         Interpreter.runStensl(stenslScript);

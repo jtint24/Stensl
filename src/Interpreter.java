@@ -8,6 +8,7 @@ public class Interpreter {
     private static String[] codeLines;
     private static HashMap<String, Datum> memory = new HashMap<>();
     private static ArrayList<String> functionShortNameList = new ArrayList<>();
+    private static HashMap<String, DatumClass> classes = new HashMap<>();
     private static Stack<Integer> lineNumberStack = new Stack<>();
     private static Stack<HashMap<String, Datum>> localMemory = new Stack<>();
     private static boolean inGlobal = true;
@@ -51,8 +52,65 @@ public class Interpreter {
         }
 
         codeLines = code;
-        for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //Checks for function headers and adds them to functionList
+        for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //Checks for function headers and classes and adds them to functionList
             String line = codeLines[lineNumber-1];
+
+            if (line.startsWith("class ")) {
+                String className = line.split(" ")[1];
+                if (!isLegalIdentifier(className)) {
+                    ErrorManager.printError("Class '"+className+"' is not a legal identifier!");
+                }
+                int braceCount = 1;
+                HashMap<String, String> properties = new HashMap<>();
+                HashMap<String, Datum> defaultVals = new HashMap<>();
+                while (braceCount!=0) {
+                    lineNumber++;
+                    if (lineNumber == code.length+1) {
+                        ErrorManager.printError("Unterminated class '"+className+"'!");
+                    }
+                    line = codeLines[lineNumber-1];
+                    if (line.endsWith("{")) {
+                        braceCount++;
+                    }
+                    if (line.startsWith("}")) {
+                        braceCount--;
+                    }
+                    if (line.startsWith("var ")) {
+                        String[] lineSplitByEqual = new String[1];
+                        lineSplitByEqual[0] = line;
+                        boolean isAssigned = false;
+                        if (line.contains("=")) {
+                            isAssigned = true;
+                            lineSplitByEqual = line.split("=");
+                        }
+                        String[] lineSplitBySpace = lineSplitByEqual[0].split(" ");
+                        boolean isConstant = false;
+                        int offset = 0;
+                        if (lineSplitBySpace[1].equals("const")) {
+                            offset++;
+                            isConstant = true;
+                            if (!isAssigned) {
+                                ErrorManager.printError("Constants must be assigned to!");
+                            }
+                        }
+                        String propertyType = lineSplitBySpace[1+offset];
+                        String propertyName = lineSplitBySpace[2+offset];
+                        if (isAssigned) {
+                            Datum assignTo = new Parser(line.substring(lineSplitByEqual[0].length()+1)).result();
+                            if (!assignTo.getType().equals(propertyType)) {
+                                ErrorManager.printError("Type Mismatch! Type "+assignTo.getType()+" does not match expected type "+propertyType+"!");
+                            }
+                            assignTo.setIsMutable(!isConstant);
+                            defaultVals.put(propertyName, assignTo);
+                        }
+                        properties.put(propertyName, propertyType);
+                    }
+                }
+                DatumClass newClass = new DatumClass(className, properties);
+                newClass.setDefaultVals(defaultVals);
+                System.out.println(newClass.toString());
+                classes.put(className, newClass);
+            }
 
             if (line.startsWith("func ")) {
                 String[] headerWords = line.split("\\(")[0].split(" ");
@@ -202,7 +260,7 @@ public class Interpreter {
                 case "var":
                     initializeVar(line);
                     break;
-                case "func":
+                case "func", "class":
                     moveOverBracketedCode();
                     break;
                 case "if":
@@ -510,7 +568,9 @@ public class Interpreter {
         }
         return globalFuncShortnames;
     }
-
+    public static HashMap<String, DatumClass> getClasses() {
+        return classes;
+    }
     public static ArrayList<String> getFunctionShortNameList() { return functionShortNameList; }
     public static Function getCurrentFunction() { return currentFunction; }
     private static String findMatchingBracket(int linePosition) {

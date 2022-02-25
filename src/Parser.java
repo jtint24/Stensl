@@ -85,6 +85,15 @@ public class Parser extends Datum {
                         return;
                     }
                 }
+                if (expr.length()>2) {
+                    String exprSubstring = expr.substring(0, expr.length() - 2);
+                    if (Interpreter.getClasses().containsKey(exprSubstring) && expr.endsWith("()")) {
+                        operation = OpLibrary.anyPass;
+                        arguments = new Datum[1];
+                        arguments[0] = new DatumObject(Interpreter.getClasses().get(exprSubstring));
+                        return;
+                    }
+                }
 
                 if (minPrecedence.equals(OpPrecedence.FUNCTIONAL)) { // this checks for all prefix function calls
                     for (Operation prefixFunction : OpLibrary.prefixFunctions) { //This gets built-in prefix function calls
