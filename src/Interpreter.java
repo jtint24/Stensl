@@ -296,11 +296,11 @@ public class Interpreter {
     }
     private static void assignPropertyVal(String line) {
 
-        String[] lineSplitByEqual = line.split("=");
-        String[] chainData = lineSplitByEqual[0].split("\\.");
+        String[] lineSplitByEqual = splitByNakedChar(line,'=');
+        String[] chainData = lineSplitByEqual[0].split("[\\.\\[]");
         String propertyName = chainData[0];
         int[] indices = new int[chainData.length-1];
-        for (int i = 1; i<chainData.length; i++) {
+        /*for (int i = 1; i<chainData.length; i++) {
             chainData[i]=chainData[i].trim();
 
             if (!chainData[i].endsWith("]")) {
@@ -315,7 +315,11 @@ public class Interpreter {
             ((DatumArray) property).setElement(assignTo, indices);
         } else {
             ErrorManager.printError("Syntax error on assignment!");
-        }
+        }*/
+        Datum property = getFullMemory().get(propertyName).getProperty(line.substring(propertyName.length()+1,lineSplitByEqual[0].length()-1));
+        String expressionString = line.substring(lineSplitByEqual[0].length()+1);
+        Datum assignTo = (new Parser(expressionString.trim())).result();
+        property.setValueFrom(assignTo);
     }
     private static void initializeVar(String line) {
         String[] lineSplitByEqual = line.split("=");
@@ -625,7 +629,7 @@ public class Interpreter {
         return 0;
     }
 
-    private static String[] splitByNakedChar(String s, char c) {
+    public static String[] splitByNakedChar(String s, char c) {
         ArrayList<String> splitResults = new ArrayList<>();
         String currentSplit = "";
         int parenCount = 0;

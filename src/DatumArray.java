@@ -39,6 +39,26 @@ public class DatumArray extends DatumObject {
 
     @Override
     public Datum getProperty(String str) {
+        //System.out.println("Array property: "+str);
+        if (str.contains("]")) {
+            if (str.startsWith("[")) {
+                str = str.substring(1);
+            }
+            String indexStr = Interpreter.splitByNakedChar(str, ']')[0];
+            Datum indexDatum = new Parser(indexStr).result();
+            if (TypeChecker.isCompatible(indexDatum.type,"int")) {
+                int indexInt = (int) Float.parseFloat(indexDatum.getValue());
+                if (indexStr.length()>str.length()-2) {
+                    return this.getElement(indexInt);
+                } else {
+                    return this.getElement(indexInt).getProperty(str.substring(indexStr.length()+1));
+                }
+            } else {
+                ErrorManager.printError("Syntax error on array index!");
+            }
+        }
+
+
         String propertyName = str.split("\\(")[0].trim();
         int propertyNameLength = propertyName.length();
         String argumentName = str.substring(propertyNameLength+1, str.length()-1);

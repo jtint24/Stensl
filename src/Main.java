@@ -177,6 +177,7 @@ public class Main {
         "for (4, lines.length()-1) {(int i)",
         "     println(lines[i])",
         "}"};*/
+
         String[] stenslScript = {
                 "class MyFirstClass {",
                 "   var int val",
@@ -188,7 +189,9 @@ public class Main {
                 "println(myFirstObject.stringThing)",
                 "println(myFirstObject.messages[0])",
                 "var [MyFirstClass] classArray = [MyFirstClass(), MyFirstClass()]",
-                "println(classArray[0].defaultVal)"
+                "println(classArray[0].messages[1])",
+                "myFirstObject.val = 5",
+                "println(myFirstObject.val)"
         };
 
 

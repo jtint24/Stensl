@@ -71,7 +71,7 @@ public class DatumObject extends Datum {
             if (sChar == ']' && !inQuotes) {
                 bracketCount--;
             }
-            if (parenCount == 0 && bracketCount==0 && !inQuotes && chars.contains(""+sChar)) {
+            if (parenCount == 0 && bracketCount==0 && !inQuotes && chars.contains(""+sChar) || (bracketCount==1 && sChar == '[' && chars.contains("["))) {
                 splitResults.add(currentSplit);
                 currentSplit = "";
             } else {

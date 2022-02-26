@@ -336,7 +336,7 @@ public class Parser extends Datum {
                             case '.':
                                 if (minPrecedence.equals(OpPrecedence.FUNCTIONAL)) {
                                     arguments = new Datum[2];
-                                    arguments[0] = Interpreter.getFullMemory().get(expr.substring(0,i));
+                                    arguments[0] = new Parser(expr.substring(0,i)).result();
                                     arguments[1] = new Datum(expr.substring(i+1), "string");
                                     operation = OpLibrary.dotApplication;
                                     return;
