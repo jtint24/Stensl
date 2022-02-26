@@ -20,31 +20,34 @@ public class DatumObject extends Datum {
     }
     @Override
     public Datum getProperty(String property) {
-        String[] propertyNames = splitByNakedChar(property, '.');
+        String[] propertyNames = splitByNakedChars(property, ".[");
         return getProperty(propertyNames);
     }
     @Override
     public Datum getProperty (String[] propertyNames) {
+        if (propertyNames.length==0) {
+            return this;
+        }
         String cleanPropertyName = "";
-        String stopChars = "([";
         for (char c : propertyNames[0].toCharArray()) {
-            if (stopChars.contains(c+"")) {
+            if (c == '(') {
                 break;
             }
             cleanPropertyName+=c;
         }
-        if (!properties.containsKey(cleanPropertyName)) {
-            ErrorManager.printError("Classes of type "+super.type+" do not have a property "+propertyNames[0]+"!");
-        }
-        Datum propertyResult = properties.get(cleanPropertyName);
-        if (propertyNames.length>1) {
+        if (properties.containsKey(cleanPropertyName)) {
             String[] newPropertyNames = new String[propertyNames.length-1];
             System.arraycopy(propertyNames, 1, newPropertyNames, 0, propertyNames.length - 1);
-            propertyResult = propertyResult.getProperty(newPropertyNames);
+            return properties.get(cleanPropertyName).getProperty(newPropertyNames);
+        } else {
+            ErrorManager.printError("Can't find property '"+cleanPropertyName+"'!");
+            return null;
         }
-        return propertyResult;
     }
-    private String[] splitByNakedChar(String s, char c) {
+    public HashMap<String, Datum> getProperties() {
+        return properties;
+    }
+    private String[] splitByNakedChars(String s, String chars) {
         ArrayList<String> splitResults = new ArrayList<>();
         String currentSplit = "";
         int parenCount = 0;
@@ -68,7 +71,7 @@ public class DatumObject extends Datum {
             if (sChar == ']' && !inQuotes) {
                 bracketCount--;
             }
-            if (parenCount == 0 && bracketCount==0 && !inQuotes && sChar == c) {
+            if (parenCount == 0 && bracketCount==0 && !inQuotes && chars.contains(""+sChar)) {
                 splitResults.add(currentSplit);
                 currentSplit = "";
             } else {

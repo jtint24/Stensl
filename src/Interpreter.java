@@ -11,6 +11,7 @@ public class Interpreter {
     private static HashMap<String, DatumClass> classes = new HashMap<>();
     private static Stack<Integer> lineNumberStack = new Stack<>();
     private static Stack<HashMap<String, Datum>> localMemory = new Stack<>();
+    private static DatumObject currentObject = null;
     private static boolean inGlobal = true;
 
     public static void runStensl(String[] code) {
@@ -108,7 +109,7 @@ public class Interpreter {
                 }
                 DatumClass newClass = new DatumClass(className, properties);
                 newClass.setDefaultVals(defaultVals);
-                System.out.println(newClass.toString());
+                System.out.println(newClass);
                 classes.put(className, newClass);
             }
 
@@ -237,6 +238,7 @@ public class Interpreter {
             }
         }
         boolean isArray = firstToken.contains("[");
+        boolean isProperty = firstToken.contains(".");
         boolean isAssignment = false;
         while (charCount<line.length()) {
             charCount++;
@@ -249,8 +251,8 @@ public class Interpreter {
                 }
             }
         }
-        if (isArray && isAssignment) {
-            assignArrayVal(line);
+        if ((isArray || isProperty) && isAssignment) {
+            assignPropertyVal(line);
             return new Datum();
         }
         if ((getFullMemory().containsKey(firstToken) || functionShortNameList.contains(firstToken)) && isAssignment) {
@@ -292,27 +294,27 @@ public class Interpreter {
         }
         return new Datum();
     }
-    private static void assignArrayVal(String line) {
+    private static void assignPropertyVal(String line) {
 
         String[] lineSplitByEqual = line.split("=");
-        String[] arrayData = lineSplitByEqual[0].split("\\[");
-        String arrayName = arrayData[0];
-        int[] indices = new int[arrayData.length-1];
-        for (int i = 1; i<arrayData.length; i++) {
-            arrayData[i]=arrayData[i].trim();
+        String[] chainData = lineSplitByEqual[0].split("\\.");
+        String propertyName = chainData[0];
+        int[] indices = new int[chainData.length-1];
+        for (int i = 1; i<chainData.length; i++) {
+            chainData[i]=chainData[i].trim();
 
-            if (!arrayData[i].endsWith("]")) {
-                ErrorManager.printError("Syntax error on array assignment!");
+            if (!chainData[i].endsWith("]")) {
+                ErrorManager.printError("Syntax error on assignment!");
             }
-            indices[i-1] = Integer.parseInt(arrayData[i].substring(0, arrayData[i].length()-1));
+            indices[i-1] = Integer.parseInt(chainData[i].substring(0, chainData[i].length()-1));
         }
-        Datum array = getFullMemory().get(arrayName);
-        if (array instanceof DatumArray) {
+        Datum property = getFullMemory().get(propertyName);
+        if (property instanceof DatumObject) {
             String expressionString = line.substring(lineSplitByEqual[0].length()+1);
             Datum assignTo = (new Parser(expressionString.trim())).result();
-            ((DatumArray) array).setElement(assignTo, indices);
+            ((DatumArray) property).setElement(assignTo, indices);
         } else {
-            ErrorManager.printError("Syntax error on array assignment!");
+            ErrorManager.printError("Syntax error on assignment!");
         }
     }
     private static void initializeVar(String line) {
@@ -524,6 +526,9 @@ public class Interpreter {
         if (!localMemory.isEmpty()) {
             fullMemory.putAll(localMemory.peek());
         }
+        if (currentObject!=null) {
+            fullMemory.putAll(currentObject.getProperties());
+        }
         return fullMemory;
     }
     /*public static Datum retrieveMemorySubvalue(String name) {
@@ -655,7 +660,7 @@ public class Interpreter {
             }
         }
         switch(name) {
-            case "var", "func", "if", "for", "while", "return", "else", "elseif":
+            case "var", "func", "if", "for", "while", "return", "else", "elseif","const","public","private":
                 return false;
             default:
                 return true;

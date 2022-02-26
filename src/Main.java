@@ -182,9 +182,13 @@ public class Main {
                 "   var int val",
                 "   var const int defaultVal = 0",
                 "   var const string stringThing = \"hello there\"",
+                "   var const [string] messages = [\"hello\", \"there\"]",
                 "}",
                 "var MyFirstClass myFirstObject = MyFirstClass()",
-                "println(myFirstObject.stringThing)"
+                "println(myFirstObject.stringThing)",
+                "println(myFirstObject.messages[0])",
+                "var [MyFirstClass] classArray = [MyFirstClass(), MyFirstClass()]",
+                "println(classArray[0].defaultVal)"
         };
 
 

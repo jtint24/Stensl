@@ -56,11 +56,17 @@ public class Datum implements Cloneable {
     }
 
     public Datum getProperty(String str) {
+        if (str.length() == 0) {
+            return this;
+        }
         ErrorManager.printError("Attempt to call non-existent property "+str+"!");
         return new Datum();
     }
     public Datum getProperty(String[] str) {
-        ErrorManager.printError("Attempt to call non-existent property "+str+"!");
+        if (str.length == 0) {
+            return this;
+        }
+        ErrorManager.printError("Attempt to call non-existent property "+str[0]+"!");
         return new Datum();
     }
 
