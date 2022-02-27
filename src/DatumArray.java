@@ -52,13 +52,13 @@ public class DatumArray extends DatumObject {
 
     @Override
     public Datum getProperty(String str) {
-        if (str.contains("]")) { //Checks if the property is an index
+        if (str.contains("]")) { //Checks if the property is an index (THIS WILL BREAK IF AN ARRAY PROPERTY IS INTRODUCED THAT RETURNS AN ARRAY)
             if (str.startsWith("[")) { //Cleans leading brackets
                 str = str.substring(1);
             }
             String indexStr = Interpreter.splitByNakedChar(str, ']')[0]; //Gets only the first index for multidimensional indices
             Datum indexDatum = new Parser(indexStr).result(); //Parses the index string
-            if (TypeChecker.isCompatible(indexDatum.type,"int")) {
+            if (TypeChecker.isCompatible(indexDatum.getType(),"int")) {
                 int indexInt = (int) Float.parseFloat(indexDatum.getValue()); //float->int is performed to avoid .0 error
                 if (indexStr.length()>str.length()-2) { //If there are still indices/properties, then continue getting properties
                     return this.getElement(indexInt); //Gets the element
