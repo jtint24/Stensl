@@ -295,31 +295,13 @@ public class Interpreter {
         return new Datum();
     }
     private static void assignPropertyVal(String line) {
-
-        String[] lineSplitByEqual = splitByNakedChar(line,'=');
-        String[] chainData = lineSplitByEqual[0].split("[\\.\\[]");
-        String propertyName = chainData[0];
-        int[] indices = new int[chainData.length-1];
-        /*for (int i = 1; i<chainData.length; i++) {
-            chainData[i]=chainData[i].trim();
-
-            if (!chainData[i].endsWith("]")) {
-                ErrorManager.printError("Syntax error on assignment!");
-            }
-            indices[i-1] = Integer.parseInt(chainData[i].substring(0, chainData[i].length()-1));
-        }
-        Datum property = getFullMemory().get(propertyName);
-        if (property instanceof DatumObject) {
-            String expressionString = line.substring(lineSplitByEqual[0].length()+1);
-            Datum assignTo = (new Parser(expressionString.trim())).result();
-            ((DatumArray) property).setElement(assignTo, indices);
-        } else {
-            ErrorManager.printError("Syntax error on assignment!");
-        }*/
-        Datum property = getFullMemory().get(propertyName).getProperty(line.substring(propertyName.length()+1,lineSplitByEqual[0].length()-1));
-        String expressionString = line.substring(lineSplitByEqual[0].length()+1);
-        Datum assignTo = (new Parser(expressionString.trim())).result();
-        property.setValueFrom(assignTo);
+        String[] lineSplitByEqual = splitByNakedChar(line,'='); // Get the first half of the assignment
+        String[] chainData = lineSplitByEqual[0].split("[\\.\\[]"); //Get the root of the chain
+        String propertyName = chainData[0]; //Property name = root of chain
+        Datum property = getFullMemory().get(propertyName).getProperty(line.substring(propertyName.length()+1,lineSplitByEqual[0].length()-1)); //Get the actual property from memory
+        String expressionString = line.substring(lineSplitByEqual[0].length()+1); //Get the string representing the assignTo expression
+        Datum assignTo = (new Parser(expressionString.trim())).result(); //Parse the expressionString
+        property.setValueFrom(assignTo); //Set the property to the assign value
     }
     private static void initializeVar(String line) {
         String[] lineSplitByEqual = line.split("=");
@@ -535,15 +517,6 @@ public class Interpreter {
         }
         return fullMemory;
     }
-    /*public static Datum retrieveMemorySubvalue(String name) {
-        if (name.endsWith("]")) {
-            int i = name.length();
-            while (name.charAt(i)!='[') {
-                i--;
-            }
-            int arrayIndex =
-        }
-    }*/
     public static int getLineNumber() {
         return lineNumber;
     }

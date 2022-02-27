@@ -190,7 +190,7 @@ public class Main {
                 "println(myFirstObject.messages[0])",
                 "var [MyFirstClass] classArray = [MyFirstClass(), MyFirstClass()]",
                 "println(classArray[0].messages[1])",
-                "myFirstObject.val = 5",
+                "myFirstObject.defaultVal = 5",
                 "println(myFirstObject.val)"
         };
 

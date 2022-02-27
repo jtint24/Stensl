@@ -38,18 +38,30 @@ public class DatumArray extends DatumObject {
     }
 
     @Override
+    public void setValueFrom(Datum dtm) {
+        if (dtm instanceof DatumArray) {
+            if (super.getIsMutable()) {
+                this.value = ((DatumArray) dtm).value;
+            } else {
+                ErrorManager.printError("Attempt to mutate a constant!");
+            }
+        } else {
+            ErrorManager.printError("Type mismatch!");
+        }
+    }
+
+    @Override
     public Datum getProperty(String str) {
-        //System.out.println("Array property: "+str);
-        if (str.contains("]")) {
-            if (str.startsWith("[")) {
+        if (str.contains("]")) { //Checks if the property is an index
+            if (str.startsWith("[")) { //Cleans leading brackets
                 str = str.substring(1);
             }
-            String indexStr = Interpreter.splitByNakedChar(str, ']')[0];
-            Datum indexDatum = new Parser(indexStr).result();
+            String indexStr = Interpreter.splitByNakedChar(str, ']')[0]; //Gets only the first index for multidimensional indices
+            Datum indexDatum = new Parser(indexStr).result(); //Parses the index string
             if (TypeChecker.isCompatible(indexDatum.type,"int")) {
-                int indexInt = (int) Float.parseFloat(indexDatum.getValue());
-                if (indexStr.length()>str.length()-2) {
-                    return this.getElement(indexInt);
+                int indexInt = (int) Float.parseFloat(indexDatum.getValue()); //float->int is performed to avoid .0 error
+                if (indexStr.length()>str.length()-2) { //If there are still indices/properties, then continue getting properties
+                    return this.getElement(indexInt); //Gets the element
                 } else {
                     return this.getElement(indexInt).getProperty(str.substring(indexStr.length()+1));
                 }

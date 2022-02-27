@@ -44,6 +44,19 @@ public class DatumObject extends Datum {
             return null;
         }
     }
+    @Override
+    public void setValueFrom(Datum dtm) {
+        if (dtm instanceof DatumObject) {
+            if (super.getIsMutable()) {
+                this.properties = ((DatumObject) dtm).getProperties();
+            } else {
+                ErrorManager.printError("Attempt to mutate a constant!");
+            }
+        } else {
+            ErrorManager.printError("Type mistmatch!");
+        }
+    }
+
     public HashMap<String, Datum> getProperties() {
         return properties;
     }
