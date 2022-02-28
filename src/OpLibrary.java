@@ -141,6 +141,10 @@ public class OpLibrary {
         return new Datum(""+returnChar, "char");
     };
     public final static Operation ascii = new Operation(asciiFunction, singleInt, "char", OpPrecedence.FUNCTIONAL, "ascii");
+
+    public final static OpFunction typeofFunction = (args) -> new Datum(args[0].getType(),"string");
+    public final static Operation typeof = new Operation(typeofFunction, singleAny, "string", OpPrecedence.FUNCTIONAL, "typeof");
+
     public final static OpFunction getElementFunction = (args) -> {
         if (Float.parseFloat(args[1].getValue())%1!=0) {
             ErrorManager.printError("Only integers can be used as array indices!");
@@ -151,7 +155,7 @@ public class OpLibrary {
         return new Operation(getElementFunction, anyArrInt, type, OpPrecedence.PASS, "getValue");
     }
 
-    public static ArrayList<Operation> prefixFunctions = new ArrayList<>(Arrays.asList(stringConversion, intConversion, floatConversion, print, println, trace, assertOp, ascii));
+    public static ArrayList<Operation> prefixFunctions = new ArrayList<>(Arrays.asList(stringConversion, intConversion, floatConversion, print, println, trace, assertOp, ascii, typeof));
 
     public final static OpFunction dotApplicationFunction = (args) -> {
         return args[0].getProperty(args[1].getValue());
