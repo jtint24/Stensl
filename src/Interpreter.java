@@ -76,6 +76,63 @@ public class Interpreter {
                     if (line.startsWith("}")) {
                         braceCount--;
                     }
+                    if (line.startsWith("func ")) {
+                        String[] headerWords = line.split("\\(")[0].split(" ");
+                        String functionName = headerWords[2];
+
+                        if (!isLegalIdentifier(functionName)) {
+                            ErrorManager.printError("Illegal function name: "+functionName+"!");
+                        }
+
+                        String parameterListString = line;
+                        int parameterListStringIndex = 0;
+                        while (parameterListStringIndex<parameterListString.length()) {
+                            if (parameterListString.charAt(parameterListStringIndex) == '(') { //finds the first '(', the beginning of the parameter list
+                                break;
+                            }
+                            parameterListStringIndex++;
+                        }
+                        if (parameterListStringIndex>0) {
+                            parameterListString = parameterListString.substring(parameterListStringIndex+1); //cuts at the beginning of the parameter list
+                        }
+                        parameterListStringIndex = parameterListString.length()-1;
+                        while (parameterListStringIndex>0) {                      //finds the last ')', the end of the parameter list
+                            if (parameterListString.charAt(parameterListStringIndex) == ')') {
+                                break;
+                            }
+                            parameterListStringIndex--;
+                        }
+                        if (parameterListStringIndex>=0) {
+                            parameterListString = parameterListString.substring(0, parameterListStringIndex); //cuts at the end of the parameter list
+                        }
+                        String[] parameterList = splitByNakedChar(parameterListString, ',');
+                        ArrayList<String> parameterTypes = new ArrayList<>();
+                        ArrayList<String> parameterNames = new ArrayList<>();
+                        String fullFunctionName = functionName+"(";
+                        if (!parameterListString.isBlank()) {
+                            for (String parameterString : parameterList) { //Check all the parameters for the function
+                                String[] parameterData = parameterString.split(":");
+                                if (parameterNames.contains(parameterData[1].trim())) {
+                                    ErrorManager.printError("Argument "+parameterData[1].trim()+" is a duplicate!");
+                                }
+                                parameterTypes.add(parameterData[0].trim());
+                                parameterNames.add(parameterData[1].trim());
+                                fullFunctionName += parameterData[0].trim() + ",";
+                            }
+                            fullFunctionName = fullFunctionName.substring(0,fullFunctionName.length()-1);
+                        }
+                        fullFunctionName+=")";
+
+                        if (properties.containsKey(fullFunctionName)) {
+                            ErrorManager.printError("Duplicate function declaration: "+functionName+" !");
+                        }
+
+                        String returnType = headerWords[1];
+                        functionShortNameList.add(functionName);
+                        Function functionToAdd = new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), returnType, functionName, fullFunctionName, lineNumber);
+                        properties.put(functionName, functionToAdd.getType());
+                        defaultVals.put(functionName, functionToAdd);
+                    }
                     if (line.startsWith("var ")) {
                         String[] lineSplitByEqual = new String[1];
                         lineSplitByEqual[0] = line;
