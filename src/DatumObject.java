@@ -2,12 +2,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DatumObject extends Datum {
-    private DatumClass originalClass;
     private HashMap<String, Datum> properties = new HashMap<>();
 
     public DatumObject(DatumClass cls) {
         super.type = cls.getClassName();
-        originalClass = cls;
         HashMap<String, String> classProperties = cls.getProperties();
         for (HashMap.Entry<String, String> classProperty : classProperties.entrySet()) {
             String propertyName = classProperty.getKey();
@@ -28,9 +26,11 @@ public class DatumObject extends Datum {
     }
     @Override
     public Datum getProperty (String[] propertyNames) {
+
         if (propertyNames.length==0) {
             return this;
         }
+        //System.out.println("getting properties from "+ this +" "+propertyNames[0]);
         String cleanPropertyName = "";
         boolean isFunction = false;
         for (char c : propertyNames[0].toCharArray()) {
@@ -51,7 +51,7 @@ public class DatumObject extends Datum {
                 }
                 if (propertyNames[0].startsWith(cleanPropertyName+"()")) {
                     Interpreter.setCurrentObject(this);
-                    return ((Function)functionToCall).result(new Datum[0]);
+                    return ((Function)functionToCall).result(new Datum[0]).getProperty(newPropertyNames);
                 }
 
                 String argumentList = propertyNames[0].substring(cleanPropertyName.length()+1, propertyNames[0].length()-1);
@@ -60,7 +60,7 @@ public class DatumObject extends Datum {
                 for (int i = 0; i< arguments.length; i++) {
                     arguments[i] = new Parser(argumentNames[i]).result();
                 }
-                return ((Function) functionToCall).result(arguments);
+                return ((Function) functionToCall).result(arguments).getProperty(newPropertyNames);
             }
             return properties.get(cleanPropertyName).getProperty(newPropertyNames);
         } else {
@@ -121,6 +121,9 @@ public class DatumObject extends Datum {
     public String toString() {
         String retString = "{";
         for (String propertyName : properties.keySet()) {
+            if (propertyName.equals("this")) {
+                continue;
+            }
             retString+=properties.get(propertyName).getType();
             retString+=" "+propertyName;
             retString+=" = "+properties.get(propertyName).getValue();

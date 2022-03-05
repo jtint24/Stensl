@@ -56,7 +56,7 @@ public class Interpreter {
         for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //Checks for function headers and classes and adds them to functionList
             String line = codeLines[lineNumber-1];
 
-            if (line.startsWith("class ")) { //initializes classes
+            if (line.startsWith("class ")) { //this initializes classes
                 String className = line.split(" ")[1];
                 if (!isLegalIdentifier(className)) {
                     ErrorManager.printError("Class '"+className+"' is not a legal identifier!");
@@ -131,6 +131,8 @@ public class Interpreter {
                         Function functionToAdd = new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), returnType, functionName, fullFunctionName, lineNumber);
                         properties.put(functionName, functionToAdd.getType()); //Adds a version of the function that can be used as a property
                         defaultVals.put(functionName, functionToAdd);
+                        moveOverBracketedCode();
+                        lineNumber--;
                     }
                     if (line.startsWith("var ")) {
                         String[] lineSplitByEqual = new String[1];
@@ -237,6 +239,8 @@ public class Interpreter {
         //System.out.println(getFullMemory()+" , "+functionShortNameList);
         //System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
         //System.out.println("local mem is "+localMemory.toString()+" global mem is "+memory.toString());
+        //System.out.println("CURRENT OBJECTS: "+currentObject);
+        //System.out.println("CURRENT LINE NUMBER STACK: "+lineNumberStack);
 
         //getFullMemory().forEach((key, value) -> { //prints out the value and name of each value in memory
         //System.out.println(key+" holds "+value.getValue()+" of type "+value.getType());
@@ -335,12 +339,18 @@ public class Interpreter {
                     if (argumentStringPlusParen.trim().equals(")")) {
                         lineNumber = lineNumberStack.pop();
                         localMemory.pop();
+                        if (!currentObject.isEmpty()) {
+                            currentObject.pop();
+                        }
                         return new Datum("","");
                     } else {
                         String argumentString = line.split("\\(")[1].split("\\)")[0];
                         Datum returnResult = (new Parser(argumentString)).result();
                         lineNumber = lineNumberStack.pop();
                         localMemory.pop();
+                        if (!currentObject.isEmpty()) {
+                            currentObject.pop();
+                        }
                         return returnResult;
                     }
                 default:
@@ -435,6 +445,7 @@ public class Interpreter {
     public static Datum runFunction(Function func, Datum[] arguments, String[] parameterNames) {
         inGlobal = false;
         lineNumberStack.push(lineNumber);
+        //currentObject.push(new DatumObject());
         currentFunction = func;
         lineNumber = func.getLineNumberLocation()+1;
         HashMap<String, Datum> argumentMap = new HashMap<>();

@@ -178,7 +178,7 @@ public class Main {
         "     println(lines[i])",
         "}"};*/
 
-        String[] stenslScript = {
+        /*String[] stenslScript = {
                 "class MyFirstClass {",
                 "   var int val",
                 "   var const int defaultVal = 0",
@@ -189,12 +189,19 @@ public class Main {
                 "       return ()",
                 "   }",
                 "   func MyFirstClass getCopy() {",
+                "       println(this.defaultVal)",
                 "       return (this)",
+                "   }",
+                "   func int getSeven() {",
+                "       return (this.defaultVal)",
                 "   }",
                 "   func void mySimpleMethod() {",
                 "       println(\"simplemethod runs like a charm!\")",
                 "       println(str(this.stringThing)&\" is val\")",
                 "       return ()",
+                "   }",
+                "   func [int] arrayMethod() {",
+                "       return ([1,2,3])",
                 "   }",
                 "}",
                 "var MyFirstClass myFirstObject = MyFirstClass()",
@@ -204,12 +211,24 @@ public class Main {
                 "println(classArray[0].messages[1])",
                 "myFirstObject.val = 5",
                 "myFirstObject.myMethod(5, \"hello\")",
-                "myFirstObject.mySimpleMethod()",
                 "println(\"should have just printed a message\")",
-                "println(myFirstObject.val)",
-                "println(typeof(myFirstObject.val))",
-                "println(typeof(5))",
-                "println(typeof(\"6\"))"
+                "println(myFirstObject.getSeven())",
+                "//myFirstObject.getCopy().val",
+                "println(\"hello there!\")",
+                "println(5)"
+        };*/
+        String[] stenslScript = {
+                "class ErrorClass {",
+                "   var int val = 0",
+                "   func ErrorClass returnClassTest() {",
+                "       var ErrorClass test = this",
+                "       return (test)",
+                "   }",
+                "   var int val2 = 2",
+                "}",
+                "var ErrorClass errorObj = ErrorClass()",
+                "println(errorObj.val)",
+                "println(errorObj.returnClassTest().val)"
         };
 
 
