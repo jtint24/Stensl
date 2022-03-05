@@ -134,7 +134,7 @@ public class Parser extends Datum {
 
                     String functionShortName = expr.substring(0,functionShortNameLength);
 
-                    int chainHeadIdx = 0;
+                    /*int chainHeadIdx = 0;
 
                     while (functionShortName.charAt(chainHeadIdx)!='.' && functionShortName.charAt(chainHeadIdx)!='[') {
                         chainHeadIdx++;
@@ -142,13 +142,13 @@ public class Parser extends Datum {
                             break;
                         }
                     }
-
-                    if (Interpreter.getFunctionShortNameList().contains(functionShortName.substring(0,chainHeadIdx-1))) {
-                        System.out.println("running function "+functionShortName.substring(0,chainHeadIdx-1));
+                    System.out.println("checking function "+functionShortName.substring(0,chainHeadIdx));
+                    if (Interpreter.getFunctionShortNameList().contains(functionShortName.substring(0,chainHeadIdx)) || Interpreter.getFullMemory().containsKey(functionShortName.substring(0,chainHeadIdx))) {
+                        System.out.println("running function "+functionShortName.substring(0,chainHeadIdx));
 
                         String argumentList = expr.substring(functionShortName.length()+1, exprSize-1);
                         String[] argumentsStrings = splitByNakedChar(argumentList, ',');
-                        String functionFullName = functionShortName.substring(0,chainHeadIdx-1)+"(";
+                        String functionFullName = functionShortName.substring(0,chainHeadIdx)+"(";
 
                         for (int i = 0; i<argumentsStrings.length; i++) {
                             arguments[i] = new Parser(argumentsStrings[i]).result();
@@ -170,9 +170,9 @@ public class Parser extends Datum {
                         }
 
                         operation = (Function)functionToCall;
-                    }
+                    }*/
 
-                    /*if (Interpreter.getFunctionShortNameList().contains(functionShortName)) { //This gets user-defined prefix function calls
+                    if (Interpreter.getFunctionShortNameList().contains(functionShortName)) { //This gets user-defined prefix function calls
                         if (expr.startsWith(functionShortName+"()")) {
                             operation = (Function)Interpreter.getFullMemory().get(functionShortName+"()").clone();
                             arguments = new Datum[0];
@@ -193,7 +193,7 @@ public class Parser extends Datum {
                         functionFullName+=")";
                         operation = (Function)Interpreter.getFullMemory().get(functionFullName).clone();
                         return;
-                    }*/
+                    }
                 }
 
                 /*CHECK FOR OPERATORS INSIDE THE FUNCTION*/

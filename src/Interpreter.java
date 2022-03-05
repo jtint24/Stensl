@@ -11,7 +11,7 @@ public class Interpreter {
     private static HashMap<String, DatumClass> classes = new HashMap<>();
     private static Stack<Integer> lineNumberStack = new Stack<>();
     private static Stack<HashMap<String, Datum>> localMemory = new Stack<>();
-    private static DatumObject currentObject = null;
+    private static Stack<DatumObject> currentObject = new Stack<>();
     private static boolean inGlobal = true;
 
     public static void runStensl(String[] code) {
@@ -56,7 +56,7 @@ public class Interpreter {
         for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //Checks for function headers and classes and adds them to functionList
             String line = codeLines[lineNumber-1];
 
-            if (line.startsWith("class ")) {
+            if (line.startsWith("class ")) { //initializes classes
                 String className = line.split(" ")[1];
                 if (!isLegalIdentifier(className)) {
                     ErrorManager.printError("Class '"+className+"' is not a legal identifier!");
@@ -64,7 +64,7 @@ public class Interpreter {
                 int braceCount = 1;
                 HashMap<String, String> properties = new HashMap<>();
                 HashMap<String, Datum> defaultVals = new HashMap<>();
-                while (braceCount!=0) {
+                while (braceCount!=0) {         //iterates across the class body
                     lineNumber++;
                     if (lineNumber == code.length+1) {
                         ErrorManager.printError("Unterminated class '"+className+"'!");
@@ -123,14 +123,13 @@ public class Interpreter {
                         }
                         fullFunctionName+=")";
 
-                        if (properties.containsKey(fullFunctionName)) {
+                        if (properties.containsKey(functionName)) {
                             ErrorManager.printError("Duplicate function declaration: "+functionName+" !");
                         }
 
                         String returnType = headerWords[1];
-                        functionShortNameList.add(functionName);
                         Function functionToAdd = new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), returnType, functionName, fullFunctionName, lineNumber);
-                        properties.put(functionName, functionToAdd.getType());
+                        properties.put(functionName, functionToAdd.getType()); //Adds a version of the function that can be used as a property
                         defaultVals.put(functionName, functionToAdd);
                     }
                     if (line.startsWith("var ")) {
@@ -569,8 +568,8 @@ public class Interpreter {
         if (!localMemory.isEmpty()) {
             fullMemory.putAll(localMemory.peek());
         }
-        if (currentObject!=null) {
-            fullMemory.putAll(currentObject.getProperties());
+        if (!currentObject.isEmpty()) {
+            fullMemory.putAll(currentObject.peek().getProperties());
         }
         return fullMemory;
     }
@@ -612,6 +611,9 @@ public class Interpreter {
     }
     public static ArrayList<String> getFunctionShortNameList() { return functionShortNameList; }
     public static Function getCurrentFunction() { return currentFunction; }
+    public static void setCurrentObject(DatumObject dtmo) {
+        currentObject.push(dtmo);
+    }
     private static String findMatchingBracket(int linePosition) {
         int bracketCount = 0;
         int scanLineNumber = lineNumber;
@@ -694,7 +696,7 @@ public class Interpreter {
             }
         }
         switch(name) {
-            case "var", "func", "if", "for", "while", "return", "else", "elseif","const","public","private":
+            case "var", "func", "if", "for", "while", "return", "else", "elseif","const","public","private","this","class":
                 return false;
             default:
                 return true;

@@ -2,16 +2,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DatumObject extends Datum {
+    private DatumClass originalClass;
     private HashMap<String, Datum> properties = new HashMap<>();
 
     public DatumObject(DatumClass cls) {
         super.type = cls.getClassName();
+        originalClass = cls;
         HashMap<String, String> classProperties = cls.getProperties();
         for (HashMap.Entry<String, String> classProperty : classProperties.entrySet()) {
             String propertyName = classProperty.getKey();
             String propertyType = classProperty.getValue();
             properties.put(propertyName, cls.getDefaultVals().getOrDefault(propertyName, new Datum("",propertyType)));
         }
+        properties.put("this", this);
     }
     public DatumObject() {}
     @Override
@@ -29,8 +32,10 @@ public class DatumObject extends Datum {
             return this;
         }
         String cleanPropertyName = "";
+        boolean isFunction = false;
         for (char c : propertyNames[0].toCharArray()) {
             if (c == '(') {
+                isFunction = true;
                 break;
             }
             cleanPropertyName+=c;
@@ -38,6 +43,25 @@ public class DatumObject extends Datum {
         if (properties.containsKey(cleanPropertyName)) {
             String[] newPropertyNames = new String[propertyNames.length-1];
             System.arraycopy(propertyNames, 1, newPropertyNames, 0, propertyNames.length - 1);
+            if (isFunction) {
+                Datum functionToCall = properties.get(cleanPropertyName);
+                if (!(functionToCall instanceof Function)) {
+                    ErrorManager.printError("Can't call non-function '"+cleanPropertyName+"'!");
+                    return new Datum();
+                }
+                if (propertyNames[0].startsWith(cleanPropertyName+"()")) {
+                    Interpreter.setCurrentObject(this);
+                    return ((Function)functionToCall).result(new Datum[0]);
+                }
+
+                String argumentList = propertyNames[0].substring(cleanPropertyName.length()+1, propertyNames[0].length()-1);
+                String[] argumentNames = Interpreter.splitByNakedChar(argumentList, ',');
+                Datum[] arguments = new Datum[argumentNames.length];
+                for (int i = 0; i< arguments.length; i++) {
+                    arguments[i] = new Parser(argumentNames[i]).result();
+                }
+                return ((Function) functionToCall).result(arguments);
+            }
             return properties.get(cleanPropertyName).getProperty(newPropertyNames);
         } else {
             ErrorManager.printError("Can't find property '"+cleanPropertyName+"'!");
