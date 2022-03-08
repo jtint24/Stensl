@@ -445,7 +445,7 @@ public class Interpreter {
     public static Datum runFunction(Function func, Datum[] arguments, String[] parameterNames) {
         inGlobal = false;
         lineNumberStack.push(lineNumber);
-        //currentObject.push(new DatumObject());
+        currentObject.push(func.getAssociatedObject());
         currentFunction = func;
         lineNumber = func.getLineNumberLocation()+1;
         HashMap<String, Datum> argumentMap = new HashMap<>();

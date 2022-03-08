@@ -178,7 +178,7 @@ public class Main {
         "     println(lines[i])",
         "}"};*/
 
-        /*String[] stenslScript = {
+        String[] stenslScript = {
                 "class MyFirstClass {",
                 "   var int val",
                 "   var const int defaultVal = 0",
@@ -189,8 +189,8 @@ public class Main {
                 "       return ()",
                 "   }",
                 "   func MyFirstClass getCopy() {",
-                "       println(this.defaultVal)",
-                "       return (this)",
+                "       var MyFirstClass thisCopy = this",
+                "       return (thisCopy)",
                 "   }",
                 "   func int getSeven() {",
                 "       return (this.defaultVal)",
@@ -205,19 +205,11 @@ public class Main {
                 "   }",
                 "}",
                 "var MyFirstClass myFirstObject = MyFirstClass()",
-                "println(myFirstObject.stringThing)",
-                "println(myFirstObject.messages[0])",
-                "var [MyFirstClass] classArray = [MyFirstClass(), MyFirstClass()]",
-                "println(classArray[0].messages[1])",
-                "myFirstObject.val = 5",
                 "myFirstObject.myMethod(5, \"hello\")",
-                "println(\"should have just printed a message\")",
-                "println(myFirstObject.getSeven())",
-                "//myFirstObject.getCopy().val",
-                "println(\"hello there!\")",
-                "println(5)"
-        };*/
-        String[] stenslScript = {
+                "myFirstObject.mySimpleMethod()",
+                "println(myFirstObject.getCopy().stringThing)",
+        };
+        /*String[] stenslScript = {
                 "class ErrorClass {",
                 "   var int val = 0",
                 "   func ErrorClass returnClassTest() {",
@@ -229,8 +221,21 @@ public class Main {
                 "var ErrorClass errorObj = ErrorClass()",
                 "println(errorObj.val)",
                 "println(errorObj.returnClassTest().val)"
-        };
-
+        };*/
+        /*String[] stenslScript = {
+                "println(typeof(5))",
+                "println(typeof(5.0))",
+                "println(typeof(\"5\"))",
+                "println(typeof(true))",
+                "func void someFunc(int: arg1, string: arg2) {",
+                "   return ()",
+                "}",
+                "class SomeClass {",
+                "   var int val = 5",
+                "}",
+                "println(typeof(SomeClass()))",
+                "println(typeof(someFunc))"
+        };*/
 
         Interpreter.runStensl(stenslScript);
         //System.out.print(Interpreter.getFunctionList());

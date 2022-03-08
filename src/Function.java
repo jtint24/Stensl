@@ -1,34 +1,13 @@
 public class Function extends Operation implements Cloneable {
-    private int lineNumberLocation = 0;
-    private String[] parameterNames = new String[operandNum];
-
-    public Function(OpFunction of, String[] ots, String rt, OpPrecedence pr) {
-        super(of, ots, rt, pr);
-    }
-
-    public Function(OpFunction of, String[] ots, String rt, OpPrecedence pr, String nm) {
-        super(of, ots, rt, pr, nm);
-    }
-
-    public Function(OpFunction of, String[] ots, String rt, OpPrecedence pr, String nm, String fn) {
-        super(of, ots, rt, pr, nm, fn);
-    }
+    private int lineNumberLocation;
+    private String[] parameterNames;
+    private DatumObject associatedObject = new DatumObject();
 
     public Function (String[] ots, String[] pn, String rt, String nm, String fn, int ln) {
-        super((args) -> {return args[0];}, ots, rt, OpPrecedence.FUNCTIONAL, nm, fn);
+        super((args) -> args[0], ots, rt, OpPrecedence.FUNCTIONAL, nm, fn);
         parameterNames = pn;
         super.name = nm;
         lineNumberLocation = ln;
-    }
-
-    public Function(String nm) {
-        super();
-        super.name = nm;
-        if (Interpreter.getCurrentFunction() == null) {
-            super.fullName = name+"§main";
-        } else {
-            super.fullName = name + "§" + Interpreter.getCurrentFunction().getFullName();
-        }
     }
 
     @Override
@@ -59,6 +38,12 @@ public class Function extends Operation implements Cloneable {
         return name==null ? "no name" : name;
     }
 
+    public void setAssociatedObject(DatumObject dtmObj) {
+        associatedObject = dtmObj;
+    }
+    public DatumObject getAssociatedObject() {
+        return associatedObject;
+    }
     public int getLineNumberLocation() { return lineNumberLocation; }
 
     public void setName(String n) {

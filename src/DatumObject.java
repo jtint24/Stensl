@@ -12,6 +12,11 @@ public class DatumObject extends Datum {
             String propertyType = classProperty.getValue();
             properties.put(propertyName, cls.getDefaultVals().getOrDefault(propertyName, new Datum("",propertyType)));
         }
+        for (Datum property : properties.values()) {
+            if (property instanceof Function) {
+                ((Function) property).setAssociatedObject(this);
+            }
+        }
         properties.put("this", this);
     }
     public DatumObject() {}
@@ -50,7 +55,6 @@ public class DatumObject extends Datum {
                     return new Datum();
                 }
                 if (propertyNames[0].startsWith(cleanPropertyName+"()")) {
-                    Interpreter.setCurrentObject(this);
                     return ((Function)functionToCall).result(new Datum[0]).getProperty(newPropertyNames);
                 }
 
