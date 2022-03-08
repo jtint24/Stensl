@@ -1,22 +1,29 @@
+import java.util.Arrays;
+
 public class Datum implements Cloneable {
     private String value;
     protected String type;
     private boolean isMutable = true;
     private boolean isBlank = false;
+    private String[] scope = {"public"};
 
-    public Datum(String t, boolean im) {
-        type = t;
-        isMutable = im;
-    }
     public Datum(String v, String t) {
         value = v;
         type = t;
+        scope = new String[]{"public"};
     }
 
     public Datum(String v, String t, boolean im) {
         value = v;
         type = t;
         isMutable = im;
+        scope = new String[]{"public"};
+    }
+
+    public Datum(String v, String t, String[] sc) {
+        value = v;
+        type = t;
+        scope = sc;
     }
 
     public Datum() {
@@ -57,22 +64,50 @@ public class Datum implements Cloneable {
 
     public Datum getProperty(String str) {
         if (str.length() == 0) {
-            return this;
+           // System.out.println(this+" is getting property with scope "+Arrays.asList(scope));
+            if (scope.length == 0) {
+                ErrorManager.printError("Attempt to get a property from an out-of-scope area!");
+            }
+            if (scope[0].equals("private")) {
+                ErrorManager.printError("Attempt to get a property from an out-of-scope area!");
+            }
+            if (scope[0].equals("public") || Arrays.asList(scope).contains(Interpreter.getCurrentObject().getType())) {
+                return this;
+            }
+            ErrorManager.printError("Attempt to get a property from an out-of-scope area!");
         }
         ErrorManager.printError("Attempt to call non-existent property "+str+"!");
         return new Datum();
     }
     public Datum getProperty(String[] str) {
         if (str.length == 0) {
-            return this;
+            //System.out.println(this+" is getting property with scope "+Arrays.asList(scope));
+            if (this instanceof Function) {
+                return this;
+            }
+            if (scope.length == 0) {
+                ErrorManager.printError("Attempt to get a property from an out-of-scope area!");
+            }
+            if (scope[0].equals("private")) {
+                ErrorManager.printError("Attempt to get a property from an out-of-scope area!");
+            }
+            if (scope[0].equals("public") || Arrays.asList(scope).contains(Interpreter.getCurrentObject().getType())) {
+                return this;
+            }
+            ErrorManager.printError("Attempt to get a property from an out-of-scope area!");
         }
-        //System.out.println(0/0);
         ErrorManager.printError("Attempt to call non-existent property "+str[0]+"!");
         return new Datum();
     }
 
     public String getType() {
         return type;
+    }
+
+    public Datum publicVersion() {
+        Datum clonedVersion = this.clone();
+        clonedVersion.setScope(new String[]{"public"});
+        return clonedVersion;
     }
 
     protected void toConsole(int i) {
@@ -92,6 +127,10 @@ public class Datum implements Cloneable {
     public boolean getIsMutable() { return isMutable; }
 
     public boolean getIsBlank() { return isBlank; }
+
+    public void setScope(String[] sc) {
+        scope = sc;
+    }
 
     public void setIsMutable(boolean m) {
         isMutable = m;

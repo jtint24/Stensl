@@ -132,45 +132,8 @@ public class Parser extends Datum {
                         }
                     } while (fsnlParenCount != 0);
 
-                    String functionShortName = expr.substring(0,functionShortNameLength);
+                    String functionShortName = expr.substring(0,functionShortNameLength+1);
 
-                    /*int chainHeadIdx = 0;
-
-                    while (functionShortName.charAt(chainHeadIdx)!='.' && functionShortName.charAt(chainHeadIdx)!='[') {
-                        chainHeadIdx++;
-                        if (chainHeadIdx==functionShortName.length()) {
-                            break;
-                        }
-                    }
-                    System.out.println("checking function "+functionShortName.substring(0,chainHeadIdx));
-                    if (Interpreter.getFunctionShortNameList().contains(functionShortName.substring(0,chainHeadIdx)) || Interpreter.getFullMemory().containsKey(functionShortName.substring(0,chainHeadIdx))) {
-                        System.out.println("running function "+functionShortName.substring(0,chainHeadIdx));
-
-                        String argumentList = expr.substring(functionShortName.length()+1, exprSize-1);
-                        String[] argumentsStrings = splitByNakedChar(argumentList, ',');
-                        String functionFullName = functionShortName.substring(0,chainHeadIdx)+"(";
-
-                        for (int i = 0; i<argumentsStrings.length; i++) {
-                            arguments[i] = new Parser(argumentsStrings[i]).result();
-                            functionFullName+=arguments[i].getType()+",";
-                        }
-                        if (functionFullName.charAt(functionFullName.length()-1) == ',') {
-                            functionFullName = functionFullName.substring(0, functionFullName.length() - 1);
-                        }
-                        functionFullName+=")";
-
-                        Datum functionToCall = Interpreter.getFullMemory().get(functionFullName);
-
-                        if (chainHeadIdx<functionShortName.length()) {
-                            functionToCall = functionToCall.getProperty(functionShortName.substring(chainHeadIdx+1));
-                        }
-                        if (!(functionToCall instanceof Function)) {
-                            ErrorManager.printError("Can't call a non-function "+functionShortName);
-                            return;
-                        }
-
-                        operation = (Function)functionToCall;
-                    }*/
 
                     if (Interpreter.getFunctionShortNameList().contains(functionShortName)) { //This gets user-defined prefix function calls
                         if (expr.startsWith(functionShortName+"()")) {

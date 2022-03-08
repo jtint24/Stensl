@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -15,6 +16,12 @@ public class Interpreter {
     private static boolean inGlobal = true;
 
     public static void runStensl(String[] code) {
+        String[] newCode = new String[code.length+1];
+        for (int i = 0; i<code.length; i++) {
+            newCode[i] = code[i];
+        }
+        newCode[code.length] = "";
+        code = newCode;
         boolean insideInlineComment = false;
         boolean insideBlockComment = false;
         for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //trim out whitespace and comments from the line;
@@ -63,6 +70,7 @@ public class Interpreter {
                 }
                 int braceCount = 1;
                 HashMap<String, String> properties = new HashMap<>();
+                HashMap<String, String[]> propertiesScopes = new HashMap<>();
                 HashMap<String, Datum> defaultVals = new HashMap<>();
                 while (braceCount!=0) {         //iterates across the class body
                     lineNumber++;
@@ -152,6 +160,18 @@ public class Interpreter {
                                 ErrorManager.printError("Constants must be assigned to!");
                             }
                         }
+                        String[] scopeItems = new String[]{"public"};
+                        if (lineSplitBySpace[1+offset].equals("public") || lineSplitBySpace[1+offset].equals("private") || lineSplitBySpace[1+offset].contains(",")) {
+                            String scope = lineSplitBySpace[1+offset];
+                            offset++;
+                            if (scope.equals("public")) {
+                                scopeItems = new String[]{"public"};
+                            } else if (scope.equals("private")) {
+                                scopeItems = new String[]{className};
+                            } else {
+                                scopeItems = scope.split(",");
+                            }
+                        }
                         String propertyType = lineSplitBySpace[1+offset];
                         String propertyName = lineSplitBySpace[2+offset];
                         if (isAssigned) {
@@ -160,14 +180,19 @@ public class Interpreter {
                                 ErrorManager.printError("Type Mismatch! Type "+assignTo.getType()+" does not match expected type "+propertyType+"!");
                             }
                             assignTo.setIsMutable(!isConstant);
+                            assignTo.setScope(scopeItems);
                             defaultVals.put(propertyName, assignTo);
                         }
+
                         properties.put(propertyName, propertyType);
+                        propertiesScopes.put(propertyName, scopeItems);
+                        System.out.println("added "+propertyName+" with scope "+Arrays.asList(scopeItems));
                     }
                 }
                 DatumClass newClass = new DatumClass(className, properties);
                 newClass.setDefaultVals(defaultVals);
-                System.out.println(newClass);
+                newClass.setPropertiesScope(propertiesScopes);
+                //System.out.println(newClass);
                 classes.put(className, newClass);
             }
 
@@ -351,7 +376,7 @@ public class Interpreter {
                         if (!currentObject.isEmpty()) {
                             currentObject.pop();
                         }
-                        return returnResult;
+                        return returnResult.publicVersion();
                     }
                 default:
                     (new Parser(line)).getValue();
@@ -619,6 +644,12 @@ public class Interpreter {
     }
     public static HashMap<String, DatumClass> getClasses() {
         return classes;
+    }
+    public static DatumObject getCurrentObject() {
+        if (currentObject.isEmpty()) {
+            return new DatumObject();
+        }
+        return currentObject.peek();
     }
     public static ArrayList<String> getFunctionShortNameList() { return functionShortNameList; }
     public static Function getCurrentFunction() { return currentFunction; }

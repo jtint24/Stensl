@@ -7,10 +7,12 @@ public class DatumObject extends Datum {
     public DatumObject(DatumClass cls) {
         super.type = cls.getClassName();
         HashMap<String, String> classProperties = cls.getProperties();
+        HashMap<String, String[]> classPropertyScopes = cls.getPropertiesScope();
         for (HashMap.Entry<String, String> classProperty : classProperties.entrySet()) {
             String propertyName = classProperty.getKey();
             String propertyType = classProperty.getValue();
-            properties.put(propertyName, cls.getDefaultVals().getOrDefault(propertyName, new Datum("",propertyType)));
+            String[] propertyScope = classPropertyScopes.get(propertyName);
+            properties.put(propertyName, cls.getDefaultVals().getOrDefault(propertyName, new Datum("",propertyType,propertyScope)));
         }
         for (Datum property : properties.values()) {
             if (property instanceof Function) {
@@ -35,7 +37,7 @@ public class DatumObject extends Datum {
         if (propertyNames.length==0) {
             return this;
         }
-        //System.out.println("getting properties from "+ this +" "+propertyNames[0]);
+        //System.out.println("getting properties from "+ this +": "+propertyNames[0]);
         String cleanPropertyName = "";
         boolean isFunction = false;
         for (char c : propertyNames[0].toCharArray()) {

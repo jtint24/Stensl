@@ -2,6 +2,7 @@ import java.util.HashMap;
 
 public class DatumClass {
     private HashMap<String, String> properties;
+    private HashMap<String, String[]> propertiesScope = new HashMap<>();
     private HashMap<String, Datum> defaultVals;
     private String className;
     public DatumClass(String name, HashMap<String,String> props) {
@@ -18,8 +19,15 @@ public class DatumClass {
         return properties;
     }
 
+    public HashMap<String, String[]> getPropertiesScope() {
+        return propertiesScope;
+    }
+
     public void setDefaultVals(HashMap<String, Datum> defaultVals) {
         this.defaultVals = defaultVals;
+    }
+    public void setPropertiesScope(HashMap<String, String[]> ps) {
+        propertiesScope = ps;
     }
     @Override
     public String toString() {

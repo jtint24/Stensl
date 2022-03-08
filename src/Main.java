@@ -178,12 +178,12 @@ public class Main {
         "     println(lines[i])",
         "}"};*/
 
-        String[] stenslScript = {
+        /*String[] stenslScript = {
                 "class MyFirstClass {",
                 "   var int val",
-                "   var const int defaultVal = 0",
-                "   var const string stringThing = \"hello there\"",
-                "   var const [string] messages = [\"hello\", \"there\"]",
+                "   var const private int defaultVal = 0",
+                "   var const public string stringThing = \"hello there\"",
+                "   var const MyFirstClass,MyFirstClass [string] messages = [\"hello\", \"there\"]",
                 "   func void myMethod(int: param, string: secParam) {",
                 "       println(\"my method ran! \"&secParam&str(param))",
                 "       return ()",
@@ -197,7 +197,7 @@ public class Main {
                 "   }",
                 "   func void mySimpleMethod() {",
                 "       println(\"simplemethod runs like a charm!\")",
-                "       println(str(this.stringThing)&\" is val\")",
+                "       println(str(this.defaultVal)&\" is val\")",
                 "       return ()",
                 "   }",
                 "   func [int] arrayMethod() {",
@@ -208,7 +208,8 @@ public class Main {
                 "myFirstObject.myMethod(5, \"hello\")",
                 "myFirstObject.mySimpleMethod()",
                 "println(myFirstObject.getCopy().stringThing)",
-        };
+                "println(myFirstObject.defaultVal)"
+        };*/
         /*String[] stenslScript = {
                 "class ErrorClass {",
                 "   var int val = 0",
@@ -236,6 +237,45 @@ public class Main {
                 "println(typeof(SomeClass()))",
                 "println(typeof(someFunc))"
         };*/
+        /*String[] stenslScript = {
+                "func int intReturningFunc() {",
+                "   return (5)",
+                "}",
+                "class TestObj {",
+                "   var int val = 0",
+                "}",
+                "func TestObj objReturningFunc() {",
+                "   var TestObj tobj = TestObj()",
+                "   return (tobj)",
+                "}",
+                "println(intReturningFunc())",
+                "println(objReturningFunc())"
+        };*/
+        String[] stenslScript = {
+                "class Bundle {",
+                "   var int zeroInt = 0",
+                "   var const private int privInt = 1",
+                "   var const Bundle,Legal int reservedInt = 2",
+                "   var public int pubInt = 3",
+                "   func int getZInt() {",
+                "       return (zeroInt)",
+                "   }",
+                "   func int getPrvInt() {",
+                "       return (privInt)",
+                "   }",
+                "}",
+                "class Legal {",
+                "   func int getReservedInt() {",
+                "       return (myBundle.reservedInt)",
+                "   }",
+                "}",
+                "var Bundle myBundle = Bundle()",
+                "var Legal myLegal = Legal()",
+                "println(myBundle.zeroInt) //0",
+                "println(myBundle.getPrvInt()) //1",
+                "println(myLegal.getReservedInt()) //2",
+                "println(myBundle.reservedInt)    // ERROR!"
+        };
 
         Interpreter.runStensl(stenslScript);
         //System.out.print(Interpreter.getFunctionList());
