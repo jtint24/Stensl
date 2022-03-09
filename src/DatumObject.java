@@ -35,7 +35,11 @@ public class DatumObject extends Datum {
     public Datum getProperty (String[] propertyNames) {
 
         if (propertyNames.length==0) {
-            return this;
+            if (super.isInScope()) {
+                return this;
+            } else {
+                ErrorManager.printError("Attempt to get a property from an out-of-scope area!");
+            }
         }
         //System.out.println("getting properties from "+ this +": "+propertyNames[0]);
         String cleanPropertyName = "";
@@ -52,6 +56,10 @@ public class DatumObject extends Datum {
             System.arraycopy(propertyNames, 1, newPropertyNames, 0, propertyNames.length - 1);
             if (isFunction) {
                 Datum functionToCall = properties.get(cleanPropertyName);
+
+                if (!functionToCall.isInScope()) {
+                    ErrorManager.printError("Attempt to get a property from an out-of-scope area!");
+                }
                 if (!(functionToCall instanceof Function)) {
                     ErrorManager.printError("Can't call non-function '"+cleanPropertyName+"'!");
                     return new Datum();
@@ -67,6 +75,9 @@ public class DatumObject extends Datum {
                     arguments[i] = new Parser(argumentNames[i]).result();
                 }
                 return ((Function) functionToCall).result(arguments).getProperty(newPropertyNames);
+            }
+            if (!properties.get(cleanPropertyName).isInScope()) {
+                ErrorManager.printError("Attempt to get a property from an out-of-scope area!");
             }
             return properties.get(cleanPropertyName).getProperty(newPropertyNames);
         } else {

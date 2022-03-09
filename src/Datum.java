@@ -82,11 +82,12 @@ public class Datum implements Cloneable {
     public Datum getProperty(String[] str) {
         if (str.length == 0) {
             //System.out.println(this+" is getting property with scope "+Arrays.asList(scope));
-            if (this instanceof Function) {
-                return this;
-            }
             if (scope.length == 0) {
-                ErrorManager.printError("Attempt to get a property from an out-of-scope area!");
+                if (isInScope()) {
+                    return this;
+                } else {
+                    ErrorManager.printError("Attempt to get a property from an out-of-scope area!");
+                }
             }
             if (scope[0].equals("private")) {
                 ErrorManager.printError("Attempt to get a property from an out-of-scope area!");
@@ -104,6 +105,10 @@ public class Datum implements Cloneable {
         return type;
     }
 
+    public String getScopeString() {
+        return Arrays.toString(scope);
+    }
+
     public Datum publicVersion() {
         Datum clonedVersion = this.clone();
         clonedVersion.setScope(new String[]{"public"});
@@ -114,6 +119,13 @@ public class Datum implements Cloneable {
         String tab = "\t";
         System.out.println(tab.repeat(i)+"Datum: ");
         System.out.println(tab.repeat(i)+" "+value+" of type "+type);
+    }
+
+    protected boolean isInScope() {
+        if (scope.length == 0) {
+            return false;
+        }
+        return scope[0].equals("public") || Arrays.asList(scope).contains(Interpreter.getCurrentObject().getType());
     }
 
     public Datum clone() {

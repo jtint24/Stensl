@@ -17,9 +17,7 @@ public class Interpreter {
 
     public static void runStensl(String[] code) {
         String[] newCode = new String[code.length+1];
-        for (int i = 0; i<code.length; i++) {
-            newCode[i] = code[i];
-        }
+        System.arraycopy(code, 0, newCode, 0, code.length);
         newCode[code.length] = "";
         code = newCode;
         boolean insideInlineComment = false;
@@ -86,7 +84,21 @@ public class Interpreter {
                     }
                     if (line.startsWith("func ")) {
                         String[] headerWords = line.split("\\(")[0].split(" ");
-                        String functionName = headerWords[2];
+                        int offset = 0;
+                        String[] scopeItems = {"public"};
+                        if (headerWords[1+offset].equals("public") || headerWords[1+offset].equals("private") || headerWords[1+offset].contains(",")) {
+                            String scope = headerWords[1+offset];
+                            offset++;
+                            if (scope.equals("public")) {
+                                scopeItems = new String[]{"public"};
+                            } else if (scope.equals("private")) {
+                                scopeItems = new String[]{className};
+                            } else {
+                                scopeItems = scope.split(",");
+                            }
+                        }
+                        String returnType = headerWords[1+offset];
+                        String functionName = headerWords[2+offset];
 
                         if (!isLegalIdentifier(functionName)) {
                             ErrorManager.printError("Illegal function name: "+functionName+"!");
@@ -135,10 +147,11 @@ public class Interpreter {
                             ErrorManager.printError("Duplicate function declaration: "+functionName+" !");
                         }
 
-                        String returnType = headerWords[1];
                         Function functionToAdd = new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), returnType, functionName, fullFunctionName, lineNumber);
+                        functionToAdd.setScope(scopeItems);
                         properties.put(functionName, functionToAdd.getType()); //Adds a version of the function that can be used as a property
                         defaultVals.put(functionName, functionToAdd);
+                        propertiesScopes.put(functionName, scopeItems);
                         moveOverBracketedCode();
                         lineNumber--;
                     }
@@ -186,7 +199,6 @@ public class Interpreter {
 
                         properties.put(propertyName, propertyType);
                         propertiesScopes.put(propertyName, scopeItems);
-                        System.out.println("added "+propertyName+" with scope "+Arrays.asList(scopeItems));
                     }
                 }
                 DatumClass newClass = new DatumClass(className, properties);
@@ -198,6 +210,8 @@ public class Interpreter {
 
             if (line.startsWith("func ")) {
                 String[] headerWords = line.split("\\(")[0].split(" ");
+
+                String returnType = headerWords[1];
                 String functionName = headerWords[2];
 
                 if (!isLegalIdentifier(functionName)) {
@@ -247,7 +261,6 @@ public class Interpreter {
                     ErrorManager.printError("Duplicate function declaration: "+functionName+" !");
                 }
 
-                String returnType = headerWords[1];
                 functionShortNameList.add(functionName);
                 Function functionToAdd = new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), returnType, functionName, fullFunctionName, lineNumber);
                 memory.put(fullFunctionName, functionToAdd);
