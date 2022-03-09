@@ -277,12 +277,17 @@ public class Main {
                 "println(myLegal.getReservedInt()) //2",
                 "println(myBundle.reservedInt)    // ERROR!"
         };*/
-        String[] stenslScript = {
-                "var string userInput = input(\"What would you like to eat?\")",
-                "println(\"user inputted: \"&userInput)"
-        };
+        /*String[] stenslScript = {
+                "func float constantProb(float: x) {",
+                "   return (.1)",
+                "}",
+                "println(constantProb(0))"
+        };*/
+        //String[] stenslScript = {
+        //        ""
+        //}
 
-        Interpreter.runStensl(stenslScript);
+        //Interpreter.runStensl(stenslScript);
         //System.out.print(Interpreter.getFunctionList());
     }
 }

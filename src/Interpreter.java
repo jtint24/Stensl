@@ -312,7 +312,15 @@ public class Interpreter {
                     localMemory.peek().put(indexName, localMemory.peek().get(indexName).increment());
                     lineNumber = findMatchingBracketIndex(linePosition);
                 } else {
-                    localMemory.pop();
+                    HashMap<String, Datum> oldLocalMem = localMemory.pop();
+                    if (!localMemory.isEmpty()) {
+                        for (String localVar : oldLocalMem.keySet()) {
+                            if (localMemory.peek().containsKey(localVar)) {
+                                localMemory.peek().put(localVar, oldLocalMem.get(localVar));
+                            }
+                        }
+                    }
+
                 }
             }
             return new Datum();
@@ -370,7 +378,7 @@ public class Interpreter {
                     runFor();
                     break;
                 case "return":
-                    if (lineNumberStack.size() == 0) {
+                    if (lineNumberStack.size() == 1) {
                         inGlobal = true;
                     }
                     String argumentStringPlusParen = line.split("\\(")[1];
@@ -418,16 +426,21 @@ public class Interpreter {
         String variableName = lineSplitBySpace[2+flagOffset];
 
         if (!isLegalIdentifier(variableName)) {
-            ErrorManager.printError("illegal variable name: "+variableName+"!");
+            ErrorManager.printError("Illegal variable name: "+variableName+"!");
+        }
+
+        if (getFullMemory().containsKey(variableName)) {
+            ErrorManager.printError("Duplicate variable declaration: "+variableName+"!");
         }
 
         Parser variableParser = (new Parser(line.substring(lineSplitByEqual[0].length()+1)));
-
-        if (!variableType.equals(variableParser.getType()) && !(variableType.equals("string") && variableParser.getType().equals("char")) && !(variableType.equals("float") && variableParser.getType().equals("int"))) {
+        //System.out.println(TypeChecker.isCompatible(variableParser.getType(), variableType));
+        if (!TypeChecker.isCompatible(variableParser.getType(), variableType)) {
             ErrorManager.printError("Value of type "+variableParser.getType()+" cannot be assigned to a variable of type "+variableType+"!");
         }
 
         Datum variable = variableParser.result();
+        variable.setType(variableType);
         variable.setIsMutable(!isConst);
 
         if (variable instanceof Function) {
@@ -438,6 +451,7 @@ public class Interpreter {
         }
 
         if (inGlobal) {
+            //inGlobal=false;
             memory.put(variableName, variable);
         } else {
             localMemory.peek().put(variableName, variable);
@@ -580,13 +594,13 @@ public class Interpreter {
         do  {
             lineNumber++;
             String currentLine = codeLines[lineNumber-1];
-            if (currentLine.endsWith("{")) {
+            if (currentLine.endsWith("{") || currentLine.startsWith("for ")) {
                 bracketCount++;
             }
             if (currentLine.startsWith("}")) {
                 bracketCount--;
             }
-            if (currentLine.startsWith("}") && currentLine.endsWith("{") && bracketCount == 1) {
+            if (currentLine.startsWith("}") && (currentLine.endsWith("{") || currentLine.startsWith("for ")) && bracketCount == 1) {
                 break;
             }
         } while (bracketCount!=0);
@@ -599,13 +613,13 @@ public class Interpreter {
             lineNumber++;
             String currentLine = codeLines[lineNumber-1];
 
-            if (currentLine.endsWith("{")) {
+            if (currentLine.endsWith("{") || currentLine.startsWith("for ")) {
                 bracketCount++;
             }
             if (currentLine.startsWith("}")) {
                 bracketCount--;
             }
-            if (!isFirst && currentLine.startsWith("}") && currentLine.endsWith("{") && bracketCount == 1) {
+            if (!isFirst && currentLine.startsWith("}") && (currentLine.endsWith("{") || currentLine.startsWith("for ")) && bracketCount == 1) {
                 break;
             }
             isFirst = false;
