@@ -251,7 +251,7 @@ public class Main {
                 "println(intReturningFunc())",
                 "println(objReturningFunc())"
         };*/
-        String[] stenslScript = {
+        /*String[] stenslScript = {
                 "class Bundle {",
                 "   var int zeroInt = 0",
                 "   var const private int privInt = 1",
@@ -276,6 +276,10 @@ public class Main {
                 "println(myBundle.getPrvInt()) //1",
                 "println(myLegal.getReservedInt()) //2",
                 "println(myBundle.reservedInt)    // ERROR!"
+        };*/
+        String[] stenslScript = {
+                "var string userInput = input(\"What would you like to eat?\")",
+                "println(\"user inputted: \"&userInput)"
         };
 
         Interpreter.runStensl(stenslScript);

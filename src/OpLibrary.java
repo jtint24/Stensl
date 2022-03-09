@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Scanner;
 import java.util.Stack;
 
 public class OpLibrary {
@@ -160,8 +161,21 @@ public class OpLibrary {
     public static Operation getElementOfType(String type) {
         return new Operation(getElementFunction, anyArrInt, type, OpPrecedence.PASS, "getValue");
     }
+    private final static OpFunction inputOp = (args) -> {
+        if (!args[0].getValue().equals("")) {
+            System.out.println(args[0].getValue());
+        }
+        String strValue = "";
+        Scanner scan = new Scanner(System.in);
+        if (scan.hasNextLine()) {
+            strValue = scan.nextLine();
+        }
+        scan.close();
+        return new Datum(strValue, "string");
+    };
+    public final static Operation inputFunction = new Operation(inputOp, singleString, "string", OpPrecedence.FUNCTIONAL, "input");
 
-    public static ArrayList<Operation> prefixFunctions = new ArrayList<>(Arrays.asList(stringConversion, intConversion, floatConversion, print, println, trace, assertOp, ascii, typeof));
+    public static ArrayList<Operation> prefixFunctions = new ArrayList<>(Arrays.asList(stringConversion, intConversion, floatConversion, print, println, trace, assertOp, ascii, typeof, inputFunction));
 
     private final static OpFunction dotApplicationFunction = (args) -> args[0].getProperty(args[1].getValue());
     public final static Operation dotApplication = new Operation(dotApplicationFunction, anyString, "indeterminate", OpPrecedence.FUNCTIONAL, "dot application");
