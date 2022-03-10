@@ -154,6 +154,9 @@ public class Parser extends Datum {
                             functionFullName = functionFullName.substring(0, functionFullName.length() - 1);
                         }
                         functionFullName+=")";
+                        if (!Interpreter.getFullMemory().containsKey(functionFullName)) {
+                            ErrorManager.printError("Function "+functionFullName+" does not exist!");
+                        }
                         operation = (Function)Interpreter.getFullMemory().get(functionFullName).clone();
                         return;
                     }

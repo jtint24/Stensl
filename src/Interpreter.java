@@ -278,7 +278,7 @@ public class Interpreter {
         //System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
         //System.out.println("local mem is "+localMemory.toString()+" global mem is "+memory.toString());
         //System.out.println("CURRENT OBJECTS: "+currentObject);
-        //System.out.println("CURRENT LINE NUMBER STACK: "+lineNumberStack);
+        //System.out.println("CURRENT LINE NUMBER STACK: "+lineNumber+": "+lineNumberStack);
 
         //getFullMemory().forEach((key, value) -> { //prints out the value and name of each value in memory
         //System.out.println(key+" holds "+value.getValue()+" of type "+value.getType());
@@ -308,10 +308,21 @@ public class Interpreter {
                 float maximumIndex = Float.parseFloat(new Parser(minMaxArgs[1]).getValue());
                 String indexDeclaration = bracketMatch.split("\\{")[1].split("\\(")[1].split("\\)")[0];
                 String indexName = indexDeclaration.split(" ")[1];
-                if (Float.parseFloat(localMemory.peek().get(indexName).getValue())<maximumIndex) {
-                    localMemory.peek().put(indexName, localMemory.peek().get(indexName).increment());
+                if (Float.parseFloat(localMemory.peek().get(indexName).getValue())<maximumIndex) { //Code if the for loop runs its body again
+                    Datum incrementedIndex = localMemory.peek().get(indexName).increment();
+                    HashMap<String, Datum> newInsideForLoopMem = new HashMap<>();
+                    if (localMemory.size()>1) {
+                        HashMap<String, Datum> oldInsideForLoopMem = localMemory.pop();
+                        for (String localVar : oldInsideForLoopMem.keySet()) {
+                            if (localMemory.peek().containsKey(localVar)) {
+                                newInsideForLoopMem.put(localVar, oldInsideForLoopMem.get(localVar));              //Removes variables that were declared inside the for loop body
+                            }
+                        }
+                    }
+                    newInsideForLoopMem.put(indexName, incrementedIndex);
+                    localMemory.push(newInsideForLoopMem);
                     lineNumber = findMatchingBracketIndex(linePosition);
-                } else {
+                } else {     //Code for when the for loop has been exhausted:
                     HashMap<String, Datum> oldLocalMem = localMemory.pop();
                     if (!localMemory.isEmpty()) {
                         for (String localVar : oldLocalMem.keySet()) {
@@ -390,7 +401,7 @@ public class Interpreter {
                         }
                         return new Datum("","");
                     } else {
-                        String argumentString = line.split("\\(")[1].split("\\)")[0];
+                        String argumentString = line.substring(line.split("\\(")[0].length()+1, line.length()-1);
                         Datum returnResult = (new Parser(argumentString)).result();
                         lineNumber = lineNumberStack.pop();
                         localMemory.pop();
@@ -450,8 +461,8 @@ public class Interpreter {
             variableName = ((Function) variable).getFullName();
         }
 
-        if (inGlobal) {
-            //inGlobal=false;
+        if (localMemory.isEmpty()) {
+            inGlobal=false;
             memory.put(variableName, variable);
         } else {
             localMemory.peek().put(variableName, variable);
@@ -483,9 +494,9 @@ public class Interpreter {
             if (!varToMutate.getIsMutable()) {
                 ErrorManager.printError("Attempt to mutate a constant, "+varName+"!");
             }
-            HashMap<String, Datum> currentLocalMemory = (HashMap<String, Datum>) localMemory.peek().clone();
+            HashMap<String, Datum> currentLocalMemory = localMemory.peek();
             Datum mutatedResult = new Parser(line.substring(lineSplitByEqual[0].length()+1)).result();
-            if (!mutatedResult.getType().equals(varToMutate.getType()) && !(mutatedResult.getType().equals("string") && mutatedResult.getType().equals("char")) && !(mutatedResult.getType().equals("float") && mutatedResult.getType().equals("int"))) {
+            if (!TypeChecker.isCompatible(mutatedResult.getType(), varToMutate.getType())) {
                 ErrorManager.printError("Values of type "+mutatedResult.getType()+" are not compatible with variable "+varName+" of type "+varToMutate.getType());
             }
             currentLocalMemory.remove(varName);
