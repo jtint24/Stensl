@@ -118,7 +118,8 @@ public class OpLibrary {
     };
     public final static Operation println = new Operation(printlnFunction, singleAny, "void", OpPrecedence.FUNCTIONAL, "println");
     public final static Operation anyPass = new Operation(printlnFunction, singleAny, "any",  OpPrecedence.PASS,       "any pass");
-
+    private final static OpFunction lengthFunction = (args) -> new Datum(Integer.toString(args[0].getValue().length()),"int");
+    public final static Operation lengthOp = new Operation(lengthFunction, singleString, "int", OpPrecedence.FUNCTIONAL, "len");
     private final static OpFunction traceFunction = (args) -> {
         System.out.println("Evaluated expression to: "+args[0].getValue());
         System.out.println("\tFrom line number "+Interpreter.getLineNumber());
@@ -175,7 +176,7 @@ public class OpLibrary {
     };
     public final static Operation inputFunction = new Operation(inputOp, singleString, "string", OpPrecedence.FUNCTIONAL, "input");
 
-    public static ArrayList<Operation> prefixFunctions = new ArrayList<>(Arrays.asList(stringConversion, intConversion, floatConversion, print, println, trace, assertOp, ascii, typeof, inputFunction));
+    public static ArrayList<Operation> prefixFunctions = new ArrayList<>(Arrays.asList(stringConversion, intConversion, floatConversion, print, println, trace, assertOp, ascii, typeof, inputFunction, lengthOp));
 
     private final static OpFunction dotApplicationFunction = (args) -> args[0].getProperty(args[1].getValue());
     public final static Operation dotApplication = new Operation(dotApplicationFunction, anyString, "indeterminate", OpPrecedence.FUNCTIONAL, "dot application");

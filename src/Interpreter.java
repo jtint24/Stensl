@@ -318,6 +318,8 @@ public class Interpreter {
                                 newInsideForLoopMem.put(localVar, oldInsideForLoopMem.get(localVar));              //Removes variables that were declared inside the for loop body
                             }
                         }
+                    } else {
+                        localMemory.pop();
                     }
                     newInsideForLoopMem.put(indexName, incrementedIndex);
                     localMemory.push(newInsideForLoopMem);
@@ -325,7 +327,7 @@ public class Interpreter {
                 } else {     //Code for when the for loop has been exhausted:
                     HashMap<String, Datum> oldLocalMem = localMemory.pop();
                     if (!localMemory.isEmpty()) {
-                        for (String localVar : oldLocalMem.keySet()) {
+                        for (String localVar : oldLocalMem.keySet()) { //puts any variables that were modified in the loop back in local mem
                             if (localMemory.peek().containsKey(localVar)) {
                                 localMemory.peek().put(localVar, oldLocalMem.get(localVar));
                             }
