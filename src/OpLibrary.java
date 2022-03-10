@@ -160,7 +160,7 @@ public class OpLibrary {
         return ((DatumArray)args[0]).getElement((int)Float.parseFloat(args[1].getValue()));
     };
     public static Operation getElementOfType(String type) {
-        return new Operation(getElementFunction, anyArrInt, type, OpPrecedence.PASS, "getValue");
+        return new Operation(getElementFunction, anyArrInt, type, OpPrecedence.FUNCTIONAL, "getValue");
     }
     private final static OpFunction inputOp = (args) -> {
         if (!args[0].getValue().equals("")) {
