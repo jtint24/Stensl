@@ -6,6 +6,7 @@ public class Interpreter {
     private static int lineNumber;
     private static Function currentFunction;
     private static String[] codeLines;
+    private static InstructionType[] instructionTypes;
     private static final HashMap<String, Datum> memory = new HashMap<>();
     private static final ArrayList<String> functionShortNameList = new ArrayList<>();
     private static final HashMap<String, DatumClass> classes = new HashMap<>();
@@ -56,6 +57,7 @@ public class Interpreter {
         }
 
         codeLines = code;
+        instructionTypes = new InstructionType[codeLines.length];
         for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //Checks for function headers and classes and adds them to functionList
             String line = codeLines[lineNumber-1];
 
@@ -286,6 +288,17 @@ public class Interpreter {
             return new Datum();
         }
 
+        if (instructionTypes[lineNumber-1] != null) {
+            switch (instructionTypes[lineNumber-1]) {
+                case INITIALIZE -> initializeVar(line);
+                case IF -> runIf();
+                case FOR -> runFor();
+                case PARSER -> (new Parser(line)).getValue();
+                case ASSIGN -> assignVar(line);
+            }
+            return new Datum();
+        }
+
         if (line.equals("}")) {
             int linePosition = 0;
             while (line.charAt(linePosition)!='}') {
@@ -336,13 +349,15 @@ public class Interpreter {
             }
             return new Datum();
         }
-        if (line.matches("}[ ]+else[ ]+\\{")) {
-            String bracketMatch = findMatchingBracket(0);
-            if (!bracketMatch.startsWith("if ")) {
-                ErrorManager.printError("Else without if!");
+        if (line.startsWith("}") && line.endsWith("{")) {
+            if (line.matches("}[ ]+else[ ]+\\{")) {
+                String bracketMatch = findMatchingBracket(0);
+                if (!bracketMatch.startsWith("if ")) {
+                    ErrorManager.printError("Else without if!");
+                }
+                moveOverBracketedCode(1);
+                return new Datum();
             }
-            moveOverBracketedCode(1);
-            return new Datum();
         }
 
         StringBuilder firstToken = new StringBuilder();
@@ -373,13 +388,23 @@ public class Interpreter {
             return new Datum();
         }
         if ((getFullMemory().containsKey(firstToken.toString()) || functionShortNameList.contains(firstToken.toString())) && isAssignment) {
+            instructionTypes[lineNumber-1] = InstructionType.ASSIGN;
             assignVar(line);
         } else {
             switch (firstToken.toString()) {
-                case "var" -> initializeVar(line);
+                case "var" -> {
+                    instructionTypes[lineNumber-1] = InstructionType.INITIALIZE;
+                    initializeVar(line);
+                }
                 case "func", "class" -> moveOverBracketedCode();
-                case "if" -> runIf();
-                case "for" -> runFor();
+                case "if" -> {
+                    instructionTypes[lineNumber-1] = InstructionType.IF;
+                    runIf();
+                }
+                case "for" -> {
+                    instructionTypes[lineNumber-1] = InstructionType.FOR;
+                    runFor();
+                }
                 case "return" -> {
                     String argumentStringPlusParen = line.split("\\(")[1];
                     if (argumentStringPlusParen.trim().equals(")")) {
@@ -400,7 +425,10 @@ public class Interpreter {
                         return returnResult.publicVersion();
                     }
                 }
-                default -> (new Parser(line)).getValue();
+                default -> {
+                    instructionTypes[lineNumber-1] = InstructionType.PARSER;
+                    (new Parser(line)).getValue();
+                }
             }
         }
         return new Datum();
@@ -760,11 +788,9 @@ public class Interpreter {
                 return false;
             }
         }
-        switch(name) {
-            case "var", "func", "if", "for", "while", "return", "else", "elseif","const","public","private","this","class":
-                return false;
-            default:
-                return true;
-        }
+        return switch (name) {
+            case "var", "func", "if", "for", "while", "return", "else", "elseif", "const", "public", "private", "this", "class" -> false;
+            default -> true;
+        };
     }
 }
