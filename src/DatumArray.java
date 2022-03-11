@@ -4,7 +4,7 @@ import java.util.Collections;
 
 public class DatumArray extends DatumObject {
     private ArrayList<Datum> value;
-    private String elementType;
+    private final String elementType;
     public DatumArray(String et, ArrayList<Datum> val) {
         elementType = et;
         value = val;
@@ -121,14 +121,14 @@ public class DatumArray extends DatumObject {
 
     @Override
     public String toString() {
-        String toStringResult = "[";
+        StringBuilder toStringResult = new StringBuilder("[");
         for (int i = 0; i<value.size(); i++) {
-            toStringResult+=value.get(i).toString();
+            toStringResult.append(value.get(i).toString());
             if (i<value.size()-1) {
-                toStringResult+=", ";
+                toStringResult.append(", ");
             }
         }
-        toStringResult+="]";
-        return toStringResult;
+        toStringResult.append("]");
+        return toStringResult.toString();
     }
 }

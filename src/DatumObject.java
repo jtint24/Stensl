@@ -42,20 +42,20 @@ public class DatumObject extends Datum {
             }
         }
         //System.out.println("getting properties from "+ this +": "+propertyNames[0]);
-        String cleanPropertyName = "";
+        StringBuilder cleanPropertyName = new StringBuilder();
         boolean isFunction = false;
         for (char c : propertyNames[0].toCharArray()) {
             if (c == '(') {
                 isFunction = true;
                 break;
             }
-            cleanPropertyName+=c;
+            cleanPropertyName.append(c);
         }
-        if (properties.containsKey(cleanPropertyName)) {
+        if (properties.containsKey(cleanPropertyName.toString())) {
             String[] newPropertyNames = new String[propertyNames.length-1];
             System.arraycopy(propertyNames, 1, newPropertyNames, 0, propertyNames.length - 1);
             if (isFunction) {
-                Datum functionToCall = properties.get(cleanPropertyName);
+                Datum functionToCall = properties.get(cleanPropertyName.toString());
 
                 if (!functionToCall.isInScope()) {
                     ErrorManager.printError("Attempt to get a property from an out-of-scope area!");
@@ -76,10 +76,10 @@ public class DatumObject extends Datum {
                 }
                 return ((Function) functionToCall).result(arguments).getProperty(newPropertyNames);
             }
-            if (!properties.get(cleanPropertyName).isInScope()) {
+            if (!properties.get(cleanPropertyName.toString()).isInScope()) {
                 ErrorManager.printError("Attempt to get a property from an out-of-scope area!");
             }
-            return properties.get(cleanPropertyName).getProperty(newPropertyNames);
+            return properties.get(cleanPropertyName.toString()).getProperty(newPropertyNames);
         } else {
             ErrorManager.printError("Can't find property '"+cleanPropertyName+"'!");
             return null;
@@ -103,7 +103,7 @@ public class DatumObject extends Datum {
     }
     private String[] splitByNakedChars(String s, String chars) {
         ArrayList<String> splitResults = new ArrayList<>();
-        String currentSplit = "";
+        StringBuilder currentSplit = new StringBuilder();
         int parenCount = 0;
         int bracketCount = 0;
         boolean inQuotes = false;
@@ -126,27 +126,27 @@ public class DatumObject extends Datum {
                 bracketCount--;
             }
             if (parenCount == 0 && bracketCount==0 && !inQuotes && chars.contains(""+sChar) || (bracketCount==1 && sChar == '[' && chars.contains("["))) {
-                splitResults.add(currentSplit);
-                currentSplit = "";
+                splitResults.add(currentSplit.toString());
+                currentSplit = new StringBuilder();
             } else {
-                currentSplit+=sChar;
+                currentSplit.append(sChar);
             }
         }
-        splitResults.add(currentSplit);
+        splitResults.add(currentSplit.toString());
         return splitResults.toArray(new String[0]);
     }
     public String toString() {
-        String retString = "{";
+        StringBuilder retString = new StringBuilder("{");
         for (String propertyName : properties.keySet()) {
             if (propertyName.equals("this")) {
                 continue;
             }
-            retString+=properties.get(propertyName).getType();
-            retString+=" "+propertyName;
-            retString+=" = "+properties.get(propertyName).getValue();
-            retString+=", ";
+            retString.append(properties.get(propertyName).getType());
+            retString.append(" ").append(propertyName);
+            retString.append(" = ").append(properties.get(propertyName).getValue());
+            retString.append(", ");
         }
-        retString = retString.substring(0,retString.length()-2);
+        retString = new StringBuilder(retString.substring(0, retString.length() - 2));
         return retString+"}";
     }
 }

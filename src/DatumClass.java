@@ -1,10 +1,10 @@
 import java.util.HashMap;
 
 public class DatumClass {
-    private HashMap<String, String> properties;
+    private final HashMap<String, String> properties;
     private HashMap<String, String[]> propertiesScope = new HashMap<>();
     private HashMap<String, Datum> defaultVals;
-    private String className;
+    private final String className;
     public DatumClass(String name, HashMap<String,String> props) {
         className = name;
         properties = props;
@@ -31,16 +31,16 @@ public class DatumClass {
     }
     @Override
     public String toString() {
-        String retString = "{";
+        StringBuilder retString = new StringBuilder("{");
         for (String propertyName : properties.keySet()) {
-            retString+=properties.get(propertyName);
-            retString+=" "+propertyName;
+            retString.append(properties.get(propertyName));
+            retString.append(" ").append(propertyName);
             if (defaultVals.containsKey(propertyName)) {
-                retString+=" = "+defaultVals.get(propertyName).getValue();
+                retString.append(" = ").append(defaultVals.get(propertyName).getValue());
             }
-            retString+=", ";
+            retString.append(", ");
         }
-        retString = retString.substring(0,retString.length()-2);
+        retString = new StringBuilder(retString.substring(0, retString.length() - 2));
         return retString+"}";
     }
 }

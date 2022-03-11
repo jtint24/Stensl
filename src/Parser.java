@@ -9,17 +9,17 @@ public class Parser extends Datum {
         /* REMOVE SPACES FROM THE INPUT EXPRESSION: */
         int exprSize = expr.length();
         boolean inQuote = false;
-        String exprWithoutSpaces = "";
+        StringBuilder exprWithoutSpaces = new StringBuilder();
         for (int i = 0; i<exprSize; i++) {
             char exprChar = expr.charAt(i);
             if (exprChar=='\"') { //keep track of quotes so spaces aren't removed from quoted string literals
                 inQuote=!inQuote;
             }
             if (exprChar!=' ' || inQuote) {
-                exprWithoutSpaces+=exprChar;
+                exprWithoutSpaces.append(exprChar);
             }
         }
-        expr = exprWithoutSpaces;
+        expr = exprWithoutSpaces.toString();
         exprSize = expr.length();
 
         try { //generally catches errors in the parser function because any number of illegal parser expressions could otherwise cause an interpreter crash
@@ -144,20 +144,20 @@ public class Parser extends Datum {
                         String argumentList = expr.substring(functionShortName.length()+1, exprSize-1);
                         String[] argumentsStrings = splitByNakedChar(argumentList, ',');
                         arguments = new Datum[argumentsStrings.length];
-                        String functionFullName = functionShortName+"(";
+                        StringBuilder functionFullName = new StringBuilder(functionShortName + "(");
 
                         for (int i = 0; i<argumentsStrings.length; i++) {
                             arguments[i] = new Parser(argumentsStrings[i]).result();
-                            functionFullName+=arguments[i].getType()+",";
+                            functionFullName.append(arguments[i].getType()).append(",");
                         }
                         if (functionFullName.charAt(functionFullName.length()-1) == ',') {
-                            functionFullName = functionFullName.substring(0, functionFullName.length() - 1);
+                            functionFullName = new StringBuilder(functionFullName.substring(0, functionFullName.length() - 1));
                         }
-                        functionFullName+=")";
-                        if (!Interpreter.getFullMemory().containsKey(functionFullName)) {
+                        functionFullName.append(")");
+                        if (!Interpreter.getFullMemory().containsKey(functionFullName.toString())) {
                             ErrorManager.printError("Function "+functionFullName+" does not exist!");
                         }
-                        operation = (Function)Interpreter.getFullMemory().get(functionFullName).clone();
+                        operation = (Function)Interpreter.getFullMemory().get(functionFullName.toString()).clone();
                         return;
                     }
                 }
@@ -207,18 +207,10 @@ public class Parser extends Datum {
                                     if (minPrecedence.equals(OpPrecedence.COMPARISON)) {
                                         setArgumentsAroundDouble(i, expr);
                                         switch (arguments[0].getType()) {
-                                            case "float", "int":
-                                                operation = OpLibrary.numericEquals;
-                                                break;
-                                            case "char", "string":
-                                                operation = OpLibrary.strEquals;
-                                                break;
-                                            case "bool":
-                                                operation = OpLibrary.boolEquals;
-                                                break;
-                                            default:
-                                                ErrorManager.printError("no recognized type for ==!");
-                                                break;
+                                            case "float", "int" -> operation = OpLibrary.numericEquals;
+                                            case "char", "string" -> operation = OpLibrary.strEquals;
+                                            case "bool" -> operation = OpLibrary.boolEquals;
+                                            default -> ErrorManager.printError("no recognized type for ==!");
                                         }
                                         return;
                                     }
@@ -256,18 +248,10 @@ public class Parser extends Datum {
                                     if (minPrecedence.equals(OpPrecedence.COMPARISON)) {
                                         setArgumentsAroundDouble(i, expr);
                                         switch (arguments[0].getType()) {
-                                            case "float", "int":
-                                                operation = OpLibrary.numericUnequals;
-                                                break;
-                                            case "char", "string":
-                                                operation = OpLibrary.strUnequals;
-                                                break;
-                                            case "bool":
-                                                operation = OpLibrary.boolUnequals;
-                                                break;
-                                            default:
-                                                ErrorManager.printError("no recognized type for '!='!");
-                                                break;
+                                            case "float", "int" -> operation = OpLibrary.numericUnequals;
+                                            case "char", "string" -> operation = OpLibrary.strUnequals;
+                                            case "bool" -> operation = OpLibrary.boolUnequals;
+                                            default -> ErrorManager.printError("no recognized type for '!='!");
                                         }
                                         return;
                                     }
@@ -492,7 +476,7 @@ public class Parser extends Datum {
     }
     private boolean isInt(String str) {
         try {
-            float f = Integer.parseInt(str);
+            int i = Integer.parseInt(str);
             return true;
         } catch (NumberFormatException nfe) {
             return false;
@@ -512,7 +496,7 @@ public class Parser extends Datum {
     }
     private String[] splitByNakedChar(String s, char c) {
         ArrayList<String> splitResults = new ArrayList<>();
-        String currentSplit = "";
+        StringBuilder currentSplit = new StringBuilder();
         int parenCount = 0;
         int bracketCount = 0;
         boolean inQuotes = false;
@@ -535,13 +519,13 @@ public class Parser extends Datum {
                 bracketCount--;
             }
             if (parenCount == 0 && bracketCount==0 && !inQuotes && sChar == c) {
-                splitResults.add(currentSplit);
-                currentSplit = "";
+                splitResults.add(currentSplit.toString());
+                currentSplit = new StringBuilder();
             } else {
-                currentSplit+=sChar;
+                currentSplit.append(sChar);
             }
         }
-        splitResults.add(currentSplit);
+        splitResults.add(currentSplit.toString());
         return splitResults.toArray(new String[0]);
     }
 

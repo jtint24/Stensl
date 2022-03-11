@@ -1,6 +1,6 @@
 public class Function extends Operation implements Cloneable {
-    private int lineNumberLocation;
-    private String[] parameterNames;
+    private final int lineNumberLocation;
+    private final String[] parameterNames;
     private DatumObject associatedObject = new DatumObject();
 
     public Function (String[] ots, String[] pn, String rt, String nm, String fn, int ln) {
@@ -22,15 +22,15 @@ public class Function extends Operation implements Cloneable {
     }
 
     public void regenerateFullName() {
-        String newFullName = name+"(";
+        StringBuilder newFullName = new StringBuilder(name + "(");
         for (String operandType : operandTypes) {
-            newFullName+=operandType+",";
+            newFullName.append(operandType).append(",");
         }
         if (newFullName.charAt(newFullName.length()-1) == ',') {
-            newFullName = newFullName.substring(0, newFullName.length() - 1);
+            newFullName = new StringBuilder(newFullName.substring(0, newFullName.length() - 1));
         }
-        newFullName+=")";
-        super.fullName = newFullName;
+        newFullName.append(")");
+        super.fullName = newFullName.toString();
     }
 
     @Override

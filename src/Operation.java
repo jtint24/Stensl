@@ -56,16 +56,16 @@ public class Operation extends Datum {
     public String toString() { return name; }
 
     public String getType() {
-        String type = "(";
+        StringBuilder type = new StringBuilder("(");
         for (String inputType : operandTypes) {
-            type+=inputType+",";
+            type.append(inputType).append(",");
         }
         if (type.charAt(type.length()-1) == ',') {
-            type = type.substring(0,type.length()-1);
+            type = new StringBuilder(type.substring(0, type.length() - 1));
         }
-        type+=")->";
-        type+=returnType;
-        return type;
+        type.append(")->");
+        type.append(returnType);
+        return type.toString();
     }
 
     @Override

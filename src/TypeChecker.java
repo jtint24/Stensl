@@ -21,7 +21,7 @@ class TypeChecker {
         for (int gtIndex = 0; gtIndex<gtLength; gtIndex++) {
             //System.out.println(gtIndex+": "+givenType.charAt(gtIndex)+", "+ttIndex+": "+targetType.charAt(ttIndex));
             if (gtIndex<gtLength-2 && ttIndex<ttLength-4) {
-                if (givenType.substring(gtIndex,gtIndex+3).equals("int") && targetType.substring(ttIndex, ttIndex+5).equals("float")) {
+                if (givenType.startsWith("int", gtIndex) && targetType.startsWith("float", ttIndex)) {
                     if (gtIndex==gtLength-3) {
                         ttIndex += 5;
                         gtIndex += 3;
@@ -36,7 +36,7 @@ class TypeChecker {
                 }
             }
             if (gtIndex<gtLength-3 && ttIndex<ttLength-5) {
-                if (givenType.substring(gtIndex,gtIndex+4).equals("char") && targetType.substring(ttIndex, ttIndex+6).equals("string") ) {
+                if (givenType.startsWith("char", gtIndex) && targetType.startsWith("string", ttIndex) ) {
                     if (gtIndex==gtLength-4) {
                         ttIndex += 6;
                         gtIndex += 4;
@@ -51,7 +51,7 @@ class TypeChecker {
                 }
             }
             if (ttIndex<ttLength-2) {
-                if (targetType.substring(ttIndex,ttIndex+3).equals("any")) {
+                if (targetType.startsWith("any", ttIndex)) {
                     if (ttIndex==ttLength-3) {
                         return true;
                     } else {

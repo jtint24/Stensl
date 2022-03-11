@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -7,13 +6,12 @@ public class Interpreter {
     private static int lineNumber;
     private static Function currentFunction;
     private static String[] codeLines;
-    private static HashMap<String, Datum> memory = new HashMap<>();
-    private static ArrayList<String> functionShortNameList = new ArrayList<>();
-    private static HashMap<String, DatumClass> classes = new HashMap<>();
-    private static Stack<Integer> lineNumberStack = new Stack<>();
-    private static Stack<HashMap<String, Datum>> localMemory = new Stack<>();
-    private static Stack<DatumObject> currentObject = new Stack<>();
-    private static boolean inGlobal = true;
+    private static final HashMap<String, Datum> memory = new HashMap<>();
+    private static final ArrayList<String> functionShortNameList = new ArrayList<>();
+    private static final HashMap<String, DatumClass> classes = new HashMap<>();
+    private static final Stack<Integer> lineNumberStack = new Stack<>();
+    private static final Stack<HashMap<String, Datum>> localMemory = new Stack<>();
+    private static final Stack<DatumObject> currentObject = new Stack<>();
 
     public static void runStensl(String[] code) {
         String[] newCode = new String[code.length+1];
@@ -25,7 +23,7 @@ public class Interpreter {
         for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //trim out whitespace and comments from the line;
             String line = code[lineNumber-1];
             line = line.trim();
-            String cleanedLine = "";
+            StringBuilder cleanedLine = new StringBuilder();
             int lineLength = line.length();
             for (int i = 0; i<lineLength; i++) {
                 char readChar = line.charAt(i);
@@ -47,10 +45,10 @@ public class Interpreter {
                     }
                 }
                 if (!insideInlineComment && !insideBlockComment) {
-                    cleanedLine+=readChar;
+                    cleanedLine.append(readChar);
                 }
             }
-            code[lineNumber-1] = cleanedLine.trim();
+            code[lineNumber-1] = cleanedLine.toString().trim();
             insideInlineComment = false;
         }
         if (insideBlockComment) {
@@ -128,7 +126,7 @@ public class Interpreter {
                         String[] parameterList = splitByNakedChar(parameterListString, ',');
                         ArrayList<String> parameterTypes = new ArrayList<>();
                         ArrayList<String> parameterNames = new ArrayList<>();
-                        String fullFunctionName = functionName+"(";
+                        StringBuilder fullFunctionName = new StringBuilder(functionName + "(");
                         if (!parameterListString.isBlank()) {
                             for (String parameterString : parameterList) { //Check all the parameters for the function
                                 String[] parameterData = parameterString.split(":");
@@ -137,17 +135,17 @@ public class Interpreter {
                                 }
                                 parameterTypes.add(parameterData[0].trim());
                                 parameterNames.add(parameterData[1].trim());
-                                fullFunctionName += parameterData[0].trim() + ",";
+                                fullFunctionName.append(parameterData[0].trim()).append(",");
                             }
-                            fullFunctionName = fullFunctionName.substring(0,fullFunctionName.length()-1);
+                            fullFunctionName = new StringBuilder(fullFunctionName.substring(0, fullFunctionName.length() - 1));
                         }
-                        fullFunctionName+=")";
+                        fullFunctionName.append(")");
 
                         if (properties.containsKey(functionName)) {
                             ErrorManager.printError("Duplicate function declaration: "+functionName+" !");
                         }
 
-                        Function functionToAdd = new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), returnType, functionName, fullFunctionName, lineNumber);
+                        Function functionToAdd = new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), returnType, functionName, fullFunctionName.toString(), lineNumber);
                         functionToAdd.setScope(scopeItems);
                         properties.put(functionName, functionToAdd.getType()); //Adds a version of the function that can be used as a property
                         defaultVals.put(functionName, functionToAdd);
@@ -242,7 +240,7 @@ public class Interpreter {
                 String[] parameterList = splitByNakedChar(parameterListString, ',');
                 ArrayList<String> parameterTypes = new ArrayList<>();
                 ArrayList<String> parameterNames = new ArrayList<>();
-                String fullFunctionName = functionName+"(";
+                StringBuilder fullFunctionName = new StringBuilder(functionName + "(");
                 if (!parameterListString.isBlank()) {
                     for (String parameterString : parameterList) { //Check all the parameters for the function
                         String[] parameterData = parameterString.split(":");
@@ -251,19 +249,19 @@ public class Interpreter {
                         }
                         parameterTypes.add(parameterData[0].trim());
                         parameterNames.add(parameterData[1].trim());
-                        fullFunctionName += parameterData[0].trim() + ",";
+                        fullFunctionName.append(parameterData[0].trim()).append(",");
                     }
-                    fullFunctionName = fullFunctionName.substring(0,fullFunctionName.length()-1);
+                    fullFunctionName = new StringBuilder(fullFunctionName.substring(0, fullFunctionName.length() - 1));
                 }
-                fullFunctionName+=")";
+                fullFunctionName.append(")");
 
-                if (memory.containsKey(fullFunctionName)) {
+                if (memory.containsKey(fullFunctionName.toString())) {
                     ErrorManager.printError("Duplicate function declaration: "+functionName+" !");
                 }
 
                 functionShortNameList.add(functionName);
-                Function functionToAdd = new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), returnType, functionName, fullFunctionName, lineNumber);
-                memory.put(fullFunctionName, functionToAdd);
+                Function functionToAdd = new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), returnType, functionName, fullFunctionName.toString(), lineNumber);
+                memory.put(fullFunctionName.toString(), functionToAdd);
             }
         }
 
@@ -347,17 +345,17 @@ public class Interpreter {
             return new Datum();
         }
 
-        String firstToken = "";
+        StringBuilder firstToken = new StringBuilder();
         int charCount = 0;
         while (line.charAt(charCount)!=' ' && line.charAt(charCount)!='=') {
-            firstToken+=line.charAt(charCount);
+            firstToken.append(line.charAt(charCount));
             charCount++;
             if (charCount == line.length()) {
                 break;
             }
         }
-        boolean isArray = firstToken.contains("[");
-        boolean isProperty = firstToken.contains(".");
+        boolean isArray = firstToken.toString().contains("[");
+        boolean isProperty = firstToken.toString().contains(".");
         boolean isAssignment = false;
         while (charCount<line.length()) {
             charCount++;
@@ -374,26 +372,15 @@ public class Interpreter {
             assignPropertyVal(line);
             return new Datum();
         }
-        if ((getFullMemory().containsKey(firstToken) || functionShortNameList.contains(firstToken)) && isAssignment) {
+        if ((getFullMemory().containsKey(firstToken.toString()) || functionShortNameList.contains(firstToken.toString())) && isAssignment) {
             assignVar(line);
         } else {
-            switch (firstToken) {
-                case "var":
-                    initializeVar(line);
-                    break;
-                case "func", "class":
-                    moveOverBracketedCode();
-                    break;
-                case "if":
-                    runIf();
-                    break;
-                case "for":
-                    runFor();
-                    break;
-                case "return":
-                    if (lineNumberStack.size() == 1) {
-                        inGlobal = true;
-                    }
+            switch (firstToken.toString()) {
+                case "var" -> initializeVar(line);
+                case "func", "class" -> moveOverBracketedCode();
+                case "if" -> runIf();
+                case "for" -> runFor();
+                case "return" -> {
                     String argumentStringPlusParen = line.split("\\(")[1];
                     if (argumentStringPlusParen.trim().equals(")")) {
                         lineNumber = lineNumberStack.pop();
@@ -401,9 +388,9 @@ public class Interpreter {
                         if (!currentObject.isEmpty()) {
                             currentObject.pop();
                         }
-                        return new Datum("","");
+                        return new Datum("", "");
                     } else {
-                        String argumentString = line.substring(line.split("\\(")[0].length()+1, line.length()-1);
+                        String argumentString = line.substring(line.split("\\(")[0].length() + 1, line.length() - 1);
                         Datum returnResult = (new Parser(argumentString)).result();
                         lineNumber = lineNumberStack.pop();
                         localMemory.pop();
@@ -412,9 +399,8 @@ public class Interpreter {
                         }
                         return returnResult.publicVersion();
                     }
-                default:
-                    (new Parser(line)).getValue();
-                    break;
+                }
+                default -> (new Parser(line)).getValue();
             }
         }
         return new Datum();
@@ -464,7 +450,6 @@ public class Interpreter {
         }
 
         if (localMemory.isEmpty()) {
-            inGlobal=false;
             memory.put(variableName, variable);
         } else {
             localMemory.peek().put(variableName, variable);
@@ -508,7 +493,6 @@ public class Interpreter {
         }
     }
     public static Datum runFunction(Function func, Datum[] arguments, String[] parameterNames) {
-        inGlobal = false;
         lineNumberStack.push(lineNumber);
         currentObject.push(func.getAssociatedObject());
         currentFunction = func;
@@ -599,7 +583,6 @@ public class Interpreter {
         }
         currentLocalMem.put(indexName, index);
         localMemory.push(currentLocalMem);
-        return;
     }
     private static void moveOverBracketedCode() {
         int bracketCount = 0;
@@ -745,7 +728,7 @@ public class Interpreter {
 
     public static String[] splitByNakedChar(String s, char c) {
         ArrayList<String> splitResults = new ArrayList<>();
-        String currentSplit = "";
+        StringBuilder currentSplit = new StringBuilder();
         int parenCount = 0;
         boolean inQuotes = false;
         int sLength = s.length();
@@ -761,13 +744,13 @@ public class Interpreter {
                 parenCount--;
             }
             if (parenCount == 0 && !inQuotes && sChar == c) {
-                splitResults.add(currentSplit);
-                currentSplit = "";
+                splitResults.add(currentSplit.toString());
+                currentSplit = new StringBuilder();
             } else {
-                currentSplit+=sChar;
+                currentSplit.append(sChar);
             }
         }
-        splitResults.add(currentSplit);
+        splitResults.add(currentSplit.toString());
         return splitResults.toArray(new String[0]);
     }
     private static boolean isLegalIdentifier(String name) {
