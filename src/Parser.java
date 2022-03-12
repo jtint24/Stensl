@@ -29,6 +29,8 @@ public class Parser extends Datum {
                     operation = OpLibrary.anyPass;
                     arguments = new Datum[1];
                     arguments[0] = Interpreter.getFullMemory().get(expr);
+
+                    Interpreter.callUnsafeToCopy();
                     return;
                 }
             }
@@ -40,7 +42,7 @@ public class Parser extends Datum {
                 }
                 for (String functionFullName : Interpreter.getFullMemory().keySet()) {
                     if (functionFullName.startsWith(expr+"(")) {
-
+                        Interpreter.callUnsafeToCopy();
                         operation = OpLibrary.anyPass;
                         arguments = new Datum[1];
                         arguments[0] = Interpreter.getFullMemory().get(functionFullName).clone();
@@ -61,7 +63,7 @@ public class Parser extends Datum {
                 return;
             }
             if (isInt(expr)) { //checks for int literal
-                operation = OpLibrary.intPass;
+                operation = OpLibrary.anyPass;
                 arguments = new Datum[1];
                 arguments[0] = new Datum(expr, "int");
                 return;
@@ -136,6 +138,7 @@ public class Parser extends Datum {
 
 
                     if (Interpreter.getFunctionShortNameList().contains(functionShortName)) { //This gets user-defined prefix function calls
+                        Interpreter.callUnsafeToCopy();
                         if (expr.startsWith(functionShortName+"()")) {
                             operation = (Function)Interpreter.getFullMemory().get(functionShortName+"()").clone();
                             arguments = new Datum[0];
@@ -147,6 +150,7 @@ public class Parser extends Datum {
                         StringBuilder functionFullName = new StringBuilder(functionShortName + "(");
 
                         for (int i = 0; i<argumentsStrings.length; i++) {
+                            Interpreter.callUnsafeToCopy();
                             arguments[i] = new Parser(argumentsStrings[i]).result();
                             functionFullName.append(arguments[i].getType()).append(",");
                         }
@@ -339,6 +343,7 @@ public class Parser extends Datum {
                             case '|':
                                 if (minPrecedence.equals(OpPrecedence.FUNCTIONAL)) {
                                     setArgumentsAround(i, expr);
+                                    Interpreter.callUnsafeToCopy();
                                     operation = (Function)((Parser)arguments[0]).result();
                                     Datum opInput = arguments[1];
                                     arguments = new Datum[1];
@@ -349,6 +354,7 @@ public class Parser extends Datum {
                             case '.':
                                 if (minPrecedence.equals(OpPrecedence.FUNCTIONAL)) {
                                     arguments = new Datum[2];
+                                    Interpreter.callUnsafeToCopy();
                                     arguments[0] = new Parser(expr.substring(0,i)).result();
                                     arguments[1] = new Datum(expr.substring(i+1), "string");
                                     operation = OpLibrary.dotApplication;
@@ -384,6 +390,7 @@ public class Parser extends Datum {
                     Datum[] elementsDatums = new Datum[elementsStringList.length];
                     String elementType = "";
                     for (int i = 0; i<elementsDatums.length; i++) {
+                        Interpreter.callUnsafeToCopy();
                         elementsDatums[i] = (new Parser(elementsStringList[i])).result();
                         if (i == 0) {
                             elementType = elementsDatums[i].getType();
@@ -401,6 +408,7 @@ public class Parser extends Datum {
                 if (expr.charAt(expr.length()-1) == ']' && lastBracketIndex != 0) { //check for array element-gets
                     String indexString = expr.substring(lastBracketIndex+1, expr.length()-1);
                     String arrayString = expr.substring(0, lastBracketIndex);
+                    Interpreter.callUnsafeToCopy();
                     Datum index = (new Parser(indexString)).result();
                     Datum array = (new Parser(arrayString)).result();
                     operation = OpLibrary.getElementOfType(TypeChecker.unwrapArray(array.getType()));

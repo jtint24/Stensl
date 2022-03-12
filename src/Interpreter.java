@@ -7,12 +7,15 @@ public class Interpreter {
     private static Function currentFunction;
     private static String[] codeLines;
     private static InstructionType[] instructionTypes;
+    private static Parser[] premadeParsers;
     private static final HashMap<String, Datum> memory = new HashMap<>();
     private static final ArrayList<String> functionShortNameList = new ArrayList<>();
     private static final HashMap<String, DatumClass> classes = new HashMap<>();
     private static final Stack<Integer> lineNumberStack = new Stack<>();
     private static final Stack<HashMap<String, Datum>> localMemory = new Stack<>();
     private static final Stack<DatumObject> currentObject = new Stack<>();
+    private static long instructionTime = InputManager.startTime;
+    private static boolean safeToCopy = true;
 
     public static void runStensl(String[] code) {
         String[] newCode = new String[code.length+1];
@@ -58,6 +61,7 @@ public class Interpreter {
 
         codeLines = code;
         instructionTypes = new InstructionType[codeLines.length];
+        premadeParsers = new Parser[codeLines.length];
         for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //Checks for function headers and classes and adds them to functionList
             String line = codeLines[lineNumber-1];
 
@@ -275,7 +279,12 @@ public class Interpreter {
     private static Datum runLine() {
         String line = codeLines[lineNumber-1];
         //System.out.println(getFullMemory()+" , "+functionShortNameList);
+        //if (System.nanoTime()-instructionTime!=0) {
+            //System.out.println("that took " + (System.nanoTime() - instructionTime)/1000.0);
+        //}
+        //instructionTime = System.nanoTime();
         //System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
+
         //System.out.println("local mem is "+localMemory.toString()+" global mem is "+memory.toString());
         //System.out.println("CURRENT OBJECTS: "+currentObject);
         //System.out.println("CURRENT LINE NUMBER STACK: "+lineNumber+": "+lineNumberStack);
@@ -293,7 +302,16 @@ public class Interpreter {
                 case INITIALIZE -> initializeVar(line);
                 case IF -> runIf();
                 case FOR -> runFor();
-                case PARSER -> (new Parser(line)).getValue();
+                case PARSER -> {
+                    safeToCopy = true;
+                    if (premadeParsers[lineNumber-1] == null) {
+                        premadeParsers[lineNumber-1] = new Parser(line);
+                    }
+                    premadeParsers[lineNumber-1].getValue();
+                    if (!safeToCopy) {
+                        premadeParsers[lineNumber-1] = null;
+                    }
+                }
                 case ASSIGN -> assignVar(line);
             }
             return new Datum();
@@ -426,8 +444,13 @@ public class Interpreter {
                     }
                 }
                 default -> {
+                    safeToCopy = true;
                     instructionTypes[lineNumber-1] = InstructionType.PARSER;
-                    (new Parser(line)).getValue();
+                    premadeParsers[lineNumber-1] = new Parser(line);
+                    premadeParsers[lineNumber-1].getValue();
+                    if (!safeToCopy) {
+                        premadeParsers[lineNumber-1] = null;
+                    }
                 }
             }
         }
@@ -460,7 +483,15 @@ public class Interpreter {
             ErrorManager.printError("Duplicate variable declaration: "+variableName+"!");
         }
 
-        Parser variableParser = (new Parser(line.substring(lineSplitByEqual[0].length()+1)));
+        safeToCopy = true;
+        if (premadeParsers[lineNumber-1] == null) {
+            premadeParsers[lineNumber-1] = (new Parser(line.substring(lineSplitByEqual[0].length() + 1)));
+        }
+        Parser variableParser = premadeParsers[lineNumber-1];
+        if (!safeToCopy) {
+            premadeParsers[lineNumber-1] = null;
+        }
+
         //System.out.println(TypeChecker.isCompatible(variableParser.getType(), variableType));
         if (!TypeChecker.isCompatible(variableParser.getType(), variableType)) {
             ErrorManager.printError("Value of type "+variableParser.getType()+" cannot be assigned to a variable of type "+variableType+"!");
@@ -516,8 +547,8 @@ public class Interpreter {
             }
             currentLocalMemory.remove(varName);
             currentLocalMemory.put(varName, mutatedResult);
-            localMemory.pop();
-            localMemory.push(currentLocalMemory);
+            //localMemory.pop();
+            //localMemory.push(currentLocalMemory);
         }
     }
     public static Datum runFunction(Function func, Datum[] arguments, String[] parameterNames) {
@@ -706,6 +737,9 @@ public class Interpreter {
     public static Function getCurrentFunction() { return currentFunction; }
     public static void setCurrentObject(DatumObject dtmo) {
         currentObject.push(dtmo);
+    }
+    public static void callUnsafeToCopy() {
+        safeToCopy = false;
     }
     private static String findMatchingBracket(int linePosition) {
         int bracketCount = 0;

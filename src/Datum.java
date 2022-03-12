@@ -6,7 +6,6 @@ public class Datum implements Cloneable {
     private boolean isMutable = true;
     private boolean isBlank = false;
     private String[] scope = {"public"};
-    private Float numericVal;
 
     public Datum(String v, String t) {
         value = v;
@@ -27,12 +26,6 @@ public class Datum implements Cloneable {
         scope = sc;
     }
 
-    /*public Datum(float f, String t) {
-        numericVal = f;
-        type = t;
-        value = Float.toString(f);
-    }*/
-
     public Datum() {
         isBlank = true;
     }
@@ -40,12 +33,6 @@ public class Datum implements Cloneable {
     public String getValue() {
         return value;
     }
-    /*public float getNumericVal() {
-        if (numericVal == null) {
-            return numericVal;
-        }
-        return Float.parseFloat(value);
-    }*/
 
     public void setValue(String v) {
         if (isMutable) {
