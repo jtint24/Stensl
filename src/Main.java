@@ -283,9 +283,18 @@ public class Main {
                 "}",
                 "println(constantProb(0))"
         };*/
-        //String[] stenslScript = {
-        //        ""
-        //}
+
+        /*String[] stenslScript = {
+                "class MyClass {",
+                "   var string myVar = \"my name is romit\"",
+                "   func int double(int: x) {",
+                "       return (2*x)",
+                "   }",
+                "}",
+                "var MyClass myObject = MyClass()",
+                "println(myObject.myVar)",
+                "println(myObject.double(3))"
+        };*/
 
         //Interpreter.runStensl(stenslScript);
         //System.out.print(Interpreter.getFunctionList());

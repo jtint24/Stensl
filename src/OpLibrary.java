@@ -137,11 +137,11 @@ public class OpLibrary {
         return new Datum();
     };
 
-    private final static OpFunction functionApplicationOp = (args) -> {
+    /*private final static OpFunction functionApplicationOp = (args) -> {
         Datum[] argsForSubfunc = new Datum[args.length-1];
         System.arraycopy(args, 1, argsForSubfunc, 0, args.length - 1);
         return ((Function)args[0]).result(argsForSubfunc);
-    };
+    };*/
 
     public final static Operation assertOp = new Operation(assertFunction, singleBool, "void", OpPrecedence.FUNCTIONAL, "assert");
     private final static OpFunction asciiFunction = (args) -> {
