@@ -44,7 +44,7 @@ public class Interpreter {
                             i++;
                             continue;
                         } else {
-                            ErrorManager.printError("Block comment terminator */ used without opening a block comment!");
+                            ErrorManager.printError("Block comment terminator */ used without opening a block comment!","9:1.1");
                         }
                     }
                 }
@@ -56,7 +56,7 @@ public class Interpreter {
             insideInlineComment = false;
         }
         if (insideBlockComment) {
-            ErrorManager.printError("Unterminated block comment!");
+            ErrorManager.printError("Unterminated block comment!","9:1.2");
         }
 
         codeLines = code;
@@ -68,7 +68,7 @@ public class Interpreter {
             if (line.startsWith("class ")) { //this initializes classes
                 String className = line.split(" ")[1];
                 if (!isLegalIdentifier(className)) {
-                    ErrorManager.printError("Class '"+className+"' is not a legal identifier!");
+                    ErrorManager.printError("Class '"+className+"' is not a legal identifier!","9:1.3");
                 }
                 int braceCount = 1;
                 HashMap<String, String> properties = new HashMap<>();
@@ -77,7 +77,7 @@ public class Interpreter {
                 while (braceCount!=0) {         //iterates across the class body
                     lineNumber++;
                     if (lineNumber == code.length+1) {
-                        ErrorManager.printError("Unterminated class '"+className+"'!");
+                        ErrorManager.printError("Unterminated class '"+className+"'!","9:1.4");
                     }
                     line = codeLines[lineNumber-1];
                     if (line.endsWith("{")) {
@@ -105,7 +105,7 @@ public class Interpreter {
                         String functionName = headerWords[2+offset];
 
                         if (!isLegalIdentifier(functionName)) {
-                            ErrorManager.printError("Illegal function name: "+functionName+"!");
+                            ErrorManager.printError("Illegal function name: "+functionName+"!","9:1.5");
                         }
 
                         String parameterListString = line;
@@ -137,7 +137,7 @@ public class Interpreter {
                             for (String parameterString : parameterList) { //Check all the parameters for the function
                                 String[] parameterData = parameterString.split(":");
                                 if (parameterNames.contains(parameterData[1].trim())) {
-                                    ErrorManager.printError("Argument "+parameterData[1].trim()+" is a duplicate!");
+                                    ErrorManager.printError("Argument "+parameterData[1].trim()+" is a duplicate!", "9:2.1");
                                 }
                                 parameterTypes.add(parameterData[0].trim());
                                 parameterNames.add(parameterData[1].trim());
@@ -148,7 +148,7 @@ public class Interpreter {
                         fullFunctionName.append(")");
 
                         if (properties.containsKey(functionName)) {
-                            ErrorManager.printError("Duplicate function declaration: "+functionName+" !");
+                            ErrorManager.printError("Duplicate function declaration: "+functionName+" !","9:2.2");
                         }
 
                         Function functionToAdd = new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), returnType, functionName, fullFunctionName.toString(), lineNumber);
@@ -174,7 +174,7 @@ public class Interpreter {
                             offset++;
                             isConstant = true;
                             if (!isAssigned) {
-                                ErrorManager.printError("Constants must be assigned to!");
+                                ErrorManager.printError("Constants must be assigned to!","9:1.6");
                             }
                         }
                         String[] scopeItems = new String[]{"public"};
@@ -194,7 +194,7 @@ public class Interpreter {
                         if (isAssigned) {
                             Datum assignTo = new Parser(line.substring(lineSplitByEqual[0].length()+1)).result();
                             if (!assignTo.getType().equals(propertyType)) {
-                                ErrorManager.printError("Type Mismatch! Type "+assignTo.getType()+" does not match expected type "+propertyType+"!");
+                                ErrorManager.printError("Type Mismatch! Type "+assignTo.getType()+" does not match expected type "+propertyType+"!","9:2.3");
                             }
                             assignTo.setIsMutable(!isConstant);
                             assignTo.setScope(scopeItems);
@@ -219,7 +219,7 @@ public class Interpreter {
                 String functionName = headerWords[2];
 
                 if (!isLegalIdentifier(functionName)) {
-                    ErrorManager.printError("Illegal function name: "+functionName+"!");
+                    ErrorManager.printError("Illegal function name: "+functionName+"!","9:1.5");
                 }
 
                 String parameterListString = line;
@@ -251,7 +251,7 @@ public class Interpreter {
                     for (String parameterString : parameterList) { //Check all the parameters for the function
                         String[] parameterData = parameterString.split(":");
                         if (parameterNames.contains(parameterData[1].trim())) {
-                            ErrorManager.printError("Argument "+parameterData[1].trim()+" is a duplicate!");
+                            ErrorManager.printError("Argument "+parameterData[1].trim()+" is a duplicate!","9:2.1");
                         }
                         parameterTypes.add(parameterData[0].trim());
                         parameterNames.add(parameterData[1].trim());
@@ -262,7 +262,7 @@ public class Interpreter {
                 fullFunctionName.append(")");
 
                 if (memory.containsKey(fullFunctionName.toString())) {
-                    ErrorManager.printError("Duplicate function declaration: "+functionName+" !");
+                    ErrorManager.printError("Duplicate function declaration: "+functionName+" !","9:2.2");
                 }
 
                 functionShortNameList.add(functionName);
@@ -325,7 +325,7 @@ public class Interpreter {
             String bracketMatch = findMatchingBracket(linePosition);
             //System.out.println("this is bracketMatch: "+bracketMatch);
             if (bracketMatch.startsWith("func ")) {
-                ErrorManager.printError("No return statement!");
+                ErrorManager.printError("No return statement!","9:2.4");
             }
             if (bracketMatch.startsWith("for ")) {
                 int minMaxArgsBeginningIndex = bracketMatch.split("\\(")[0].length()+1;
@@ -371,7 +371,7 @@ public class Interpreter {
             if (line.matches("}[ ]+else[ ]+\\{")) {
                 String bracketMatch = findMatchingBracket(0);
                 if (!bracketMatch.startsWith("if ")) {
-                    ErrorManager.printError("Else without if!");
+                    ErrorManager.printError("Else without if!","9.1.");
                 }
                 moveOverBracketedCode(1);
                 return new Datum();
@@ -476,11 +476,11 @@ public class Interpreter {
         String variableName = lineSplitBySpace[2+flagOffset];
 
         if (!isLegalIdentifier(variableName)) {
-            ErrorManager.printError("Illegal variable name: "+variableName+"!");
+            ErrorManager.printError("Illegal variable name: "+variableName+"!","9:1.7");
         }
 
         if (getFullMemory().containsKey(variableName)) {
-            ErrorManager.printError("Duplicate variable declaration: "+variableName+"!");
+            ErrorManager.printError("Duplicate variable declaration: "+variableName+"!","9:2.5");
         }
 
         safeToCopy = true;
@@ -494,7 +494,7 @@ public class Interpreter {
 
         //System.out.println(TypeChecker.isCompatible(variableParser.getType(), variableType));
         if (!TypeChecker.isCompatible(variableParser.getType(), variableType)) {
-            ErrorManager.printError("Value of type "+variableParser.getType()+" cannot be assigned to a variable of type "+variableType+"!");
+            ErrorManager.printError("Value of type "+variableParser.getType()+" cannot be assigned to a variable of type "+variableType+"!", "9:2.6");
         }
 
         Datum variable = variableParser.result();
@@ -538,12 +538,12 @@ public class Interpreter {
             //System.out.println("mutating local memory");
             Datum varToMutate = localMemory.peek().get(varName);
             if (!varToMutate.getIsMutable()) {
-                ErrorManager.printError("Attempt to mutate a constant, "+varName+"!");
+                ErrorManager.printError("Attempt to mutate a constant, "+varName+"!","9:2.7");
             }
             HashMap<String, Datum> currentLocalMemory = localMemory.peek();
             Datum mutatedResult = new Parser(line.substring(lineSplitByEqual[0].length()+1)).result();
             if (!TypeChecker.isCompatible(mutatedResult.getType(), varToMutate.getType())) {
-                ErrorManager.printError("Values of type "+mutatedResult.getType()+" are not compatible with variable "+varName+" of type "+varToMutate.getType());
+                ErrorManager.printError("Values of type "+mutatedResult.getType()+" are not compatible with variable "+varName+" of type "+varToMutate.getType(),"9:2.8");
             }
             currentLocalMemory.remove(varName);
             currentLocalMemory.put(varName, mutatedResult);
@@ -559,7 +559,7 @@ public class Interpreter {
         HashMap<String, Datum> argumentMap = new HashMap<>();
         for (int i = 0; i<arguments.length; i++) { //Put arguments into local memory
             if (memory.containsKey(parameterNames[i])) {
-                ErrorManager.printError("Argument "+parameterNames[i]+" is a duplicate!");
+                ErrorManager.printError("Argument "+parameterNames[i]+" is a duplicate!","9:2.1");
             }
             if (arguments[i].getIsFunction()) {
                 ((Function)arguments[i]).setName(parameterNames[i]);
@@ -598,11 +598,11 @@ public class Interpreter {
             }
             lineIndex++;
             if (lineIndex>=line.length()) {
-                ErrorManager.printError("Syntax Error on If!");
+                ErrorManager.printError("Syntax Error on If!", "9:2.9");
             }
         }
         if (!line.trim().endsWith("{")) {
-            ErrorManager.printError("Bracket Error on If!");
+            ErrorManager.printError("Bracket Error on If!", "9:2.10");
         }
         String ifExpression = line.substring(2, lineIndex);
         String ifExpressionResult = new Parser(ifExpression).result().getValue();
@@ -627,7 +627,7 @@ public class Interpreter {
         float maximumIndex = Float.parseFloat(new Parser(minMaxArgs[1]).getValue());
 
         if (minimumIndex%1!=0 || maximumIndex%1!=0) {
-            ErrorManager.printError("Non-integer index in for loop!");
+            ErrorManager.printError("Non-integer index in for loop!", "9:2.11");
         }
 
         String indexDeclaration = line.split("\\{")[1].split("\\(")[1].split("\\)")[0];
@@ -761,7 +761,7 @@ public class Interpreter {
             scanLineNumber--;
             linePosition = codeLines[scanLineNumber-1].length()-1;
         }
-        ErrorManager.printError("Bracket mismatch!");
+        ErrorManager.printError("Bracket mismatch!","9.1.8");
         return "";
     }
     private static int findMatchingBracketIndex(int linePosition) {
@@ -784,7 +784,7 @@ public class Interpreter {
             scanLineNumber--;
             linePosition = codeLines[scanLineNumber-1].length()-1;
         }
-        ErrorManager.printError("Bracket mismatch!");
+        ErrorManager.printError("Bracket mismatch!","9:1.8");
         return 0;
     }
 

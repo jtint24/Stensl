@@ -25,7 +25,7 @@ public class OpLibrary {
     public final static Operation subtraction = new Operation(subFunction, doubleFloat, "float", OpPrecedence.ADDITIVE, "subtraction");
     private final static OpFunction divFunction = (args) -> {
         if (Float.parseFloat(args[1].getValue())==0) {
-            ErrorManager.printError("Division by zero!");
+            ErrorManager.printError("Division by zero!","13:3.1");
         }
         return new Datum(String.valueOf(Float.parseFloat(args[0].getValue())/Float.parseFloat(args[1].getValue())), "float");
     };
@@ -41,7 +41,7 @@ public class OpLibrary {
     public final static Operation intSubtraction = new Operation(intSubFunction, doubleInt, "int", OpPrecedence.ADDITIVE, "int sub");
     private final static OpFunction intDivFunction = (args) -> {
         if ((int)Float.parseFloat(args[1].getValue())==0) {
-            ErrorManager.printError("Division by zero!");
+            ErrorManager.printError("Division by zero!","13:3.1");
         }
         return new Datum(String.valueOf((int)Float.parseFloat(args[0].getValue())/(int)Float.parseFloat(args[1].getValue())), "int");
     };
@@ -132,7 +132,7 @@ public class OpLibrary {
     public final static Operation trace = new Operation(traceFunction, singleAny, "indeterminate", OpPrecedence.FUNCTIONAL, "trace");
     private final static OpFunction assertFunction = (args) -> {
         if (args[0].getValue().equals("false")) {
-            ErrorManager.printError("Failed assertion!");
+            ErrorManager.printError("Failed assertion!","13.3.2");
         }
         return new Datum();
     };
@@ -155,7 +155,7 @@ public class OpLibrary {
 
     public final static OpFunction getElementFunction = (args) -> {
         if (Float.parseFloat(args[1].getValue())%1!=0) {
-            ErrorManager.printError("Only integers can be used as array indices!");
+            ErrorManager.printError("Only integers can be used as array indices!","13.1.1");
         }
         return ((DatumArray)args[0]).getElement((int)Float.parseFloat(args[1].getValue()));
     };

@@ -284,19 +284,19 @@ public class Main {
                 "println(constantProb(0))"
         };*/
 
-        /*String[] stenslScript = {
-                "class MyClass {",
-                "   var string myVar = \"my name is romit\"",
-                "   func int double(int: x) {",
-                "       return (2*x)",
-                "   }",
+        String[] stenslScript = {
+                "func int myFunc() {",
+                "   return (6)",
                 "}",
-                "var MyClass myObject = MyClass()",
-                "println(myObject.myVar)",
-                "println(myObject.double(3))"
-        };*/
+                "func int myFunc() {",
+                "   return (7)",
+                "}",
+                "var ()->int myInt = myFunc",
+                "myInt = myFunc2",
+                "println(myInt())"
+        };
 
-        //Interpreter.runStensl(stenslScript);
+        Interpreter.runStensl(stenslScript);
         //System.out.print(Interpreter.getFunctionList());
     }
 }

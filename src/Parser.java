@@ -38,7 +38,7 @@ public class Parser extends Datum {
             //System.out.println(Interpreter.getFunctionList().toString());
             if (Interpreter.getFunctionShortNameList().contains(expr)) { //checks for a function identifier (NOT A FUNCTION CALL)
                 if (Interpreter.getFunctionsByShortName().get(expr)!=1) { //Functions that share names, even if they have different types, can't be used because we can't disambiguate
-                    ErrorManager.printError("Function "+expr+" is ambiguous and cannot be used in a first-class context!");
+                    ErrorManager.printError("Function "+expr+" is ambiguous and cannot be used in a first-class context!","15:2.1");
                 }
                 for (String functionFullName : Interpreter.getFullMemory().keySet()) {
                     if (functionFullName.startsWith(expr+"(")) {
@@ -130,7 +130,7 @@ public class Parser extends Datum {
                         }
                         functionShortNameLength--;
                         if (functionShortNameLength==-1) {
-                            ErrorManager.printError("Syntax error on expression parser!");
+                            ErrorManager.printError("Syntax error on expression parser!", "15:2.2");
                         }
                     } while (fsnlParenCount != 0);
 
@@ -159,7 +159,7 @@ public class Parser extends Datum {
                         }
                         functionFullName.append(")");
                         if (!Interpreter.getFullMemory().containsKey(functionFullName.toString())) {
-                            ErrorManager.printError("Function "+functionFullName+" does not exist!");
+                            ErrorManager.printError("Function "+functionFullName+" does not exist!","15:2.3");
                         }
                         operation = (Function)Interpreter.getFullMemory().get(functionFullName.toString()).clone();
                         return;
@@ -214,7 +214,7 @@ public class Parser extends Datum {
                                             case "float", "int" -> operation = OpLibrary.numericEquals;
                                             case "char", "string" -> operation = OpLibrary.strEquals;
                                             case "bool" -> operation = OpLibrary.boolEquals;
-                                            default -> ErrorManager.printError("no recognized type for ==!");
+                                            default -> ErrorManager.printError("No recognized type for '==' !","15:2.4");
                                         }
                                         return;
                                     }
@@ -255,7 +255,7 @@ public class Parser extends Datum {
                                             case "float", "int" -> operation = OpLibrary.numericUnequals;
                                             case "char", "string" -> operation = OpLibrary.strUnequals;
                                             case "bool" -> operation = OpLibrary.boolUnequals;
-                                            default -> ErrorManager.printError("no recognized type for '!='!");
+                                            default -> ErrorManager.printError("no recognized type for '!=' !","15:2.5");
                                         }
                                         return;
                                     }
@@ -365,18 +365,18 @@ public class Parser extends Datum {
                         }
                     }
                     if (parenCount<0) {
-                        ErrorManager.printError("Parentheses mismatch!");
+                        ErrorManager.printError("Parentheses mismatch!","15:1.1");
                     }
                     if (bracketCount<0) {
 
-                        ErrorManager.printError("Bracket mismatch! Brackets < 0!");
+                        ErrorManager.printError("Bracket mismatch! Brackets < 0!","15:1.2");
                     }
                 }
                 if (parenCount != 0) {
-                    ErrorManager.printError("Parentheses mismatch!");
+                    ErrorManager.printError("Parentheses mismatch!","15:1.3");
                 }
                 if (bracketCount != 0) {
-                    ErrorManager.printError("Bracket mismatch! "+bracketCount);
+                    ErrorManager.printError("Bracket mismatch! "+bracketCount,"15:1.4");
                 }
                 if (minParenCount > 0) { //Checks for fully-paren-wrapped expression and unwraps it
                     Parser setThisTo = new Parser(expr.substring(1, exprSize - 1));
@@ -396,7 +396,7 @@ public class Parser extends Datum {
                             elementType = elementsDatums[i].getType();
                         } else {
                             if (!elementType.equals(elementsDatums[i].getType())) {
-                                ErrorManager.printError("Can't create an array of conflicting types "+elementType+" and "+elementsDatums[i].getType()+"!");
+                                ErrorManager.printError("Can't create an array of conflicting types "+elementType+" and "+elementsDatums[i].getType()+"!","15:2.6");
                             }
                         }
                     }
@@ -428,7 +428,7 @@ public class Parser extends Datum {
             }
         } catch (Exception e) {
             e.printStackTrace(System.out);
-            ErrorManager.printError("Parser syntax error at line "+ Interpreter.getLineNumber()+"! "+e);
+            ErrorManager.printError("Parser syntax error! ","15:2.7");
         }
     }
 

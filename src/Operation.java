@@ -37,7 +37,7 @@ public class Operation extends Datum {
     public Datum result(Datum[] arguments) {
         for (int i = 0; i<operandNum; i++) {
             if (!TypeChecker.isCompatible(arguments[i].getType(), operandTypes[i])) {
-                ErrorManager.printError("Type mismatch! Given type "+arguments[i].getType()+" does not match expected type "+operandTypes[i]+" in argument "+(i+1)+" of operation: "+name);
+                ErrorManager.printError("Type mismatch! Given type "+arguments[i].getType()+" does not match expected type "+operandTypes[i]+" in argument "+(i+1)+" of operation: "+name,"11:2.1");
             }
         }
         return functionality.result(arguments);
