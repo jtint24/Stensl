@@ -155,7 +155,7 @@ public class OpLibrary {
 
     public final static OpFunction getElementFunction = (args) -> {
         if (Float.parseFloat(args[1].getValue())%1!=0) {
-            ErrorManager.printError("Only integers can be used as array indices!","13.1.1");
+            ErrorManager.printError("Cannot index an array with a non-integer!","13.1.1");
         }
         return ((DatumArray)args[0]).getElement((int)Float.parseFloat(args[1].getValue()));
     };

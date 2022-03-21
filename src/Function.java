@@ -15,7 +15,7 @@ public class Function extends Operation implements Cloneable {
 
         for (int i = 0; i<operandNum; i++) {
             if (!TypeChecker.isCompatible(arguments[i].getType(), operandTypes[i])) {
-                ErrorManager.printError("Type mismatch! Given type "+arguments[i].getType()+" does not match expected type "+operandTypes[i]+" in argument "+(i+1)+" of operation: "+name,"6:2.1");
+                ErrorManager.printError("Cannot match given type '"+arguments[i].getType()+"' to expected type '"+operandTypes[i]+"' in argument "+(i+1)+" of operation: '"+name+"' !","6:2.1");
             }
         }
         return Interpreter.runFunction(this, arguments, parameterNames);

@@ -32,7 +32,7 @@ public class DatumArray extends DatumObject {
             if (value.get(indices[0]) instanceof DatumArray) {
                 ((DatumArray)value.get(indices[0])).setElement(setTo, Arrays.copyOfRange(indices,1,indices.length));
             } else {
-                ErrorManager.printError("Attempt to set an array element of a non-array!","2:2.1");
+                ErrorManager.printError("Cannot set an array element of a non-array!","2:2.1");
             }
         }
     }
@@ -43,10 +43,10 @@ public class DatumArray extends DatumObject {
             if (super.getIsMutable()) {
                 this.value = ((DatumArray) dtm).value;
             } else {
-                ErrorManager.printError("Attempt to mutate a constant!","2:2.2");
+                ErrorManager.printError("Cannot mutate a constant!","2:2.2");
             }
         } else {
-            ErrorManager.printError("Type mismatch!","2:2.3");
+            ErrorManager.printError("Cannot set an array to a non-array!","2:2.3");
         }
     }
 
@@ -86,12 +86,12 @@ public class DatumArray extends DatumObject {
                 try {
                     removeAtIndex = Float.parseFloat(removeAtIndexStr);
                 } catch (NumberFormatException nfe) {
-                    ErrorManager.printError("Can't index and array with a non-integer!","2:1.1");
+                    ErrorManager.printError("Cannot index an array with a non-integer!","2:1.1");
                 }
                 if (removeAtIndex%1==0) {
                     value.remove((int)removeAtIndex);
                 } else {
-                    ErrorManager.printError("Can't index an array with a non-integer!","2:1.1");
+                    ErrorManager.printError("Cannot index an array with a non-integer!","2:1.1");
                 }
                 return new Datum("","void");
             case "rotate":
@@ -100,12 +100,12 @@ public class DatumArray extends DatumObject {
                 try {
                     rotateIndex = Float.parseFloat(rotateIndexString);
                 } catch (NumberFormatException nfe) {
-                    ErrorManager.printError("Can't index and array with a non-integer!","2:1.1");
+                    ErrorManager.printError("Cannot index and array with a non-integer!","2:1.1");
                 }
                 if (rotateIndex%1==0) {
                     Collections.rotate(value, (int)rotateIndex);
                 } else {
-                    ErrorManager.printError("Can't index an array with a non-integer!","2:1.1");
+                    ErrorManager.printError("Cannot index an array with a non-integer!","2:1.1");
                 }
                 return new Datum("","void");
 

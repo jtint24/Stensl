@@ -476,11 +476,11 @@ public class Interpreter {
         String variableName = lineSplitBySpace[2+flagOffset];
 
         if (!isLegalIdentifier(variableName)) {
-            ErrorManager.printError("Illegal variable name: "+variableName+"!","9:1.7");
+            ErrorManager.printError("Illegal variable name: '"+variableName+"' !","9:1.7");
         }
 
         if (getFullMemory().containsKey(variableName)) {
-            ErrorManager.printError("Duplicate variable declaration: "+variableName+"!","9:2.5");
+            ErrorManager.printError("Duplicate variable declaration: '"+variableName+"' !","9:2.5");
         }
 
         safeToCopy = true;
@@ -494,7 +494,7 @@ public class Interpreter {
 
         //System.out.println(TypeChecker.isCompatible(variableParser.getType(), variableType));
         if (!TypeChecker.isCompatible(variableParser.getType(), variableType)) {
-            ErrorManager.printError("Value of type "+variableParser.getType()+" cannot be assigned to a variable of type "+variableType+"!", "9:2.6");
+            ErrorManager.printError("Value of type '"+variableParser.getType()+"' cannot be assigned to a variable of type '"+variableType+"' !", "9:2.6");
         }
 
         Datum variable = variableParser.result();
@@ -543,7 +543,7 @@ public class Interpreter {
             HashMap<String, Datum> currentLocalMemory = localMemory.peek();
             Datum mutatedResult = new Parser(line.substring(lineSplitByEqual[0].length()+1)).result();
             if (!TypeChecker.isCompatible(mutatedResult.getType(), varToMutate.getType())) {
-                ErrorManager.printError("Values of type "+mutatedResult.getType()+" are not compatible with variable "+varName+" of type "+varToMutate.getType(),"9:2.8");
+                ErrorManager.printError("Values of type '"+mutatedResult.getType()+"' are not compatible with variable '"+varName+"' of type '"+varToMutate.getType()+"' !","9:2.8");
             }
             currentLocalMemory.remove(varName);
             currentLocalMemory.put(varName, mutatedResult);
@@ -559,7 +559,7 @@ public class Interpreter {
         HashMap<String, Datum> argumentMap = new HashMap<>();
         for (int i = 0; i<arguments.length; i++) { //Put arguments into local memory
             if (memory.containsKey(parameterNames[i])) {
-                ErrorManager.printError("Argument "+parameterNames[i]+" is a duplicate!","9:2.1");
+                ErrorManager.printError("Argument '"+parameterNames[i]+"' is a duplicate!","9:2.1");
             }
             if (arguments[i].getIsFunction()) {
                 ((Function)arguments[i]).setName(parameterNames[i]);
@@ -598,11 +598,11 @@ public class Interpreter {
             }
             lineIndex++;
             if (lineIndex>=line.length()) {
-                ErrorManager.printError("Syntax Error on If!", "9:2.9");
+                ErrorManager.printError("Syntax error on if!", "9:2.9");
             }
         }
         if (!line.trim().endsWith("{")) {
-            ErrorManager.printError("Bracket Error on If!", "9:2.10");
+            ErrorManager.printError("Bracket mismatch on if!", "9:2.10");
         }
         String ifExpression = line.substring(2, lineIndex);
         String ifExpressionResult = new Parser(ifExpression).result().getValue();
@@ -627,7 +627,7 @@ public class Interpreter {
         float maximumIndex = Float.parseFloat(new Parser(minMaxArgs[1]).getValue());
 
         if (minimumIndex%1!=0 || maximumIndex%1!=0) {
-            ErrorManager.printError("Non-integer index in for loop!", "9:2.11");
+            ErrorManager.printError("Cannot use a non-integer index in for loop!", "9:2.11");
         }
 
         String indexDeclaration = line.split("\\{")[1].split("\\(")[1].split("\\)")[0];

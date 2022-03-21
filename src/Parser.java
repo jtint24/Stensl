@@ -38,7 +38,7 @@ public class Parser extends Datum {
             //System.out.println(Interpreter.getFunctionList().toString());
             if (Interpreter.getFunctionShortNameList().contains(expr)) { //checks for a function identifier (NOT A FUNCTION CALL)
                 if (Interpreter.getFunctionsByShortName().get(expr)!=1) { //Functions that share names, even if they have different types, can't be used because we can't disambiguate
-                    ErrorManager.printError("Function "+expr+" is ambiguous and cannot be used in a first-class context!","15:2.1");
+                    ErrorManager.printError("Function '"+expr+"' is ambiguous and cannot be used in a first-class context!","15:2.1");
                 }
                 for (String functionFullName : Interpreter.getFullMemory().keySet()) {
                     if (functionFullName.startsWith(expr+"(")) {
@@ -255,7 +255,7 @@ public class Parser extends Datum {
                                             case "float", "int" -> operation = OpLibrary.numericUnequals;
                                             case "char", "string" -> operation = OpLibrary.strUnequals;
                                             case "bool" -> operation = OpLibrary.boolUnequals;
-                                            default -> ErrorManager.printError("no recognized type for '!=' !","15:2.5");
+                                            default -> ErrorManager.printError("No recognized type for '!=' !","15:2.5");
                                         }
                                         return;
                                     }
@@ -369,7 +369,7 @@ public class Parser extends Datum {
                     }
                     if (bracketCount<0) {
 
-                        ErrorManager.printError("Bracket mismatch! Brackets < 0!","15:1.2");
+                        ErrorManager.printError("Bracket mismatch!","15:1.2");
                     }
                 }
                 if (parenCount != 0) {
@@ -396,7 +396,7 @@ public class Parser extends Datum {
                             elementType = elementsDatums[i].getType();
                         } else {
                             if (!elementType.equals(elementsDatums[i].getType())) {
-                                ErrorManager.printError("Can't create an array of conflicting types "+elementType+" and "+elementsDatums[i].getType()+"!","15:2.6");
+                                ErrorManager.printError("Cannot create an array of conflicting types "+elementType+" and "+elementsDatums[i].getType()+"!","15:2.6");
                             }
                         }
                     }

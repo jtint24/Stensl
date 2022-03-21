@@ -4,7 +4,7 @@ class TypeChecker {
         if (givenType.startsWith("[") && givenType.endsWith("]")) {
             return givenType.substring(1,givenType.length()-1);
         } else {
-            ErrorManager.printError("Attempt to unwrap non-array type "+givenType+"!","16:2.1");
+            ErrorManager.printError("Cannot unwrap non-array type '"+givenType+"' !","16:2.1");
             return "";
         }
     }
