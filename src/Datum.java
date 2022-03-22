@@ -31,6 +31,11 @@ public class Datum implements Cloneable {
     }
 
     public String getValue() {
+        if (getType()!=null) {
+            if (getType().equals("int")) {
+                value = String.valueOf((int) Float.parseFloat(value));
+            }
+        }
         return value;
     }
 

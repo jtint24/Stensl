@@ -86,7 +86,7 @@ public class Interpreter {
                     if (line.startsWith("}")) {
                         braceCount--;
                     }
-                    if (line.startsWith("func ")) {
+                    if (line.startsWith("func ")) { //detects a function header for a method
                         String[] headerWords = line.split("\\(")[0].split(" ");
                         int offset = 0;
                         String[] scopeItems = {"public"};
@@ -268,6 +268,7 @@ public class Interpreter {
                 functionShortNameList.add(functionName);
                 Function functionToAdd = new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), returnType, functionName, fullFunctionName.toString(), lineNumber);
                 memory.put(fullFunctionName.toString(), functionToAdd);
+
             }
         }
 
@@ -283,7 +284,7 @@ public class Interpreter {
             //System.out.println("that took " + (System.nanoTime() - instructionTime)/1000.0);
         //}
         //instructionTime = System.nanoTime();
-        System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
+        //System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
         //if (!localMemory.isEmpty()) {
         //    System.out.println("local mem is " + localMemory.peek().toString() + " global mem is " + memory.toString());
         //}
@@ -742,7 +743,6 @@ public class Interpreter {
             }
         }
         return functionShortNames;
-        //return functionShortNameList;
     }
     public static Function getCurrentFunction() { return currentFunction; }
     public static void setCurrentObject(DatumObject dtmo) {
