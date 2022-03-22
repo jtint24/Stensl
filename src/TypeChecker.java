@@ -1,5 +1,37 @@
 class TypeChecker {
     private static final String allowedTypeCharacters = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
+    public static boolean isValidType(String type) {
+        type = type.trim();
+        switch (type) {
+            case "int", "float", "bool", "string", "char", "void", "any" -> {
+                return true;
+            }
+        }
+        if (isArrayType(type)) {
+            return isValidType(unwrapArray(type));
+        }
+        if (type.startsWith("(") && type.contains(")->")) {
+            String retType = type.substring(Interpreter.splitByNakedChar(type, '>')[0].length()+1);
+            //System.out.println("retType "+retType);
+            if (!isValidType(retType)) {
+                return false;
+            }
+            String rawArglist = Interpreter.splitByNakedChar(type, '>')[0];
+            String[] args = Interpreter.splitByNakedChar(rawArglist.substring(1, rawArglist.length()-2),',');
+            //System.out.println("args are "+rawArglist.substring(1,rawArglist.length()-2));
+            if (type.split("\\)->")[0].substring(1).isBlank()) {
+                return true;
+            }
+
+            for (String arg : args) {
+                if (!isValidType(arg)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
     public static String unwrapArray(String givenType) {
         if (givenType.startsWith("[") && givenType.endsWith("]")) {
             return givenType.substring(1,givenType.length()-1);

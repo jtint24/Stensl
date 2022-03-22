@@ -11,6 +11,7 @@ public class Interpreter {
     private static final HashMap<String, Datum> memory = new HashMap<>();
     private static final ArrayList<String> functionShortNameList = new ArrayList<>();
     private static final HashMap<String, DatumClass> classes = new HashMap<>();
+    private static final ArrayList<String> classNames = new ArrayList<>();
     private static final Stack<Integer> lineNumberStack = new Stack<>();
     private static final Stack<HashMap<String, Datum>> localMemory = new Stack<>();
     private static final Stack<DatumObject> currentObject = new Stack<>();
@@ -102,10 +103,15 @@ public class Interpreter {
                             }
                         }
                         String returnType = headerWords[1+offset];
+
+                        if (!TypeChecker.isValidType(returnType)) {
+                            ErrorManager.printError("Invalid type: '"+returnType+"' !","9:1.");
+                        }
+
                         String functionName = headerWords[2+offset];
 
                         if (!isLegalIdentifier(functionName)) {
-                            ErrorManager.printError("Illegal function name: "+functionName+"!","9:1.5");
+                            ErrorManager.printError("Illegal function name: '"+functionName+"' !","9:1.5");
                         }
 
                         String parameterListString = line;
@@ -138,6 +144,12 @@ public class Interpreter {
                                 String[] parameterData = parameterString.split(":");
                                 if (parameterNames.contains(parameterData[1].trim())) {
                                     ErrorManager.printError("Argument "+parameterData[1].trim()+" is a duplicate!", "9:2.1");
+                                }
+                                if (!TypeChecker.isValidType(parameterData[0].trim())) {
+                                    ErrorManager.printError("Invalid type: '"+parameterData[0].trim()+"' !","9:1.");
+                                }
+                                if (!isLegalIdentifier(parameterData[1].trim())) {
+                                    ErrorManager.printError("Argument name '"+parameterData[1].trim()+"' is not a legal identifier!","9:1.");
                                 }
                                 parameterTypes.add(parameterData[0].trim());
                                 parameterNames.add(parameterData[1].trim());
@@ -210,12 +222,18 @@ public class Interpreter {
                 newClass.setPropertiesScope(propertiesScopes);
                 //System.out.println(newClass);
                 classes.put(className, newClass);
+                classNames.add(className);
             }
 
             if (line.startsWith("func ")) {
                 String[] headerWords = line.split("\\(")[0].split(" ");
 
                 String returnType = headerWords[1];
+
+                if (!TypeChecker.isValidType(returnType)) {
+                    ErrorManager.printError("Invalid type: '"+returnType+"' !","9:1.");
+                }
+
                 String functionName = headerWords[2];
 
                 if (!isLegalIdentifier(functionName)) {
@@ -252,6 +270,12 @@ public class Interpreter {
                         String[] parameterData = parameterString.split(":");
                         if (parameterNames.contains(parameterData[1].trim())) {
                             ErrorManager.printError("Argument "+parameterData[1].trim()+" is a duplicate!","9:2.1");
+                        }
+                        if (!TypeChecker.isValidType(parameterData[0].trim())) {
+                            ErrorManager.printError("Invalid type: '"+parameterData[0].trim()+"' !","9:1.");
+                        }
+                        if (!isLegalIdentifier(parameterData[1].trim())) {
+                            ErrorManager.printError("Argument name '"+parameterData[1].trim()+"' is not a legal identifier!","9:1.");
                         }
                         parameterTypes.add(parameterData[0].trim());
                         parameterNames.add(parameterData[1].trim());
@@ -475,6 +499,11 @@ public class Interpreter {
         int flagOffset = isConst ? 1 : 0;
 
         String variableType = lineSplitBySpace[1+flagOffset];
+
+        if (!TypeChecker.isValidType(variableType)) {
+            ErrorManager.printError("Invalid type: '"+variableType+"' !","9:1.");
+        }
+
         String variableName = lineSplitBySpace[2+flagOffset];
 
         if (!isLegalIdentifier(variableName)) {
@@ -607,8 +636,11 @@ public class Interpreter {
             ErrorManager.printError("Bracket mismatch on if!", "9:2.10");
         }
         String ifExpression = line.substring(2, lineIndex);
-        String ifExpressionResult = new Parser(ifExpression).result().getValue();
-        if (ifExpressionResult.equals("false")) {
+        Datum ifExpressionResult = new Parser(ifExpression).result();
+        if (!ifExpressionResult.getType().equals("bool")) {
+            ErrorManager.printError("Cannot match given type '"+ifExpressionResult.getType()+"' to expected type 'bool' on if!","9:2.");
+        }
+        if (ifExpressionResult.getValue().equals("false")) {
             moveOverBracketedCode();
         }
         if (codeLines[lineNumber-1].matches("}[ ]+else[ ]+\\{")) {
@@ -826,6 +858,9 @@ public class Interpreter {
         return splitResults.toArray(new String[0]);
     }
     private static boolean isLegalIdentifier(String name) {
+        if (TypeChecker.isValidType(name)) {
+            return false;
+        }
         String illegalChars = ".()+-%*/\\{}[]=&|!^<>?,;:\"";
         for (char activeChar : name.toCharArray()) {
             if (illegalChars.contains(""+activeChar)) {
