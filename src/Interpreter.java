@@ -283,9 +283,10 @@ public class Interpreter {
             //System.out.println("that took " + (System.nanoTime() - instructionTime)/1000.0);
         //}
         //instructionTime = System.nanoTime();
-        //System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
-
-        //System.out.println("local mem is "+localMemory.toString()+" global mem is "+memory.toString());
+        System.out.println(" EXECUTING LINE "+ lineNumber+" WHICH IS "+line);
+        //if (!localMemory.isEmpty()) {
+        //    System.out.println("local mem is " + localMemory.peek().toString() + " global mem is " + memory.toString());
+        //}
         //System.out.println("CURRENT OBJECTS: "+currentObject);
         //System.out.println("CURRENT LINE NUMBER STACK: "+lineNumber+": "+lineNumberStack);
 
@@ -302,16 +303,16 @@ public class Interpreter {
                 case INITIALIZE -> initializeVar(line);
                 case IF -> runIf();
                 case FOR -> runFor();
-                case PARSER -> {
+                /*case PARSER -> {
                     safeToCopy = true;
-                    if (premadeParsers[lineNumber-1] == null) {
+                    //if (premadeParsers[lineNumber-1] == null) {
                         premadeParsers[lineNumber-1] = new Parser(line);
-                    }
+                   // }
                     premadeParsers[lineNumber-1].getValue();
-                    if (!safeToCopy) {
+                    //if (!safeToCopy) {
                         premadeParsers[lineNumber-1] = null;
-                    }
-                }
+                    //}
+                }*/
                 case ASSIGN -> assignVar(line);
             }
             return new Datum();
@@ -445,7 +446,7 @@ public class Interpreter {
                 }
                 default -> {
                     safeToCopy = true;
-                    instructionTypes[lineNumber-1] = InstructionType.PARSER;
+                    //instructionTypes[lineNumber-1] = InstructionType.PARSER;
                     premadeParsers[lineNumber-1] = new Parser(line);
                     premadeParsers[lineNumber-1].getValue();
                     if (!safeToCopy) {
@@ -733,7 +734,16 @@ public class Interpreter {
         }
         return currentObject.peek();
     }
-    public static ArrayList<String> getFunctionShortNameList() { return functionShortNameList; }
+    public static ArrayList<String> getFunctionShortNameList() {
+        ArrayList<String> functionShortNames = new ArrayList<>();
+        for (Datum memoryEntry : getFullMemory().values()) {
+            if (memoryEntry instanceof Function) {
+                functionShortNames.add(((Function) memoryEntry).getName());
+            }
+        }
+        return functionShortNames;
+        //return functionShortNameList;
+    }
     public static Function getCurrentFunction() { return currentFunction; }
     public static void setCurrentObject(DatumObject dtmo) {
         currentObject.push(dtmo);

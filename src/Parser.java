@@ -285,6 +285,7 @@ public class Parser extends Datum {
                                         operation = OpLibrary.addition;
                                     } else {
                                         operation = OpLibrary.intAddition;
+                                        //System.out.println("The value on the left is "+arguments[0].getValue());
                                     }
                                     return;
                                 }

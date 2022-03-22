@@ -70,6 +70,7 @@ public class Main {
 
         /*String[] stenslScript = {
                 "func void forLoop(int: imin, int: imax, (int)->void: toRun) {",
+                "   println(str(imin)&\" is running\")",
                 "   if (imin<imax) {",
                 "       toRun(imin)",
                 "       forLoop(imin+1, imax, toRun)",
@@ -78,6 +79,7 @@ public class Main {
                 "}",
                 "func void printI(int: i) {",
                 "   println(i)",
+                "   println(\"helo\")",
                 "   return ()",
                 "}",
                 "forLoop(0, 5, printI)",
@@ -284,16 +286,29 @@ public class Main {
                 "println(constantProb(0))"
         };*/
 
-        String[] stenslScript = {
+        /*String[] stenslScript = {
                 "func int myFunc() {",
                 "   return (6)",
                 "}",
-                "func int myFunc() {",
+                "func int myFunc2() {",
                 "   return (7)",
                 "}",
                 "var ()->int myInt = myFunc",
                 "myInt = myFunc2",
                 "println(myInt())"
+        };*/
+
+        String[] stenslScript = {
+                "func void forLoop(int: imin, int: imax) {",
+                "   println(imin)",
+                "   //println(imin+1)",
+                "   if (imin>=imax) {",
+                "       return ()",
+                "   }",
+                "   forLoop(imin+1, imax)",
+                "   return ()",
+                "}",
+                "forLoop(1,5)"
         };
 
         Interpreter.runStensl(stenslScript);
