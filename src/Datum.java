@@ -1,11 +1,11 @@
 import java.util.Arrays;
 
 public class Datum implements Cloneable {
-    private String value;
+    protected String value;
     protected String type;
-    private boolean isMutable = true;
-    private boolean isBlank = false;
-    private String[] scope = {"public"};
+    protected boolean isMutable = true;
+    protected boolean isBlank = false;
+    protected String[] scope = {"public"};
 
     public Datum(String v, String t) {
         value = v;
@@ -31,8 +31,8 @@ public class Datum implements Cloneable {
     }
 
     public String getValue() {
-        if (getType()!=null) {
-            if (getType().equals("int")) {
+        if (getType()!=null && value!=null) {
+            if (getType().equals("int") && !value.isEmpty()) {
                 value = String.valueOf((int) Float.parseFloat(value));
             }
         }

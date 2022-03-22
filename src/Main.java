@@ -192,7 +192,7 @@ public class Main {
                 "   }",
                 "   func MyFirstClass getCopy() {",
                 "       var MyFirstClass thisCopy = this",
-                "       return (thisCopy)",
+                "       return (this)",
                 "   }",
                 "   func int getSeven() {",
                 "       return (this.defaultVal)",
@@ -298,7 +298,7 @@ public class Main {
                 "println(myInt())"
         };*/
 
-        String[] stenslScript = {
+        /*String[] stenslScript = {
                 "func void forLoop(int: imin, int: imax) {",
                 "   println(imin)",
                 "   //println(imin+1)",
@@ -309,6 +309,14 @@ public class Main {
                 "   return ()",
                 "}",
                 "forLoop(1,5)"
+        };*/
+
+        String[] stenslScript = {
+                "var myInt = 5",
+                "var int mySecondInt = 10",
+                "assert(typeof(myInt)==\"int\")",
+                "assert(typeof(mySecondInt)==\"int\")",
+                "println(\"success!\")"
         };
 
         Interpreter.runStensl(stenslScript);

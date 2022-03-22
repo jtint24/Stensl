@@ -7,6 +7,10 @@ class TypeChecker {
                 return true;
             }
         }
+        if (Interpreter.getClassNames().contains(type)) {
+
+            return true;
+        }
         if (isArrayType(type)) {
             return isValidType(unwrapArray(type));
         }

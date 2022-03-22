@@ -71,6 +71,7 @@ public class Interpreter {
                 if (!isLegalIdentifier(className)) {
                     ErrorManager.printError("Class '"+className+"' is not a legal identifier!","9:1.3");
                 }
+                classNames.add(className);
                 int braceCount = 1;
                 HashMap<String, String> properties = new HashMap<>();
                 HashMap<String, String[]> propertiesScopes = new HashMap<>();
@@ -222,7 +223,7 @@ public class Interpreter {
                 newClass.setPropertiesScope(propertiesScopes);
                 //System.out.println(newClass);
                 classes.put(className, newClass);
-                classNames.add(className);
+
             }
 
             if (line.startsWith("func ")) {
@@ -500,8 +501,16 @@ public class Interpreter {
 
         String variableType = lineSplitBySpace[1+flagOffset];
 
-        if (!TypeChecker.isValidType(variableType)) {
-            ErrorManager.printError("Invalid type: '"+variableType+"' !","9:1.");
+        boolean inferType = false;
+        if (lineSplitBySpace.length == 3+flagOffset) {
+            if (!TypeChecker.isValidType(variableType)) {
+                ErrorManager.printError("Invalid type: '" + variableType + "' !", "9:1.");
+            }
+        } else if (lineSplitBySpace.length < 3+flagOffset) {
+            flagOffset-=1;
+            inferType = true;
+        } else {
+            ErrorManager.printError("Improperly formed variable initialization!", "9:1.");
         }
 
         String variableName = lineSplitBySpace[2+flagOffset];
@@ -524,11 +533,17 @@ public class Interpreter {
         }
 
         //System.out.println(TypeChecker.isCompatible(variableParser.getType(), variableType));
+
+        if (inferType) {
+            variableType = variableParser.getType();
+        }
+
         if (!TypeChecker.isCompatible(variableParser.getType(), variableType)) {
             ErrorManager.printError("Value of type '"+variableParser.getType()+"' cannot be assigned to a variable of type '"+variableType+"' !", "9:2.6");
         }
 
         Datum variable = variableParser.result();
+
         variable.setType(variableType);
         variable.setIsMutable(!isConst);
 
@@ -760,6 +775,9 @@ public class Interpreter {
     }
     public static HashMap<String, DatumClass> getClasses() {
         return classes;
+    }
+    public static ArrayList<String> getClassNames() {
+        return classNames;
     }
     public static DatumObject getCurrentObject() {
         if (currentObject.isEmpty()) {

@@ -65,7 +65,8 @@ public class DatumObject extends Datum {
                     return new Datum();
                 }
                 if (propertyNames[0].startsWith(cleanPropertyName+"()")) {
-                    return ((Function)functionToCall).result(new Datum[0]).getProperty(newPropertyNames);
+                    Datum resultDatum = ((Function)functionToCall).result(new Datum[0]);
+                    return resultDatum.getProperty(newPropertyNames);
                 }
 
                 String argumentList = propertyNames[0].substring(cleanPropertyName.length()+1, propertyNames[0].length()-1);
@@ -148,5 +149,17 @@ public class DatumObject extends Datum {
         }
         retString = new StringBuilder(retString.substring(0, retString.length() - 2));
         return retString+"}";
+    }
+
+    @Override
+    public Datum publicVersion() {
+        DatumObject pubObj = new DatumObject();
+        pubObj.properties = this.properties;
+        pubObj.type = this.type;
+        pubObj.value = this.value;
+        pubObj.scope = new String[]{"public"};
+        pubObj.isMutable = this.isMutable;
+        pubObj.isBlank = this.isBlank;
+        return pubObj;
     }
 }
