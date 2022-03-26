@@ -314,9 +314,12 @@ public class Main {
         String[] stenslScript = {
                 "var myInt = 5",
                 "var int mySecondInt = 10",
-                "assert(typeof(myInt)==\"int\")",
-                "assert(typeof(mySecondInt)==\"int\")",
-                "println(\"success!\")"
+                "println(myInt % mySecondInt)",
+                "println(mySecondInt %% myInt)",
+                "var myFloat = 5.7",
+                "var float mySecondFloat = 39.9",
+                "println(mySecondFloat % myFloat)",
+                "println(mySecondFloat %% myFloat)"
         };
 
         Interpreter.runStensl(stenslScript);

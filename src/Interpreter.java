@@ -88,6 +88,9 @@ public class Interpreter {
                     if (line.startsWith("}")) {
                         braceCount--;
                     }
+                    if (line.startsWith("class ")) {
+                        ErrorManager.printError("Cannot declare a nested class!", "9:2");
+                    }
                     if (line.startsWith("func ")) { //detects a function header for a method
                         String[] headerWords = line.split("\\(")[0].split(" ");
                         int offset = 0;
@@ -659,7 +662,7 @@ public class Interpreter {
             moveOverBracketedCode();
         }
         if (codeLines[lineNumber-1].matches("}[ ]+else[ ]+\\{")) {
-            if (ifExpressionResult.equals("true")) {
+            if (ifExpressionResult.getValue().equals("true")) {
                 moveOverBracketedCode();
             }
         }

@@ -248,6 +248,14 @@ public class Parser extends Datum {
                                         return;
                                     }
                                     break;
+                                case "%%":
+                                    if (minPrecedence == OpPrecedence.COMPARISON) {
+                                        //System.out.println("disjunctive made");
+                                        setArgumentsAroundDouble(i, expr);
+                                        operation = OpLibrary.divisible;
+                                        return;
+                                    }
+                                    break;
                                 case "!=":
                                     if (minPrecedence.equals(OpPrecedence.COMPARISON)) {
                                         setArgumentsAroundDouble(i, expr);
@@ -321,6 +329,17 @@ public class Parser extends Datum {
                                         operation = OpLibrary.division;
                                     } else {
                                         operation = OpLibrary.intDivision;
+                                    }
+                                    return;
+                                }
+                                break;
+                            case '%':
+                                if (minPrecedence.equals(OpPrecedence.MULTIPLICATIVE)) {
+                                    setArgumentsAround(i, expr);
+                                    if (arguments[0].getType().equals("float") || arguments[1].getType().equals("float")) {
+                                        operation = OpLibrary.floatModulo;
+                                    } else {
+                                        operation = OpLibrary.intModulo;
                                     }
                                     return;
                                 }

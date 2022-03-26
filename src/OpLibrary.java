@@ -46,6 +46,35 @@ public class OpLibrary {
         return new Datum(String.valueOf((int)Float.parseFloat(args[0].getValue())/(int)Float.parseFloat(args[1].getValue())), "int");
     };
     public final static Operation intDivision = new Operation(intDivFunction, doubleInt, "int", OpPrecedence.MULTIPLICATIVE, "int div");
+
+    private final static OpFunction intModFunction = (args) -> {
+        if ((int)Float.parseFloat(args[1].getValue())==0) {
+            ErrorManager.printError("Division by zero!","13:3.1");
+        }
+        return new Datum(String.valueOf((int)Float.parseFloat(args[0].getValue())%(int)Float.parseFloat(args[1].getValue())), "int");
+    };
+    public final static Operation intModulo = new Operation(intModFunction, doubleInt, "int", OpPrecedence.MULTIPLICATIVE, "int mod");
+
+    private final static OpFunction floatModFunction = (args) -> {
+        if (Float.parseFloat(args[1].getValue())==0) {
+            ErrorManager.printError("Division by zero!","13:3.1");
+        }
+        return new Datum(String.valueOf(Float.parseFloat(args[0].getValue())%Float.parseFloat(args[1].getValue())), "float");
+    };
+    public final static Operation floatModulo = new Operation(floatModFunction, doubleFloat, "float", OpPrecedence.MULTIPLICATIVE, "float mod");
+
+    private final static OpFunction divisibleFunction = (args) -> {
+        if (Float.parseFloat(args[1].getValue())==0) {
+            ErrorManager.printError("Division by zero!","13:3.1");
+        }
+        double remainder = Float.parseFloat(args[0].getValue())%Float.parseFloat(args[1].getValue());
+        boolean divisor = (remainder <= 3E-6 && remainder >= -3E-6);
+        return new Datum(divisor ? "true" : "false", "bool");
+    };
+    public final static Operation divisible = new Operation(divisibleFunction, doubleFloat, "bool", OpPrecedence.MULTIPLICATIVE, "divisible");
+
+
+
     private final static OpFunction intPassFunction = (args) -> args[0];
     public final static Operation intPass = new Operation(intPassFunction, singleInt, "int", OpPrecedence.PASS, "int pass");
 
