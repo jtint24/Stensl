@@ -14,6 +14,15 @@ public class DatumArray extends DatumObject {
         value =  new ArrayList<>(Arrays.asList(val));
     }
 
+    /**
+     * getElement
+     *
+     * Gets the Datum that lays at a particular element within the DatumArray
+     *
+     * @param i The index of the element to return
+     * @return the Datum that lays at the index i
+     * */
+
     public Datum getElement(int i) {
         if (i<value.size()) {
             return value.get(i);
@@ -23,19 +32,13 @@ public class DatumArray extends DatumObject {
         return new Datum();
     }
 
-    public void setElement(Datum setTo, int... indices) {
-        if (indices.length == 1) {
-            Datum mutatedElement = value.get(indices[0]);
-            mutatedElement.setValueFrom(setTo);
-            value.set(indices[0], mutatedElement);
-        } else {
-            if (value.get(indices[0]) instanceof DatumArray) {
-                ((DatumArray)value.get(indices[0])).setElement(setTo, Arrays.copyOfRange(indices,1,indices.length));
-            } else {
-                ErrorManager.printError("Cannot set an array element of a non-array!","2:2.1");
-            }
-        }
-    }
+    /**
+     * setValueFrom
+     *
+     * Sets the value of the DatumArray to the value of another DatumArray, with safety checks
+     *
+     * @param dtm The DatumArray to set the value to
+     * */
 
     @Override
     public void setValueFrom(Datum dtm) {
@@ -49,6 +52,15 @@ public class DatumArray extends DatumObject {
             ErrorManager.printError("Cannot set an array to a non-array!","2:2.3");
         }
     }
+
+    /**
+     * getProperty
+     *
+     * Gets the value of the property named by a particular property String
+     *
+     * @param str The String that defines the property to get
+     * @return The property to get
+     * */
 
     @Override
     public Datum getProperty(String str) {
@@ -114,10 +126,26 @@ public class DatumArray extends DatumObject {
         return new Datum();
     }
 
+    /**
+     * getType
+     *
+     * Gets the type of the DatumArray
+     *
+     * @return The type of the DatumArray as a String
+     * */
+
     @Override
     public String getType() {
         return "["+elementType+"]";
     }
+
+    /**
+     * toString
+     *
+     * Returns a String representing the DatumArray's internal info
+     *
+     * @return A string listing the elements of the DatumArray as Strings
+     * */
 
     @Override
     public String toString() {
