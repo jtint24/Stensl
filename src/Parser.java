@@ -136,11 +136,14 @@ public class Parser extends Datum {
 
                     String functionShortName = expr.substring(0,functionShortNameLength+1);
 
-
                     if (Interpreter.getFunctionShortNameList().contains(functionShortName)) { //This gets user-defined prefix function calls
                         Interpreter.callUnsafeToCopy();
                         if (expr.startsWith(functionShortName+"()")) {
-                            operation = (Function)Interpreter.getFullMemory().get(functionShortName+"()").clone();
+                            if (Interpreter.getFullMemory().containsKey(functionShortName+"()")) {
+                                operation = (Function) Interpreter.getFullMemory().get(functionShortName + "()").clone();
+                            } else {
+                                operation  = (Function) Interpreter.getFullMemory().get(functionShortName).clone();
+                            }
                             arguments = new Datum[0];
                             return;
                         }

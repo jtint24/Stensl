@@ -212,6 +212,7 @@ public class Interpreter {
                             if (!assignTo.getType().equals(propertyType)) {
                                 ErrorManager.printError("Type Mismatch! Type "+assignTo.getType()+" does not match expected type "+propertyType+"!","9:2.3");
                             }
+
                             assignTo.setIsMutable(!isConstant);
                             assignTo.setScope(scopeItems);
                             defaultVals.put(propertyName, assignTo);
@@ -550,6 +551,7 @@ public class Interpreter {
         variable.setType(variableType);
         variable.setIsMutable(!isConst);
 
+
         if (variable instanceof Function) {
             ((Function) variable).setName(variableName);
             ((Function) variable).regenerateFullName();
@@ -583,9 +585,22 @@ public class Interpreter {
             functionToAssignTo.setName(varName);
             functionToAssignTo.regenerateFullName();
             memory.put(varFullName, functionToAssignTo);
+        } else if (currentObject.peek().getProperties().containsKey(varName)) {
+            Datum varToMutate = currentObject.peek().getProperties().get(varName);
+            if (!varToMutate.getIsMutable()) {
+                ErrorManager.printError("Attempt to mutate a constant, "+varName+"!","9:2.7");
+            }
+            Datum mutatedResult = new Parser(line.substring(lineSplitByEqual[0].length()+1)).result();
+            if (!TypeChecker.isCompatible(mutatedResult.getType(), varToMutate.getType())) {
+                ErrorManager.printError("Values of type '"+mutatedResult.getType()+"' are not compatible with variable '"+varName+"' of type '"+varToMutate.getType()+"' !","9:2.8");
+            }
+            currentObject.peek().getProperties().put(varName, mutatedResult);
         } else {
             //System.out.println("mutating local memory");
             Datum varToMutate = localMemory.peek().get(varName);
+            if (varToMutate==null) {
+                ErrorManager.printError("Cannot find variable '"+varName+"' !", "");
+            }
             if (!varToMutate.getIsMutable()) {
                 ErrorManager.printError("Attempt to mutate a constant, "+varName+"!","9:2.7");
             }
