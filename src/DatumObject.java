@@ -22,15 +22,44 @@ public class DatumObject extends Datum {
         properties.put("this", this);
     }
     public DatumObject() {}
+
+    /**
+     * getValue
+     *
+     * Gets the value of the DatumObjet
+     *
+     * @return The value of the DatumObject, a String of all its properties
+     * */
+
     @Override
     public String getValue() {
         return this.toString();
     }
+
+    /**
+     * getProperty
+     *
+     * Returns a Datum representing a property
+     *
+     * @param property The String of the property chain
+     * @return A Datum representing the result of the property
+     * */
+
     @Override
     public Datum getProperty(String property) {
         String[] propertyNames = splitByNakedChars(property, ".[");
         return getProperty(propertyNames);
     }
+
+    /**
+     * getProperty
+     *
+     * Returns a Datum representing a property
+     *
+     * @param propertyNames The String of the property chain
+     * @return A Datum representing the result of the property
+     * */
+
     @Override
     public Datum getProperty (String[] propertyNames) {
 
@@ -86,6 +115,15 @@ public class DatumObject extends Datum {
             return null;
         }
     }
+
+    /**
+     * setValueFrom
+     *
+     * Sets the value of the DatumObject to the value of a given DatumObject, with safety checks
+     *
+     * @param dtm The Datum to set the value from
+     * */
+
     @Override
     public void setValueFrom(Datum dtm) {
         if (dtm instanceof DatumObject) {
@@ -99,9 +137,29 @@ public class DatumObject extends Datum {
         }
     }
 
+    /**
+     * getProperties
+     *
+     * Gets the HashMap of properties and their values
+     *
+     * @return The properties variable
+     * */
+
     public HashMap<String, Datum> getProperties() {
         return properties;
     }
+
+    /**
+     * splitByNakedChars
+     *
+     * Splits a String by multiple characters, so long as those chars are not inside parentheses, quotes,
+     * or brackets.
+     *
+     * @param s The String to split
+     * @param chars A string containing all of the characters to split by
+     * @return An array of Strings forming the split results of the original String, s.
+     * */
+
     private String[] splitByNakedChars(String s, String chars) {
         ArrayList<String> splitResults = new ArrayList<>();
         StringBuilder currentSplit = new StringBuilder();
@@ -136,6 +194,14 @@ public class DatumObject extends Datum {
         splitResults.add(currentSplit.toString());
         return splitResults.toArray(new String[0]);
     }
+
+    /**
+     * toString
+     *
+     * Returns a String containing all of this DatumObject's properties
+     *
+     * @return a String with all of the Datum's properties and their values listed
+     * */
     public String toString() {
         StringBuilder retString = new StringBuilder("{");
         for (String propertyName : properties.keySet()) {

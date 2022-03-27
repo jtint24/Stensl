@@ -1,6 +1,11 @@
 import java.util.Stack;
 
 public class ErrorManager {
+    /**
+     * printError
+     *
+     * Prints out an error message, stack trace, error details, and stops program execution
+     * */
     public static void printError(String str, String errCode) {
         System.out.println("Error on line "+Interpreter.getLineNumber()+"!");
         System.out.println(" Error details: "+str);
