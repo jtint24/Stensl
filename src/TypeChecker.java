@@ -163,3 +163,5 @@ class TypeChecker {
         return allowedTypeCharacters.contains(c+"");
     }
 }
+
+//12.7 KB

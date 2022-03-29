@@ -308,6 +308,29 @@ public class Interpreter {
 
             }
         }
+        int bracketCount = 0;
+        boolean inClass = false;
+        for (int lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //Check for bracket mismatches and improperly nested functions
+            if (codeLines[lineNumber-1].startsWith("}")) {
+                bracketCount--;
+            }
+            if (codeLines[lineNumber-1].endsWith("{")) {
+                bracketCount++;
+            }
+            if (codeLines[lineNumber-1].startsWith("class ")) {
+                inClass = true;
+            }
+            if (bracketCount==0) {
+                inClass = false;
+            }
+            if (bracketCount<0) {
+                ErrorManager.printError("Bracket mismatch!", "");
+            }
+            if (bracketCount!=0 && codeLines[lineNumber-1].startsWith("func ") && !inClass) {
+                ErrorManager.printError("Cannot create a nested function!", "");
+            }
+
+        }
 
         for (lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //Executes actual lines of code
             runLine();
