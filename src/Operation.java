@@ -34,6 +34,15 @@ public class Operation extends Datum {
         fullName = fn;
     }
 
+    /**
+     * result
+     *
+     * Gets the result of the operation when applied to some arguments
+     *
+     * @param arguments The arguments to apply
+     * @return The result of the operator
+     * */
+
     public Datum result(Datum[] arguments) {
         for (int i = 0; i<operandNum; i++) {
             if (!TypeChecker.isCompatible(arguments[i].getType(), operandTypes[i])) {
@@ -43,17 +52,57 @@ public class Operation extends Datum {
         return functionality.result(arguments);
     }
 
+    /**
+     * getReturnType
+     *
+     * Gets the return type of the function
+     *
+     * @return the value of returnType
+     * */
+
     public String getReturnType() {
         return returnType;
     }
+
+    /**
+     * getName
+     *
+     * Returns that name of the operation with a null safety check
+     *
+     * @return The value of the name variable with a null default value
+     * */
 
     public String getName() {
         return name==null ? "no name" : name;
     }
 
+    /**
+     * getFullName
+     *
+     * Returns the full name of the operator
+     *
+     * @return The value of the fullName variable
+     * */
+
     public String getFullName() { return fullName; }
 
+    /**
+     * toString
+     *
+     * Gets the name of the operator to use to name the object as a String
+     *
+     * @return The value of the name variable
+     * */
+
     public String toString() { return name; }
+
+    /**
+     * getType
+     *
+     * Returns the complete type of the operator
+     *
+     * @return The type of the operator as a String
+     * */
 
     public String getType() {
         StringBuilder type = new StringBuilder("(");
@@ -67,6 +116,15 @@ public class Operation extends Datum {
         type.append(returnType);
         return type.toString();
     }
+
+    /**
+     * getIsFunction
+     *
+     * Gets whether the object is a function. This is always true here, but it overrides a method from
+     * the Datum class which is always true.
+     *
+     * @return A false value
+     * */
 
     @Override
     public boolean getIsFunction() {

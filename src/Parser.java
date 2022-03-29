@@ -461,6 +461,14 @@ public class Parser extends Datum {
         arguments = args;
     }
 
+    /**
+     * result
+     *
+     * Returns the result of the Parser's expression
+     *
+     * @return The Datum holding the result of the expression
+     * */
+
     public Datum result() {
         if (operation.getName().equals("any pass")) {
             return arguments[0];
@@ -469,11 +477,31 @@ public class Parser extends Datum {
         }
     }
 
+    /**
+     * setArgumentsAround
+     *
+     * Sets the arguments of a Parser to be the substrings on either side of a character lying at a particular
+     * index in a String
+     *
+     * @param i The index at which the character to split around lies
+     * @param str The String to split around
+     * */
+
     private void setArgumentsAround(int i, String str) {
         arguments = new Datum[2];
         arguments[0] = new Parser(str.substring(0,i));
         arguments[1] = new Parser(str.substring(i+1));
     }
+
+    /**
+     * setArgumentsAroundDouble
+     *
+     * Sets the arguments of a Parser to be the substring on either side of a pair of characters that begin
+     * at a particular index in a String
+     *
+     * @param i The index at which the character pair starts
+     * @param str The String to split around
+     * */
 
     private void setArgumentsAroundDouble(int i, String str) {
         arguments = new Datum[2];
@@ -481,10 +509,26 @@ public class Parser extends Datum {
         arguments[1] = new Parser(str.substring(i+2));
     }
 
+    /**
+     * getValue
+     *
+     * Gets the value of the result of the Parser formatted as a String
+     *
+     * @return The value of the result of this Parser as a String
+     * */
+
     @Override
     public String getValue() {
         return this.result().getValue();
     }
+
+    /**
+     * getType
+     *
+     * Returns the type of the result of the Parser
+     *
+     * @return The type of the parse as a String
+     * */
 
     @Override
     public String getType() {
@@ -497,6 +541,15 @@ public class Parser extends Datum {
         }
     }
 
+    /**
+     * isFloat
+     *
+     * Checks if a String represents a float
+     *
+     * @param str The String in question
+     * @return Whether str represents a float or not
+     * */
+
     private boolean isFloat(String str) {
         try {
             float f = Float.parseFloat(str);
@@ -505,6 +558,16 @@ public class Parser extends Datum {
             return false;
         }
     }
+
+    /**
+     * isInt
+     *
+     * Checks if a String represents an int
+     *
+     * @param str The String in question
+     * @return Whether str represents an int or not
+     * */
+
     private boolean isInt(String str) {
         try {
             int i = Integer.parseInt(str);
@@ -513,6 +576,15 @@ public class Parser extends Datum {
             return false;
         }
     }
+
+    /**
+     * toConsole
+     *
+     * Prints the contents of the Parser to the console with a custom indentation level
+     *
+     * @param i The indentation level to print at
+     * */
+
     protected void toConsole(int i) {
         String tab = "\t";
         System.out.println(tab.repeat(i)+"Parser:");
@@ -522,9 +594,28 @@ public class Parser extends Datum {
             argument.toConsole(i+1);
         }
     }
+
+    /**
+     * toConsole
+     *
+     * Prints the contents of the Parser to the console with no indentation
+     * */
+
     public void toConsole() {
         toConsole(0);
     }
+
+    /**
+     * splitByNakedChar
+     *
+     * Splits a String by a particular character, so long as that character is not inside quotes, parentheses,
+     * or brackets
+     *
+     * @param s The String to split
+     * @param c The char to split by
+     * @return An array of all the split substrings
+     * */
+
     private String[] splitByNakedChar(String s, char c) {
         ArrayList<String> splitResults = new ArrayList<>();
         StringBuilder currentSplit = new StringBuilder();
@@ -559,6 +650,14 @@ public class Parser extends Datum {
         splitResults.add(currentSplit.toString());
         return splitResults.toArray(new String[0]);
     }
+
+    /**
+     * getIsFunction
+     *
+     * Returns whether or not the Parser represents a function
+     *
+     * @return A boolean representing whether the Parser represents a function
+     * */
 
     @Override
     public boolean getIsFunction() {

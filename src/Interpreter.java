@@ -18,6 +18,14 @@ public class Interpreter {
     private static long instructionTime = InputManager.startTime;
     private static boolean safeToCopy = true;
 
+    /**
+     * runStensl
+     *
+     * Initiates the process to run Stensl code. Starts by cleaning and preprocessing the code, then runs
+     * it line by line
+     *
+     * @param code An array of all the lines of code to run,  in order
+     * */
     public static void runStensl(String[] code) {
         String[] newCode = new String[code.length+1];
         System.arraycopy(code, 0, newCode, 0, code.length);
@@ -306,6 +314,15 @@ public class Interpreter {
         }
     }
 
+    /**
+     * runLine
+     *
+     * Runs a Stensl instruction on an individual line of code, based on the current Interpreter's line
+     * number
+     *
+     * @return The Datum returned by the line of Stensl code, if any
+     * */
+
     private static Datum runLine() {
         String line = codeLines[lineNumber-1];
         //System.out.println(getFullMemory()+" , "+functionShortNameList);
@@ -487,6 +504,15 @@ public class Interpreter {
         }
         return new Datum();
     }
+
+    /**
+     * assignPropertyVal
+     *
+     * Assigns a value to a variable defined by a property chain
+     *
+     * @param line The line containing the code
+     * */
+
     private static void assignPropertyVal(String line) {
         String[] lineSplitByEqual = splitByNakedChar(line,'='); // Get the first half of the assignment
         String[] chainData = lineSplitByEqual[0].split("[\\.\\[]"); //Get the root of the chain
@@ -496,6 +522,15 @@ public class Interpreter {
         Datum assignTo = (new Parser(expressionString.trim())).result(); //Parse the expressionString
         property.setValueFrom(assignTo); //Set the property to the assign value
     }
+
+    /**
+     * initializeVar
+     *
+     * Run a line which contains a variable initialization
+     *
+     * @param line The line containing the initialization
+     * */
+
     private static void initializeVar(String line) {
         String[] lineSplitByEqual = line.split("=");
         String[] lineSplitBySpace = lineSplitByEqual[0].split(" ");
@@ -565,6 +600,15 @@ public class Interpreter {
             localMemory.peek().put(variableName, variable);
         }
     }
+
+    /**
+     * assignVar
+     *
+     * Runs a line of code containing a variable assignment
+     *
+     * @param line The line of code containing the assignment
+     * */
+
     private static void assignVar(String line) {
         String[] lineSplitByEqual = line.split("=");
         String[] lineSplitBySpace = lineSplitByEqual[0].split(" ");
@@ -615,6 +659,17 @@ public class Interpreter {
             //localMemory.push(currentLocalMemory);
         }
     }
+
+    /**
+     * runFunction
+     *
+     * Runs a particular function within the Stensl script
+     *
+     * @param func The function to run
+     * @param arguments An array of Datums containing the proper arguments in order
+     * @param parameterNames An array of Strings continaing the names of parameters in order
+     * */
+
     public static Datum runFunction(Function func, Datum[] arguments, String[] parameterNames) {
         lineNumberStack.push(lineNumber);
         currentObject.push(func.getAssociatedObject());
@@ -647,6 +702,13 @@ public class Interpreter {
         }
         return lineResult;
     }
+
+    /**
+     * runIf
+     *
+     * Runs a line of code containing an if statement
+     * */
+
     public static void runIf() {
         String line = codeLines[lineNumber-1];
         int parenCount = 0;
@@ -682,6 +744,13 @@ public class Interpreter {
             }
         }
     }
+
+    /**
+     * runFor
+     *
+     * Runs a line of code containing a for loop
+     * */
+
     public static void runFor() {
         String line = codeLines[lineNumber-1];
         int minMaxArgsBeginningIndex = line.split("\\(")[0].length()+1;
@@ -710,6 +779,13 @@ public class Interpreter {
         currentLocalMem.put(indexName, index);
         localMemory.push(currentLocalMem);
     }
+
+    /**
+     * moveOverBracketedCode
+     *
+     * Moves over a block of code which is enclosed in brackets
+     * */
+
     private static void moveOverBracketedCode() {
         int bracketCount = 0;
         lineNumber--;
@@ -728,6 +804,15 @@ public class Interpreter {
         } while (bracketCount!=0);
         //lineNumber++;
     }
+
+    /**
+     * moveOverBracketedCode
+     *
+     * Moves over the rest of a block of bracketed code from a line that has both open and closed brackets
+     *
+     * @param bracketCount The number of closing brackets on the opening line
+     * */
+
     private static void moveOverBracketedCode(int bracketCount) {
         lineNumber--;
         boolean isFirst = true;
@@ -748,6 +833,15 @@ public class Interpreter {
         } while (bracketCount!=0);
         //lineNumber++;
     }
+
+    /**
+     * getFullMemory
+     *
+     * Returns the contents of the local memory, global memory, and object memory
+     *
+     * @return The concatenated results of all memories
+     * */
+
     public static HashMap<String, Datum> getFullMemory() {
         HashMap<String, Datum> fullMemory = (HashMap<String, Datum>) memory.clone();
         if (!localMemory.isEmpty()) {
@@ -758,15 +852,52 @@ public class Interpreter {
         }
         return fullMemory;
     }
+
+    /**
+     * getLineNumber
+     *
+     * Gets current line number
+     *
+     * @return The value of lineNumber
+     * */
+
     public static int getLineNumber() {
         return lineNumber;
     }
+
+    /**
+     * getLineNumberStack
+     *
+     * Gets the current line number stack
+     *
+     * @return The value of lineNumberStack
+     * */
+
     public static Stack<Integer> getLineNumberStack() {
         return lineNumberStack;
     }
+
+    /**
+     * getCurrentLine
+     *
+     * Returns the current line of code being read
+     *
+     * @return The line that lies at lineNumber
+     * */
+
     public static String getCurrentLine() {
         return codeLines[lineNumber-1];
     }
+
+    /**
+     * getFunctionsByShortName
+     *
+     * Returns a HashMap of functions where the key is a particular short name for functions and the
+     * associated Integer is the number of functions that share that short name
+     *
+     * @return A HashMap of function count by short name
+     * */
+
     public static HashMap<String, Integer> getFunctionsByShortName() {
         HashMap<String, Integer> funcsByShortName = new HashMap<>();
         for (Datum memBlock : getFullMemory().values()) {
@@ -782,6 +913,14 @@ public class Interpreter {
         return funcsByShortName;
     }
 
+    /**
+     * getGlobalFunctionShortNames
+     *
+     * Gets the list of all short names of all functions in the global memory
+     *
+     * @return An arraylist of all the short names of all the functions in global memory
+     * */
+
     public static ArrayList<String> getGlobalFunctionShortnames() {
         ArrayList<String> globalFuncShortnames = new ArrayList<>();
         for (Datum memBlock : memory.values()) {
@@ -791,18 +930,55 @@ public class Interpreter {
         }
         return globalFuncShortnames;
     }
+
+    /**
+     * getClasses
+     *
+     * Gives a Hashmap of all the classes in the script tagged by their names
+     *
+     * @return The value of the classes variable
+     * */
+
     public static HashMap<String, DatumClass> getClasses() {
         return classes;
     }
+
+    /**
+     * getClassNames
+     *
+     * Gives the list of all names of all classes
+     *
+     * @return The value of the classNames variable
+     * */
+
     public static ArrayList<String> getClassNames() {
         return classNames;
     }
+
+    /**
+     * getCurrentObject
+     *
+     * Gives the object that the program control is currently inside of, if any. If not in an object,
+     * returns a new DatumObject
+     *
+     * @return The top value of the currentObject stack, if one exists
+     * */
+
     public static DatumObject getCurrentObject() {
         if (currentObject.isEmpty()) {
             return new DatumObject();
         }
         return currentObject.peek();
     }
+
+    /**
+     * getFunctionShortNameList
+     *
+     * Gets a list of all short names of all currently available functions
+     *
+     * @return An ArrayList of all the function short names of currently available functions
+     * */
+
     public static ArrayList<String> getFunctionShortNameList() {
         ArrayList<String> functionShortNames = new ArrayList<>();
         for (Datum memoryEntry : getFullMemory().values()) {
@@ -812,13 +988,48 @@ public class Interpreter {
         }
         return functionShortNames;
     }
+
+    /**
+     * getCurrentFunction
+     *
+     * Gets the function that the program control is currently inside of
+     *
+     * @return The value of the currentFunction variable
+     * */
+
     public static Function getCurrentFunction() { return currentFunction; }
+
+    /**
+     * setCurrentObject
+     *
+     * Sets the current object of the program control
+     *
+     * @param dtmo The object to push to the currentObject stack
+     * */
+
     public static void setCurrentObject(DatumObject dtmo) {
         currentObject.push(dtmo);
     }
+
+    /**
+     * callUnsafeToCopy
+     *
+     * Declares that it is unsafe to copy a Parser into the saved parsers during a parser initialization
+     * */
+
     public static void callUnsafeToCopy() {
         safeToCopy = false;
     }
+
+    /**
+     * findMatchingBracket
+     *
+     * Gets the line that contains the matching opening bracket to a particular line's closing bracket
+     *
+     * @param linePosition The position at which the line to match lies
+     * @return The contents of the matching line
+     * */
+
     private static String findMatchingBracket(int linePosition) {
         int bracketCount = 0;
         int scanLineNumber = lineNumber;
@@ -842,6 +1053,16 @@ public class Interpreter {
         ErrorManager.printError("Bracket mismatch!","9.1.8");
         return "";
     }
+
+    /**
+     * findMatchingBracketIndex
+     *
+     * Returns the index of the matching opening bracket to a particular closing bracket
+     *
+     * @param linePosition The position of the bracket to match
+     * @return The matching bracket position as an int
+     * */
+
     private static int findMatchingBracketIndex(int linePosition) {
         int bracketCount = 0;
         int scanLineNumber = lineNumber;
@@ -865,6 +1086,17 @@ public class Interpreter {
         ErrorManager.printError("Bracket mismatch!","9:1.8");
         return 0;
     }
+
+    /**
+     * splitByNakedChar
+     *
+     * Splits a String by a particular character, so long as that character is not inside quotes, parentheses,
+     * or brackets
+     *
+     * @param s The String to split
+     * @param c The char to split by
+     * @return An array of all the split substrings
+     * */
 
     public static String[] splitByNakedChar(String s, char c) {
         ArrayList<String> splitResults = new ArrayList<>();
@@ -893,6 +1125,16 @@ public class Interpreter {
         splitResults.add(currentSplit.toString());
         return splitResults.toArray(new String[0]);
     }
+
+    /**
+     * isLegalIdentifier
+     *
+     * Returns whether a particular string is a legal identifier for the particular Stensl script
+     *
+     * @param name The name to check
+     * @return Whether name is a legal identifier
+     * */
+
     private static boolean isLegalIdentifier(String name) {
         if (TypeChecker.isValidType(name)) {
             return false;

@@ -1,5 +1,15 @@
 class TypeChecker {
     private static final String allowedTypeCharacters = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
+
+    /**
+     * isValidType
+     *
+     * Checks if a String represents a valid type
+     *
+     * @param type The String representing a possible type
+     * @return Whether the type string is a valid type
+     * */
+
     public static boolean isValidType(String type) {
         type = type.trim();
         switch (type) {
@@ -36,6 +46,15 @@ class TypeChecker {
         }
         return false;
     }
+
+    /**
+     * unwrapArray
+     *
+     * Returns the element type of an array type
+     *
+     * @param givenType The array type to unwrap
+     * */
+
     public static String unwrapArray(String givenType) {
         if (givenType.startsWith("[") && givenType.endsWith("]")) {
             return givenType.substring(1,givenType.length()-1);
@@ -44,9 +63,29 @@ class TypeChecker {
             return "";
         }
     }
+
+    /**
+     * isArrayType
+     *
+     * Checks whether a type is an array type or not
+     *
+     * @param givenType The type in question
+     * */
+
     public static boolean isArrayType(String givenType) {
         return givenType.startsWith("[") && givenType.endsWith("]");
     }
+
+    /**
+     * isCompatible
+     *
+     * Checks whether one type can be converted to another
+     *
+     * @param givenType The type to be converted
+     * @param targetType The type that givenType needs to be converted to
+     * @return Whether the types are compatible
+     * */
+
     public static boolean isCompatible(String givenType, String targetType) {
         if (givenType.equals(targetType)) {
             return true;
@@ -110,6 +149,16 @@ class TypeChecker {
         }
         return true;
     }
+
+    /**
+     * isValidTypeChar
+     *
+     * Checks whether a character is allowed to appear in a type
+     *
+     * @param c The character to check
+     * @return Whether the character is allowed to appear in a type
+     * */
+
     private static boolean isValidTypeChar(char c) {
         return allowedTypeCharacters.contains(c+"");
     }

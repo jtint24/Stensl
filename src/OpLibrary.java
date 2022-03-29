@@ -191,6 +191,8 @@ public class OpLibrary {
     public static Operation getElementOfType(String type) {
         return new Operation(getElementFunction, anyArrInt, type, OpPrecedence.FUNCTIONAL, "getValue");
     }
+
+
     private final static OpFunction inputOp = (args) -> {
         if (!args[0].getValue().equals("")) {
             System.out.println(args[0].getValue());
@@ -203,6 +205,8 @@ public class OpLibrary {
         scan.close();
         return new Datum(strValue, "string");
     };
+
+
     public final static Operation inputFunction = new Operation(inputOp, singleString, "string", OpPrecedence.FUNCTIONAL, "input");
 
     public static ArrayList<Operation> prefixFunctions = new ArrayList<>(Arrays.asList(stringConversion, intConversion, floatConversion, print, println, trace, assertOp, ascii, typeof, inputFunction, lengthOp));
