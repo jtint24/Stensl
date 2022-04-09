@@ -57,7 +57,7 @@ public class Datum implements Cloneable {
         if (isMutable) {
             value = v;
         } else {
-            ErrorManager.printError("Cannot to mutate a constant!","1:2.1");
+            ErrorManager.printError("Cannot mutate a constant!","1:2.1");
         }
     }
 

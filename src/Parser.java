@@ -162,7 +162,7 @@ public class Parser extends Datum {
                         }
                         functionFullName.append(")");
                         if (!Interpreter.getFullMemory().containsKey(functionFullName.toString())) {
-                            ErrorManager.printError("Function "+functionFullName+" does not exist!","15:2.3");
+                            ErrorManager.printError("Function '"+functionFullName+"' does not exist!","15:2.3");
                         }
                         operation = (Function)Interpreter.getFullMemory().get(functionFullName.toString()).clone();
                         return;
@@ -392,14 +392,14 @@ public class Parser extends Datum {
                     }
                     if (bracketCount<0) {
 
-                        ErrorManager.printError("Bracket mismatch!","15:1.2");
+                        ErrorManager.printError("Brace mismatch!","15:1.2");
                     }
                 }
                 if (parenCount != 0) {
                     ErrorManager.printError("Parentheses mismatch!","15:1.3");
                 }
                 if (bracketCount != 0) {
-                    ErrorManager.printError("Bracket mismatch! "+bracketCount,"15:1.4");
+                    ErrorManager.printError("Brace mismatch! "+bracketCount,"15:1.4");
                 }
                 if (minParenCount > 0) { //Checks for fully-paren-wrapped expression and unwraps it
                     Parser setThisTo = new Parser(expr.substring(1, exprSize - 1));
@@ -419,7 +419,7 @@ public class Parser extends Datum {
                             elementType = elementsDatums[i].getType();
                         } else {
                             if (!elementType.equals(elementsDatums[i].getType())) {
-                                ErrorManager.printError("Cannot create an array of conflicting types "+elementType+" and "+elementsDatums[i].getType()+"!","15:2.6");
+                                ErrorManager.printError("Cannot create an array of conflicting types '"+elementType+"' and '"+elementsDatums[i].getType()+"' !","15:2.6");
                             }
                         }
                     }

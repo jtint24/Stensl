@@ -18,7 +18,6 @@ class TypeChecker {
             }
         }
         if (Interpreter.getClassNames().contains(type)) {
-
             return true;
         }
         if (isArrayType(type)) {

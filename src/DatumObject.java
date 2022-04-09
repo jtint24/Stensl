@@ -67,7 +67,7 @@ public class DatumObject extends Datum {
             if (super.isInScope()) {
                 return this;
             } else {
-                ErrorManager.printError("Attempt to get a property from an out-of-scope area!","4:2.1");
+                ErrorManager.printError("Cannot get a property from an out-of-scope area!","4:2.1");
             }
         }
         //System.out.println("getting properties from "+ this +": "+propertyNames[0]);
@@ -111,7 +111,7 @@ public class DatumObject extends Datum {
             }
             return properties.get(cleanPropertyName.toString()).getProperty(newPropertyNames);
         } else {
-            ErrorManager.printError("Cannot find property '"+cleanPropertyName+"'!","4:2.3");
+            ErrorManager.printError("Cannot call property '"+cleanPropertyName+"'!","4:2.3");
             return null;
         }
     }

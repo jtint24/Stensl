@@ -298,29 +298,35 @@ public class Main {
                 "println(myInt())"
         };*/
 
-        /*String[] stenslScript = {
-                "func void forLoop(int: imin, int: imax) {",
+        String[] stenslScript = {
+                "func void forLoop(int imin, int imax) {",
                 "   println(imin)",
                 "   //println(imin+1)",
                 "   if (imin>=imax) {",
-                "       return ()",
+                "       return",
                 "   }",
                 "   forLoop(imin+1, imax)",
-                "   return ()",
+                "   return",
                 "}",
-                "forLoop(1,5)"
-        };*/
-
-        String[] stenslScript = {
-                "var myInt = 5",
-                "var int mySecondInt = 10",
-                "println(myInt % mySecondInt)",
-                "println(mySecondInt %% myInt)",
-                "var myFloat = 5.7",
-                "var float mySecondFloat = 39.9",
-                "println(mySecondFloat % myFloat)",
-                "println(mySecondFloat %% myFloat)"
+                "forLoop(1,5)",
+                "func int returnExpression(float f) {",
+                "   return int(f*2+2)%4",
+                "}",
+                "println(returnExpression(4.0))",
+                "for 1+1 +1,  10*2 {(int k)",
+                "   print(k)",
+                "}"
         };
+
+        /*String[] stenslScript = {
+                "for (1,5) {(float i)",
+                "   print(i)",
+                "}",
+                "func void errorFunc() {",
+                "   println(0/0)",
+                "}",
+                "errorFunc()"
+        };*/
 
         Interpreter.runStensl(stenslScript);
         //System.out.print(Interpreter.getFunctionList());

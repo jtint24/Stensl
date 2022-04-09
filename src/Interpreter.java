@@ -52,9 +52,9 @@ public class Interpreter {
                             insideBlockComment = false;
                             i++;
                             continue;
-                        } else {
-                            ErrorManager.printError("Block comment terminator */ used without opening a block comment!","9:1.1");
-                        }
+                        } /*else {
+                            //ErrorManager.printError("Block comment terminator  used without opening a block comment!","9:1.1");
+                        }*/
                     }
                 }
                 if (!insideInlineComment && !insideBlockComment) {
@@ -153,15 +153,15 @@ public class Interpreter {
                         StringBuilder fullFunctionName = new StringBuilder(functionName + "(");
                         if (!parameterListString.isBlank()) {
                             for (String parameterString : parameterList) { //Check all the parameters for the function
-                                String[] parameterData = parameterString.split(":");
+                                String[] parameterData = parameterString.trim().split(" ");
                                 if (parameterNames.contains(parameterData[1].trim())) {
-                                    ErrorManager.printError("Argument "+parameterData[1].trim()+" is a duplicate!", "9:2.1");
+                                    ErrorManager.printError("Parameter '"+parameterData[1].trim()+"' is a duplicate!", "9:2.1");
                                 }
                                 if (!TypeChecker.isValidType(parameterData[0].trim())) {
                                     ErrorManager.printError("Invalid type: '"+parameterData[0].trim()+"' !","9:1.");
                                 }
                                 if (!isLegalIdentifier(parameterData[1].trim())) {
-                                    ErrorManager.printError("Argument name '"+parameterData[1].trim()+"' is not a legal identifier!","9:1.");
+                                    ErrorManager.printError("Parameter name '"+parameterData[1].trim()+"' is not a legal identifier!","9:1.");
                                 }
                                 parameterTypes.add(parameterData[0].trim());
                                 parameterNames.add(parameterData[1].trim());
@@ -172,7 +172,7 @@ public class Interpreter {
                         fullFunctionName.append(")");
 
                         if (properties.containsKey(functionName)) {
-                            ErrorManager.printError("Duplicate function declaration: "+functionName+" !","9:2.2");
+                            ErrorManager.printError("Duplicate function declaration: '"+functionName+"' !","9:2.2");
                         }
 
                         Function functionToAdd = new Function(parameterTypes.toArray(new String[0]), parameterNames.toArray(new String[0]), returnType, functionName, fullFunctionName.toString(), lineNumber);
@@ -280,15 +280,15 @@ public class Interpreter {
                 StringBuilder fullFunctionName = new StringBuilder(functionName + "(");
                 if (!parameterListString.isBlank()) {
                     for (String parameterString : parameterList) { //Check all the parameters for the function
-                        String[] parameterData = parameterString.split(":");
+                        String[] parameterData = parameterString.trim().split(" ");
                         if (parameterNames.contains(parameterData[1].trim())) {
-                            ErrorManager.printError("Argument "+parameterData[1].trim()+" is a duplicate!","9:2.1");
+                            ErrorManager.printError("Parameter "+parameterData[1].trim()+" is a duplicate!","9:2.1");
                         }
                         if (!TypeChecker.isValidType(parameterData[0].trim())) {
                             ErrorManager.printError("Invalid type: '"+parameterData[0].trim()+"' !","9:1.");
                         }
                         if (!isLegalIdentifier(parameterData[1].trim())) {
-                            ErrorManager.printError("Argument name '"+parameterData[1].trim()+"' is not a legal identifier!","9:1.");
+                            ErrorManager.printError("Parameter name '"+parameterData[1].trim()+"' is not a legal identifier!","9:1.");
                         }
                         parameterTypes.add(parameterData[0].trim());
                         parameterNames.add(parameterData[1].trim());
@@ -311,10 +311,13 @@ public class Interpreter {
         int bracketCount = 0;
         boolean inClass = false;
         for (int lineNumber = 1; lineNumber<code.length+1; lineNumber++) { //Check for bracket mismatches and improperly nested functions
+            if (bracketCount!=0 && codeLines[lineNumber-1].startsWith("func ") && !inClass) {
+                ErrorManager.printError("Cannot create a nested function!", "");
+            }
             if (codeLines[lineNumber-1].startsWith("}")) {
                 bracketCount--;
             }
-            if (codeLines[lineNumber-1].endsWith("{")) {
+            if (codeLines[lineNumber-1].endsWith("{") || codeLines[lineNumber-1].startsWith("for ")) {
                 bracketCount++;
             }
             if (codeLines[lineNumber-1].startsWith("class ")) {
@@ -324,10 +327,7 @@ public class Interpreter {
                 inClass = false;
             }
             if (bracketCount<0) {
-                ErrorManager.printError("Bracket mismatch!", "");
-            }
-            if (bracketCount!=0 && codeLines[lineNumber-1].startsWith("func ") && !inClass) {
-                ErrorManager.printError("Cannot create a nested function!", "");
+                ErrorManager.printError("Brace mismatch!", "");
             }
 
         }
@@ -399,9 +399,9 @@ public class Interpreter {
                 ErrorManager.printError("No return statement!","9:2.4");
             }
             if (bracketMatch.startsWith("for ")) {
-                int minMaxArgsBeginningIndex = bracketMatch.split("\\(")[0].length()+1;
-                int minMaxArgsEndIndex = bracketMatch.split("\\{")[0].trim().length()-1;
-
+                int minMaxArgsBeginningIndex = bracketMatch.split(" ")[0].length()+1;
+                int minMaxArgsEndIndex = bracketMatch.split("\\{")[0].length()-1;
+                //System.out.println(minMaxArgsBeginningIndex+" "+minMaxArgsEndIndex);
                 String minMaxArgsString = bracketMatch.substring(minMaxArgsBeginningIndex,minMaxArgsEndIndex);
                 String[] minMaxArgs = splitByNakedChar(minMaxArgsString,',');
 
@@ -447,6 +447,14 @@ public class Interpreter {
                 moveOverBracketedCode(1);
                 return new Datum();
             }
+        }
+        if (line.trim().equals("return")) { //gets blank returns
+            lineNumber = lineNumberStack.pop();
+            localMemory.pop();
+            if (!currentObject.isEmpty()) {
+                currentObject.pop();
+            }
+            return new Datum("", "");
         }
 
         StringBuilder firstToken = new StringBuilder();
@@ -495,24 +503,14 @@ public class Interpreter {
                     runFor();
                 }
                 case "return" -> {
-                    String argumentStringPlusParen = line.split("\\(")[1];
-                    if (argumentStringPlusParen.trim().equals(")")) {
-                        lineNumber = lineNumberStack.pop();
-                        localMemory.pop();
-                        if (!currentObject.isEmpty()) {
-                            currentObject.pop();
-                        }
-                        return new Datum("", "");
-                    } else {
-                        String argumentString = line.substring(line.split("\\(")[0].length() + 1, line.length() - 1);
-                        Datum returnResult = (new Parser(argumentString)).result();
-                        lineNumber = lineNumberStack.pop();
-                        localMemory.pop();
-                        if (!currentObject.isEmpty()) {
-                            currentObject.pop();
-                        }
-                        return returnResult.publicVersion();
+                    String argumentString = line.split(" ")[1];
+                    Datum returnResult = (new Parser(argumentString)).result();
+                    lineNumber = lineNumberStack.pop();
+                    localMemory.pop();
+                    if (!currentObject.isEmpty()) {
+                        currentObject.pop();
                     }
+                    return returnResult.publicVersion();
                 }
                 default -> {
                     safeToCopy = true;
@@ -701,7 +699,7 @@ public class Interpreter {
         HashMap<String, Datum> argumentMap = new HashMap<>();
         for (int i = 0; i<arguments.length; i++) { //Put arguments into local memory
             if (memory.containsKey(parameterNames[i])) {
-                ErrorManager.printError("Argument '"+parameterNames[i]+"' is a duplicate!","9:2.1");
+                ErrorManager.printError("Parameter '"+parameterNames[i]+"' is a duplicate!","9:2.1");
             }
             if (arguments[i].getIsFunction()) {
                 ((Function)arguments[i]).setName(parameterNames[i]);
@@ -751,7 +749,7 @@ public class Interpreter {
             }
         }
         if (!line.trim().endsWith("{")) {
-            ErrorManager.printError("Bracket mismatch on if!", "9:2.10");
+            ErrorManager.printError("Brace mismatch on if!", "9:2.10");
         }
         String ifExpression = line.substring(2, lineIndex);
         Datum ifExpressionResult = new Parser(ifExpression).result();
@@ -776,8 +774,8 @@ public class Interpreter {
 
     public static void runFor() {
         String line = codeLines[lineNumber-1];
-        int minMaxArgsBeginningIndex = line.split("\\(")[0].length()+1;
-        int minMaxArgsEndIndex = line.split("\\{")[0].trim().length()-1;
+        int minMaxArgsBeginningIndex = line.split(" ")[0].length()+1;
+        int minMaxArgsEndIndex = line.split("\\{")[0].length()-1;
 
         String minMaxArgsString = line.substring(minMaxArgsBeginningIndex,minMaxArgsEndIndex);
         String[] minMaxArgs = splitByNakedChar(minMaxArgsString,',');
@@ -1073,7 +1071,7 @@ public class Interpreter {
             scanLineNumber--;
             linePosition = codeLines[scanLineNumber-1].length()-1;
         }
-        ErrorManager.printError("Bracket mismatch!","9.1.8");
+        ErrorManager.printError("Brace mismatch!","9.1.8");
         return "";
     }
 
@@ -1106,7 +1104,7 @@ public class Interpreter {
             scanLineNumber--;
             linePosition = codeLines[scanLineNumber-1].length()-1;
         }
-        ErrorManager.printError("Bracket mismatch!","9:1.8");
+        ErrorManager.printError("Brace mismatch!","9:1.8");
         return 0;
     }
 
@@ -1162,7 +1160,7 @@ public class Interpreter {
         if (TypeChecker.isValidType(name)) {
             return false;
         }
-        String illegalChars = ".()+-%*/\\{}[]=&|!^<>?,;:\"";
+        String illegalChars = ".()+-%*/\\{}[]=&|!^<>?,;:\"'";
         for (char activeChar : name.toCharArray()) {
             if (illegalChars.contains(""+activeChar)) {
                 return false;

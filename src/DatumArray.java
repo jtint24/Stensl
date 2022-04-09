@@ -78,7 +78,7 @@ public class DatumArray extends DatumObject {
                     return this.getElement(indexInt).getProperty(str.substring(indexStr.length()+1));
                 }
             } else {
-                ErrorManager.printError("Syntax error on array index!","2:2.4");
+                ErrorManager.printError("Cannot index an array with a non-integer!","2:2.4");
             }
         }
 
