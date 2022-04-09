@@ -312,6 +312,7 @@ public class Main {
                 "func int returnExpression(float f) {",
                 "   return int(f*2+2)%4",
                 "}",
+                "stop",
                 "println(returnExpression(4.0))",
                 "for 1+1 +1,  10*2 {(int k)",
                 "   print(k)",

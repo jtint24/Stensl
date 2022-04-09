@@ -456,6 +456,9 @@ public class Interpreter {
             }
             return new Datum("", "");
         }
+        if (line.trim().equals("stop")) {
+            System.exit(0);
+        }
 
         StringBuilder firstToken = new StringBuilder();
         int charCount = 0;
