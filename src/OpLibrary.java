@@ -209,7 +209,14 @@ public class OpLibrary {
 
     public final static Operation inputFunction = new Operation(inputOp, singleString, "string", OpPrecedence.FUNCTIONAL, "input");
 
-    public static ArrayList<Operation> prefixFunctions = new ArrayList<>(Arrays.asList(stringConversion, intConversion, floatConversion, print, println, assertOp, ascii, typeof, inputFunction, lengthOp));
+    private final static OpFunction throwOp = (args) -> {
+        ErrorManager.printError(args[0].getValue(),"2");
+        return null;
+    };
+
+    public final static Operation throwFunction = new Operation(throwOp, singleString, "void", OpPrecedence.FUNCTIONAL, "throw");
+
+    public static ArrayList<Operation> prefixFunctions = new ArrayList<>(Arrays.asList(stringConversion, intConversion, floatConversion, print, println, assertOp, ascii, typeof, inputFunction, lengthOp, throwFunction));
 
     private final static OpFunction dotApplicationFunction = (args) -> args[0].getProperty(args[1].getValue());
     public final static Operation dotApplication = new Operation(dotApplicationFunction, anyString, "indeterminate", OpPrecedence.FUNCTIONAL, "dot application");
