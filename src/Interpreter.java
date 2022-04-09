@@ -506,7 +506,7 @@ public class Interpreter {
                     runFor();
                 }
                 case "return" -> {
-                    String argumentString = line.split(" ")[1];
+                    String argumentString = line.substring(line.split(" ")[0].length());
                     Datum returnResult = (new Parser(argumentString)).result();
                     lineNumber = lineNumberStack.pop();
                     localMemory.pop();
