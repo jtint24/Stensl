@@ -6,12 +6,12 @@ Whether you want to add to the interpreter yourself, want to request a feature, 
 
 ## Table of Contents
 
-- [Find a bug?](find-a-bug?)
-- [Want to Suggest a Feature?](want-to-suggest-a-feature)
-   - [Creating a New Suggestion](creating-a-new-suggestion)
-   - [Ammending an Existing Suggestion](ammending-an-existing-suggestion)
-   - [Endorsing an Existing Suggestion](endorsing-an-existing-suggestion)
-- [Want to Make a Direct Contribution?](want-to-make-a-direct-contribution)
+- [Find a bug?](#find-a-bug)
+- [Want to Suggest a Feature?](#want-to-suggest-a-feature)
+   - [Creating a New Suggestion](#creating-a-new-suggestion)
+   - [Ammending an Existing Suggestion](#ammending-an-existing-suggestion)
+   - [Endorsing an Existing Suggestion](#endorsing-an-existing-suggestion)
+- [Want to Make a Direct Contribution?](#want-to-make-a-direct-contribution)
 
 ## Find a Bug?
 
