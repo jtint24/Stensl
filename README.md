@@ -21,6 +21,24 @@
 
 Stensl is a new scripting language that runs in the JVM. Currently, it’s in alpha version; it has baseline features but lacks some capabilities and stability guarantees of a public language. That being said, Stensl has a variety of powerful and unique features. Stensl is a gateway to powerful and diverse software; see what you can build with it!
 
+# Getting Started
+
+This repository may be downloaded or cloned locally in order to run Stensl files. Cloning the repository is recommended to stay up-to-date with new releases. The stensl.sh file is used to run Stensl files from the command line, and should run in the BASH and ZSH shells. To run a Stensl file, use the following command:
+
+```
+./stensl.sh <file>
+```
+
+Typically, the .sten extension is used on Stensl files, but this is not enforced.
+
 # Documentation
 
-A complete documentation of Stensl can be found [here](https://github.com/jtint24/StenslDocs)
+A complete documentation of Stensl can be found in the [StenslDocs](https://github.com/jtint24/StenslDocs)
+
+# Dependencies
+
+Stensl has few dependencies. Ensure that you're running the stensl.sh file from a BASH or ZSH environment. Java 14.0 or above is required to run Stensl.
+
+# Contributing
+
+Please see our [contributing guide](https://github.com/jtint24/Stensl/blob/master/CONTRIBUTING.md)
