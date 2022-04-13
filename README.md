@@ -1,4 +1,17 @@
-<img width="200" alt="Screen Shot 2022-04-10 at 5 56 21 PM" src="https://user-images.githubusercontent.com/89891042/162648474-fe7ec6a8-da3f-4e7b-98af-b04b4888709a.png" align = "right">
+<p align = "center">
+  <img width="300" alt="Screen Shot 2022-04-10 at 5 56 21 PM" src="https://user-images.githubusercontent.com/89891042/162648474-fe7ec6a8-da3f-4e7b-98af-b04b4888709a.png">
+ </p>
+ 
+ <p align="center">
+    <a href="https://choosealicense.com/licenses/lgpl-3.0/">
+        <img src="https://img.shields.io/badge/License-GPL%20v3-brightgreen.svg?style=flat-square" alt="License: LGPL v3">
+    </a>
+  <!--  <img src = "https://hits.dwyl.com/jtint24/stensl.svg?style=flat-square)](http://hits.dwyl.com/jtint24/stensl"> -->
+  <img src = "https://img.shields.io/github/repo-size/jtint24/stensl?style=flat-square">
+  <img src = "https://img.shields.io/github/v/release/jtint24/stensl?style=flat-square">
+</p>
+
+---
 
 # Stensl
 
