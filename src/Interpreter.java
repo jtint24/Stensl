@@ -543,7 +543,7 @@ public class Interpreter {
         String propertyName = chainData[0]; //Property name = root of chain
         Datum property = getFullMemory().get(propertyName).getProperty(line.substring(propertyName.length()+1,lineSplitByEqual[0].length()-1)); //Get the actual property from memory
         String expressionString = line.substring(lineSplitByEqual[0].length()+1); //Get the string representing the assignTo expression
-        Datum assignTo = (new Parser(expressionString.trim())).result(); //Parse the expressionString
+        Datum assignTo = (new Parser(expressionString.trim())).result().clone(); //Parse the expressionString
         property.setValueFrom(assignTo); //Set the property to the assign value
     }
 
@@ -735,26 +735,11 @@ public class Interpreter {
 
     public static void runIf() {
         String line = codeLines[lineNumber-1];
-        int parenCount = 0;
-        boolean parenCountHasExceededZero = false;
-        int lineIndex = 2;
-        while (!(parenCount == 0 && parenCountHasExceededZero)) {
-            if (line.charAt(lineIndex) == '(') {
-                parenCount++;
-                parenCountHasExceededZero = true;
-            }
-            if (line.charAt(lineIndex) == ')') {
-                parenCount--;
-            }
-            lineIndex++;
-            if (lineIndex>=line.length()) {
-                ErrorManager.printError("Syntax error on if!", "9:2.9");
-            }
-        }
+
         if (!line.trim().endsWith("{")) {
             ErrorManager.printError("Brace mismatch on if!", "9:2.10");
         }
-        String ifExpression = line.substring(2, lineIndex);
+        String ifExpression = line.substring(2, line.trim().length()-1);
         Datum ifExpressionResult = new Parser(ifExpression).result();
         if (!ifExpressionResult.getType().equals("bool")) {
             ErrorManager.printError("Cannot match given type '"+ifExpressionResult.getType()+"' to expected type 'bool' on if!","9:2.");

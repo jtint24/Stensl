@@ -184,7 +184,9 @@ public class DatumObject extends Datum {
             if (sChar == ']' && !inQuotes) {
                 bracketCount--;
             }
-            if (parenCount == 0 && bracketCount==0 && !inQuotes && chars.contains(""+sChar) || (bracketCount==1 && sChar == '[' && chars.contains("["))) {
+            boolean bracketSplit = ((bracketCount == 1) && (sChar == '[') && chars.contains("["));
+            boolean nonBracketSplit = ((parenCount == 0) && (bracketCount == 0) && !inQuotes && chars.contains("" + sChar));
+            if (nonBracketSplit || bracketSplit) {
                 splitResults.add(currentSplit.toString());
                 currentSplit = new StringBuilder();
             } else {

@@ -88,7 +88,7 @@ public class Parser extends Datum {
                     }
                 }
                 if (expr.length()>2) {
-                    String exprSubstring = expr.substring(0, expr.length() - 2);
+                    String exprSubstring = expr.substring(0, expr.length() - 2); // Check for class constructors
                     if (Interpreter.getClasses().containsKey(exprSubstring) && expr.endsWith("()")) {
                         operation = OpLibrary.anyPass;
                         arguments = new Datum[1];
@@ -135,9 +135,19 @@ public class Parser extends Datum {
                     } while (fsnlParenCount != 0);
 
                     String functionShortName = expr.substring(0,functionShortNameLength+1);
-
-                    if (Interpreter.getFunctionShortNameList().contains(functionShortName)) { //This gets user-defined prefix function calls
+                    boolean isObjectFunction = false;
+                    //System.out.println("checking if "+expr+" is a function");
+                    //System.out.println(Interpreter.getCurrentObject().getProperties());
+                    if (Interpreter.getCurrentObject().getProperties().containsKey(functionShortName)) {
+                        //System.out.println("contains function key "+(Interpreter.getCurrentObject().getProperty(functionShortName)));
+                        if (Interpreter.getCurrentObject().getProperty(functionShortName).getIsFunction()) {
+                            isObjectFunction = true;
+                        }
+                    }
+                    //System.out.println(Interpreter.getFunctionShortNameList());
+                    if (isObjectFunction || Interpreter.getFunctionShortNameList().contains(functionShortName)) { //This gets user-defined prefix function calls
                         Interpreter.callUnsafeToCopy();
+                        //System.out.println("It's a function!");
                         if (expr.startsWith(functionShortName+"()")) {
                             if (Interpreter.getFullMemory().containsKey(functionShortName+"()")) {
                                 operation = (Function) Interpreter.getFullMemory().get(functionShortName + "()").clone();
