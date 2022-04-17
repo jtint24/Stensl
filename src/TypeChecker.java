@@ -58,7 +58,7 @@ class TypeChecker {
         if (givenType.startsWith("[") && givenType.endsWith("]")) {
             return givenType.substring(1,givenType.length()-1);
         } else {
-            ErrorManager.printError("Cannot unwrap non-array type '"+givenType+"' !","16:2.1");
+            ErrorManager.printError("Cannot unwrap non-array type '"+givenType+"' !","16.1");
             return "";
         }
     }
@@ -162,5 +162,3 @@ class TypeChecker {
         return allowedTypeCharacters.contains(c+"");
     }
 }
-
-//12.7 KB

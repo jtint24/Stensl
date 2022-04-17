@@ -25,7 +25,7 @@ public class OpLibrary {
     public final static Operation subtraction = new Operation(subFunction, doubleFloat, "float", OpPrecedence.ADDITIVE, "subtraction");
     private final static OpFunction divFunction = (args) -> {
         if (Float.parseFloat(args[1].getValue())==0) {
-            ErrorManager.printError("Division by zero!","13:3.1");
+            ErrorManager.printError("Division by zero!","13.1");
         }
         return new Datum(String.valueOf(Float.parseFloat(args[0].getValue())/Float.parseFloat(args[1].getValue())), "float");
     };
@@ -41,7 +41,7 @@ public class OpLibrary {
     public final static Operation intSubtraction = new Operation(intSubFunction, doubleInt, "int", OpPrecedence.ADDITIVE, "int sub");
     private final static OpFunction intDivFunction = (args) -> {
         if ((int)Float.parseFloat(args[1].getValue())==0) {
-            ErrorManager.printError("Division by zero!","13:3.1");
+            ErrorManager.printError("Division by zero!","13.2");
         }
         return new Datum(String.valueOf((int)Float.parseFloat(args[0].getValue())/(int)Float.parseFloat(args[1].getValue())), "int");
     };
@@ -49,7 +49,7 @@ public class OpLibrary {
 
     private final static OpFunction intModFunction = (args) -> {
         if ((int)Float.parseFloat(args[1].getValue())==0) {
-            ErrorManager.printError("Division by zero!","13:3.1");
+            ErrorManager.printError("Division by zero!","13.3");
         }
         return new Datum(String.valueOf((int)Float.parseFloat(args[0].getValue())%(int)Float.parseFloat(args[1].getValue())), "int");
     };
@@ -57,7 +57,7 @@ public class OpLibrary {
 
     private final static OpFunction floatModFunction = (args) -> {
         if (Float.parseFloat(args[1].getValue())==0) {
-            ErrorManager.printError("Division by zero!","13:3.1");
+            ErrorManager.printError("Division by zero!","13.4");
         }
         return new Datum(String.valueOf(Float.parseFloat(args[0].getValue())%Float.parseFloat(args[1].getValue())), "float");
     };
@@ -65,7 +65,7 @@ public class OpLibrary {
 
     private final static OpFunction divisibleFunction = (args) -> {
         if (Float.parseFloat(args[1].getValue())==0) {
-            ErrorManager.printError("Division by zero!","13:3.1");
+            ErrorManager.printError("Division by zero!","13.5");
         }
         double remainder = Float.parseFloat(args[0].getValue())%Float.parseFloat(args[1].getValue());
         boolean divisor = (remainder <= 3E-6 && remainder >= -3E-6);
@@ -161,7 +161,7 @@ public class OpLibrary {
     public final static Operation trace = new Operation(traceFunction, singleAny, "indeterminate", OpPrecedence.FUNCTIONAL, "trace");
     private final static OpFunction assertFunction = (args) -> {
         if (args[0].getValue().equals("false")) {
-            ErrorManager.printError("Failed assertion!","13.3.2");
+            ErrorManager.printError("Failed assertion!","13.6");
         }
         return new Datum();
     };
@@ -184,7 +184,7 @@ public class OpLibrary {
 
     public final static OpFunction getElementFunction = (args) -> {
         if (Float.parseFloat(args[1].getValue())%1!=0) {
-            ErrorManager.printError("Cannot index an array with a non-integer!","13.1.1");
+            ErrorManager.printError("Cannot index an array with a non-integer!","13.7");
         }
         return ((DatumArray)args[0]).getElement((int)Float.parseFloat(args[1].getValue()));
     };
@@ -210,7 +210,7 @@ public class OpLibrary {
     public final static Operation inputFunction = new Operation(inputOp, singleString, "string", OpPrecedence.FUNCTIONAL, "input");
 
     private final static OpFunction throwOp = (args) -> {
-        ErrorManager.printError(args[0].getValue(),"2");
+        ErrorManager.printError(args[0].getValue(),"13.8");
         return null;
     };
 

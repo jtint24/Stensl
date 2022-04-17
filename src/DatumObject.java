@@ -67,7 +67,7 @@ public class DatumObject extends Datum {
             if (super.isInScope()) {
                 return this;
             } else {
-                ErrorManager.printError("Cannot get a property from an out-of-scope area!","4:2.1");
+                ErrorManager.printError("Cannot get a property from an out-of-scope area!","4.1");
             }
         }
         //System.out.println("getting properties from "+ this +": "+propertyNames[0]);
@@ -87,10 +87,10 @@ public class DatumObject extends Datum {
                 Datum functionToCall = properties.get(cleanPropertyName.toString());
 
                 if (!functionToCall.isInScope()) {
-                    ErrorManager.printError("Cannot get a property from an out-of-scope area!","4:2.1");
+                    ErrorManager.printError("Cannot get a property from an out-of-scope area!","4.2");
                 }
                 if (!(functionToCall instanceof Function)) {
-                    ErrorManager.printError("Cannot call non-function '"+cleanPropertyName+"'!","4:2.2");
+                    ErrorManager.printError("Cannot call non-function '"+cleanPropertyName+"'!","4.3");
                     return new Datum();
                 }
                 if (propertyNames[0].startsWith(cleanPropertyName+"()")) {
@@ -107,11 +107,11 @@ public class DatumObject extends Datum {
                 return ((Function) functionToCall).result(arguments).getProperty(newPropertyNames);
             }
             if (!properties.get(cleanPropertyName.toString()).isInScope()) {
-                ErrorManager.printError("Cannot get a property from an out-of-scope area!","4:2.1");
+                ErrorManager.printError("Cannot get a property from an out-of-scope area!","4.4");
             }
             return properties.get(cleanPropertyName.toString()).getProperty(newPropertyNames);
         } else {
-            ErrorManager.printError("Cannot call property '"+cleanPropertyName+"'!","4:2.3");
+            ErrorManager.printError("Cannot call property '"+cleanPropertyName+"'!","4.5");
             return null;
         }
     }
@@ -130,10 +130,10 @@ public class DatumObject extends Datum {
             if (super.getIsMutable()) {
                 this.properties = ((DatumObject) dtm).getProperties();
             } else {
-                ErrorManager.printError("Cannot mutate a constant!","4:2.4");
+                ErrorManager.printError("Cannot mutate a constant!","4.6");
             }
         } else {
-            ErrorManager.printError("Cannot set an object to a non-object!","4:2.5");
+            ErrorManager.printError("Cannot set an object to a non-object!","4.7");
         }
     }
 
