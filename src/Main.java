@@ -335,6 +335,7 @@ public class Main {
                 "while index < 5 {",
                 "   println(index)",
                 "   index = index+1",
+                "",
                 "}",
                 "println(index)"
         };
