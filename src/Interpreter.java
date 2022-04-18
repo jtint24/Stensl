@@ -390,13 +390,42 @@ public class Interpreter {
 
         if (line.equals("}")) {
             int linePosition = 0;
-            while (line.charAt(linePosition)!='}') {
+            /*while (line.charAt(linePosition)!='}') {
                 linePosition++;
-            }
+            }*/
             String bracketMatch = findMatchingBracket(linePosition);
             //System.out.println("this is bracketMatch: "+bracketMatch);
             if (bracketMatch.startsWith("func ")) {
                 ErrorManager.printError("No return statement!","9.21");
+            }
+            if (bracketMatch.startsWith("while ")) {
+                String conditionString = bracketMatch.substring(6,bracketMatch.length()-1);
+                Datum condition = new Parser(conditionString).result();
+
+                HashMap<String, Datum> newInsideWhileLoopMem = new HashMap<>();
+                if (condition.getValue().equals("true")) {
+                    if (localMemory.size() > 1) {
+                        HashMap<String, Datum> oldInsideWhileLoopMem = localMemory.pop();
+                        for (String localVar : oldInsideWhileLoopMem.keySet()) {
+                            if (localMemory.peek().containsKey(localVar)) {
+                                newInsideWhileLoopMem.put(localVar, oldInsideWhileLoopMem.get(localVar));
+                            }
+                        }
+                    } else {
+                        localMemory.pop();
+                    }
+                    localMemory.push(newInsideWhileLoopMem);
+                    lineNumber = findMatchingBracketIndex(linePosition);
+                } else {
+                    HashMap<String, Datum> oldLocalMem = localMemory.pop();
+                    if (!localMemory.isEmpty()) {
+                        for (String localVar : oldLocalMem.keySet()) { //puts any variables that were modified in the loop back in local mem
+                            if (localMemory.peek().containsKey(localVar)) {
+                                localMemory.peek().put(localVar, oldLocalMem.get(localVar));
+                            }
+                        }
+                    }
+                }
             }
             if (bracketMatch.startsWith("for ")) {
                 int minMaxArgsBeginningIndex = bracketMatch.split(" ")[0].length()+1;
@@ -433,7 +462,6 @@ public class Interpreter {
                             }
                         }
                     }
-
                 }
             }
             return new Datum();
@@ -504,6 +532,10 @@ public class Interpreter {
                 case "for" -> {
                     instructionTypes[lineNumber-1] = InstructionType.FOR;
                     runFor();
+                }
+                case "while" -> {
+                    instructionTypes[lineNumber-1] = InstructionType.WHILE;
+                    runWhile();
                 }
                 case "return" -> {
                     String argumentString = line.substring(line.split(" ")[0].length());
@@ -786,6 +818,33 @@ public class Interpreter {
             currentLocalMem = new HashMap<>();
         }
         currentLocalMem.put(indexName, index);
+        localMemory.push(currentLocalMem);
+    }
+
+    /**
+     * runWhile
+     *
+     * Runs a line of code containing a while loop
+     * */
+
+    public static void runWhile() {
+        String line = codeLines[lineNumber-1];
+        String conditionString = line.substring(6,line.length()-1);
+        Datum condition = new Parser(conditionString).result();
+
+        if (!condition.getType().equals("bool")) {
+            ErrorManager.printError("Cannot use a non-boolean condition in while loop!", "9.37");
+        }
+        if (condition.getValue().equals("false")) {
+            moveOverBracketedCode();
+        }
+
+        HashMap<String, Datum> currentLocalMem;
+        if (localMemory.size()>0) {
+            currentLocalMem = (HashMap<String, Datum>) localMemory.peek().clone();
+        } else {
+            currentLocalMem = new HashMap<>();
+        }
         localMemory.push(currentLocalMem);
     }
 
