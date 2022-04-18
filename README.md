@@ -10,7 +10,7 @@
   <img src = "https://img.shields.io/github/repo-size/jtint24/stensl?style=flat-square">
   <!-- <img src = "https://img.shields.io/github/v/release/jtint24/stensl?style=flat-square"> -->
   <a href="https://codeclimate.com/github/jtint24/Stensl/maintainability">
-    <img src="https://api.codeclimate.com/v1/badges/7668400c19fb401bd77f/maintainability" />
+    <img src="https://api.codeclimate.com/v1/badges/7668400c19fb401bd77f/maintainability?style=flat-square" />
   </a>
 
 </p>
