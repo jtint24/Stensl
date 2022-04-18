@@ -1,3 +1,5 @@
+import java.util.Locale;
+
 public class Main {
     public static void main(String[] args) {
        /* String[] stenslScript = {
@@ -298,7 +300,7 @@ public class Main {
                 "println(myInt())"
         };*/
 
-        String[] stenslScript = {
+        /*String[] stenslScript = {
                 "func void forLoop(int imin, int imax) {",
                 "   println(imin)",
                 "   //println(imin+1)",
@@ -312,12 +314,12 @@ public class Main {
                 "func int returnExpression(float f) {",
                 "   return int(f*2+2)%4",
                 "}",
-                "throw(\"Error!\")",
+                "//throw(\"Error!\")",
                 "println(returnExpression(4.0))",
                 "for 1+1 +1,  10*2 {(int k)",
                 "   print(k)",
                 "}"
-        };
+        };*/
 
         /*String[] stenslScript = {
                 "for (1,5) {(float i)",
@@ -328,6 +330,14 @@ public class Main {
                 "}",
                 "errorFunc()"
         };*/
+        String[] stenslScript = {
+                "var index = 1",
+                "while index < 5 {",
+                "   println(index)",
+                "   index = index+1",
+                "}",
+                "println(index)"
+        };
 
         Interpreter.runStensl(stenslScript);
         //System.out.print(Interpreter.getFunctionList());
